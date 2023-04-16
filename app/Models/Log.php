@@ -9,7 +9,7 @@ class Log extends Model{
     public $timestamps = false;
     public $primaryKey = 'id';
     protected $fillable = [
-        'username', 'event', 'date'
+        'username', 'event', 'date', 'comment'
     ];
 
 

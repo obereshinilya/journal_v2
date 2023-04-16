@@ -6,22 +6,21 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\LdapController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\JournalController;
 
 
 Route::group(['middleware' => ['auth']], function() {
 
-    Route::get('/signal_settings/{id_param}', [SettingController::class, 'signal_settings']);
-    Route::get('/save_signal_settings/{id}/{name_param}/{new_value}', [SettingController::class, 'save_signal_settings']);
-    Route::get('/visible_param/{id}', [SettingController::class, 'visible_param']);
-
-
-
-
-
+    Route::get('/admin_journal', [JournalController::class, 'user_log']);
 
     Route::get('/test', [LdapController::class, 'test']);
 
+    //БЛОК журналов
 
+    //БЛОК настроек
+    Route::get('/signal_settings/{id_param}', [SettingController::class, 'signal_settings']);
+    Route::get('/save_signal_settings/{id}/{name_param}/{new_value}', [SettingController::class, 'save_signal_settings']);
+    Route::get('/visible_param/{id}', [SettingController::class, 'visible_param']);
 
     //БЛОК часовиков
     Route::get('/', [HourController::class, 'main']);

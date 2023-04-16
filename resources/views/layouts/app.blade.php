@@ -11,16 +11,21 @@
 
     <script src="/assets/js_library/jquery.js"></script>
     <script src="/assets/js_library/jquery-ui.js"></script>
+    <link rel="stylesheet" href="/assets/my_styles/jquery-ui.css">
+
     <script src="/assets/js_library/air-datepicker.js"></script>
 {{--Подключение графиков--}}
     <script src="/assets/js_library/fusionCharts/fusioncharts.js"></script>
     <script src="/assets/js_library/fusionCharts/fusioncharts.theme.fusion.js"></script>
 
-    <link rel="stylesheet" href="/assets/my_styles/jquery-ui.css">
     <link rel="stylesheet" href="/assets/my_styles/air-datepicker.css">
 
     <link rel="stylesheet" href="/assets/my_styles/my_style.css">
     <link rel="stylesheet" href="/assets/fonts/fonts.css">
+{{--Подключение таблиц excel--}}
+    <link rel="stylesheet" href="/assets/my_styles/excelTable/jspreadsheet.min.css" type="text/css"/>
+    <script type="text/javascript" src="/assets/js_library/excelTable/index.min.js"></script>
+
 
 </head>
 <body>

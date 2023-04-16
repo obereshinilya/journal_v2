@@ -89,10 +89,10 @@ class HourController extends Controller
     public function update_param($value, $id, $sutki){
         if ($sutki == 'false'){
             Hour_params::where('id', '=', $id)->update(['val'=>$value, 'manual'=>true, 'change_by'=>Auth::user()->displayname[0]]);
-            (new MainController)->create_log_record('Обновил часовой показатель за '.date('H:i d.m.Y', strtotime(Hour_params::where('id', '=', $id)->first()->timestamp)));
+            (new MainController)->create_log_record('Обновление часового показателя','За '.date('H:i d.m.Y', strtotime(Hour_params::where('id', '=', $id)->first()->timestamp)));
         }else{
             Sut_params::where('id', '=', $id)->update(['val'=>$value, 'manual'=>true, 'change_by'=>Auth::user()->displayname[0]]);
-            (new MainController)->create_log_record('Обновил суточный показатель за '.date('d.m.Y', strtotime(Sut_params::where('id', '=', $id)->first()->timestamp)));
+            (new MainController)->create_log_record('Обновление суточного показателя','За '.date('d.m.Y', strtotime(Sut_params::where('id', '=', $id)->first()->timestamp)));
         }
         return true;
     }
@@ -101,7 +101,7 @@ class HourController extends Controller
         if ($timestamp == 'false'){ //Если суточный
             if (date('d.m.Y '.$start_hour.':00', strtotime($date.' +1 days')) < date('d.m.Y H:i')){
                 Sut_params::create(['val'=>$value, 'timestamp'=>$date, 'param_id'=>$param_id, 'manual'=>true, 'change_by'=>Auth::user()->displayname[0]]);
-                (new MainController)->create_log_record('Записал суточный показатель за '.date('d.m.Y', strtotime(Sut_params::orderbydesc('id')->first()->timestamp)));
+                (new MainController)->create_log_record('Запись суточного показателя','За '.date('d.m.Y', strtotime(Sut_params::orderbydesc('id')->first()->timestamp)));
             }else{
                 return 'false';
             }
@@ -114,7 +114,7 @@ class HourController extends Controller
                 return 'false';
             }else{
                 Hour_params::create(['val'=>$value, 'timestamp'=>$timestamp, 'param_id'=>$param_id, 'manual'=>true, 'change_by'=>Auth::user()->displayname[0]]);
-                (new MainController)->create_log_record('Записал часовой показатель за '.date('H:i d.m.Y', strtotime(Hour_params::orderbydesc('id')->first()->timestamp)));
+                (new MainController)->create_log_record('Запись часового показателя','За '.date('H:i d.m.Y', strtotime(Hour_params::orderbydesc('id')->first()->timestamp)));
             }
         }
     }

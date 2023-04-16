@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class MainController extends Controller
 {
     public function delete_object($parent_id){
-        (new MainController)->create_log_record('Удалил объект "'.TableObj::where('id', '=', $parent_id)->first()->full_name.'"');
+        (new MainController)->create_log_record('Удаление объекта', 'Объект: "'.TableObj::where('id', '=', $parent_id)->first()->full_name.'"');
         $this->delete_child($parent_id);
     }
     private function delete_child($parent_id){
@@ -27,7 +27,7 @@ class MainController extends Controller
         TableObj::where('id', $parent_id)->delete();
     }
     public function store_new_signal(Request $request, $parent_id){
-        (new MainController)->create_log_record('Добавил сигналы в объект "'.TableObj::where('id', '=', $parent_id)->first()->full_name.'"');
+        (new MainController)->create_log_record('Добавление сигнала','Объект: "'.TableObj::where('id', '=', $parent_id)->first()->full_name.'"');
         try {
             $level = TableObj::where('id', '=', $parent_id)->first()->level + 1;
             $data = $request->all();
@@ -48,11 +48,11 @@ class MainController extends Controller
     }
 
     public function store_new_name($id, $new_name){
-        (new MainController)->create_log_record('Переименовал объект "'.TableObj::where('id', '=', $id)->first()->full_name.' в '.$new_name.'"');
+        (new MainController)->create_log_record('Переименовывание','Объект "'.TableObj::where('id', '=', $id)->first()->full_name.'" в "'.$new_name.'"');
         TableObj::where('id', '=', $id)->first()->update(['full_name'=>$new_name]);
     }
     public function store_new_object($parent_id, $name_new_object){
-        (new MainController)->create_log_record('Добавил объект "'.$name_new_object.'"');
+        (new MainController)->create_log_record('Добавление объекта','Объект: "'.$name_new_object.'"');
         $parent = TableObj::where('id', '=', $parent_id)->first();
         $new_obj = [
             'full_name'=>$name_new_object,
@@ -132,9 +132,14 @@ class MainController extends Controller
         }
         return $arr;
     }
-    public function create_log_record($message){
-        $record['username'] = Auth::user()->displayname[0];
+    public function create_log_record($message, $comment){
+        try {
+            $record['username'] = Auth::user()->displayname[0];
+        }catch (\Throwable $e){
+            $record['username'] = '';
+        }
         $record['event'] = $message;
+        $record['comment'] = $comment;
         Log::create($record);
     }
 }

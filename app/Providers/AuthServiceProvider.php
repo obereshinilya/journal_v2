@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\MainController;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -40,6 +41,11 @@ class AuthServiceProvider extends ServiceProvider
                     'mail' => $request->email,
                     'password' => $request->password
                 ]);
+            }
+            if ($validated){
+                (new MainController)->create_log_record('Вход в систему', 'Пользователь: '.$request->email);
+            }else{
+                (new MainController)->create_log_record('Попытка хода в систему', 'Пользователь: '.$request->email);
             }
             return $validated ? Auth::getLastAttempted() : null;
         });

@@ -13,6 +13,8 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     public function logout(){
+        (new MainController)->create_log_record('Выход из системы', '');
+
         Session::flush();
 
         Auth::logout();
