@@ -8,7 +8,11 @@
         var body_statick = document.getElementById('statickTable').getElementsByTagName('tbody')[0]
         var all_tr_statick = body_statick.getElementsByTagName('tr')
         var search_text = new RegExp(document.getElementById('search_row').value, 'i');
-        var body_dynamic = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0]
+        try{
+            var body_dynamic = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0]
+        }catch (e) {
+            var body_dynamic = false
+        }
         if (body_dynamic){
             var all_tr_dynamic = body_dynamic.getElementsByTagName('tr')
             for(var i=0; i<all_tr_statick.length; i++){
@@ -25,7 +29,7 @@
         }else {
             for(var i=0; i<all_tr_statick.length; i++){
                 if (!all_tr_statick[i].classList.contains('hidden_rows')){
-                    if (all_tr_statick[i].getElementsByTagName('td')[0].textContent.match(search_text) || all_tr_statick[i].getElementsByTagName('td')[1].textContent.match(search_text)){
+                    if (all_tr_statick[i].getElementsByTagName('td')[0].textContent.match(search_text) || all_tr_statick[i].getElementsByTagName('td')[1].textContent.match(search_text) || all_tr_statick[i].getElementsByTagName('td')[2].textContent.match(search_text)){
                         all_tr_statick[i].style.display = ''
                     }else {
                         all_tr_statick[i].style.display = 'none'

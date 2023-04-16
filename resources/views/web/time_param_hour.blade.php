@@ -19,7 +19,7 @@
         </a>
     </div>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
-        <p id="header_doc" style="display: inline-block; max-width: 50%"></p>
+        <p id="header_doc" style="display: inline-block; max-width: 50%">Часовые показатели.</p>
         <button id="" class="btn header_blocks btn_img"><img onclick="print()" src="/assets/img/pdf.svg"></button>
         <button id="" class="btn header_blocks btn_img"><img onclick="excel()" src="/assets/img/excel.svg"></button>
         @include('include.search_row')
@@ -139,6 +139,7 @@
                 check_choiced_obj()
                 search_object()
                 create_tooltip_and_comment()
+                go_to_setting()
             }
         })
     }
@@ -158,6 +159,13 @@
             $('body').on('click', function (){
                 document.getElementById('context_time_params').style.display = 'none'
             })
+        })
+    }
+    function go_to_setting(){
+        $('#statickTableDiv tr').on('contextmenu', function (){
+            change_header_modal(`Перейти к редактированию параметра "${this.getElementsByTagName('td')[0].textContent}"?`)
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `window.location.href = '/signal_settings/${this.getAttribute('data-id')}'`)
+            open_modal_side_menu()
         })
     }
     function open_edit_comment(id, classList){   //По нажатию на редактирование комментариев
@@ -410,7 +418,6 @@
                 param_id = param_id +'\'' +img.getAttribute('data-id')+'\'' + ','
                 i++
             }
-            console.log(yaxis)
             $.ajax({
                 url: '/get_data_for_graph/' + param_id,
                 method: 'GET',
@@ -460,28 +467,6 @@
         if ($('.choiced')[0]){
             hide_rows($('.choiced')[0].getAttribute('data-id'))
         }
-    }
-    function hide_rows(parent_id){
-        $.ajax({
-            url:'/get_hide_id/'+parent_id,
-            type:'GET',
-            success:(res)=>{
-                var un_visible_rows = Object.values(res)
-                var all_trs = document.querySelectorAll('tbody tr')
-                for (var one_tr of all_trs){
-                    if (un_visible_rows.includes(Number (one_tr.getAttribute('data-id'))) ){ //если данную строку надо скрыть
-                        one_tr.classList.remove('hidden_rows')
-                    } else {    //если строку надо показать
-                        one_tr.classList.add('hidden_rows')
-                    }
-                }
-            }, async: false
-        })
-        search_object()
-    }
-    function show_all_rows(){
-        $('.hidden_rows').removeClass('hidden_rows');
-        search_object()
     }
 </script>
 @endsection

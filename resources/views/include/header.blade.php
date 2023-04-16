@@ -3,19 +3,11 @@
     <div class="header_cell div_list">
         <a href="/">Часовые показатели</a>
     </div>
-    <div class="header_cell">
-        <a href="#">Оперативный журнал диспетчера</a>
-    </div>
-    <div class="header_cell">
-        <a href="#">Оперативный журнал диспетчера</a>
-    </div>
     <div class="header_cell div_list">
         <a href="#">Настройка ОЖД</a>
         <img src="/assets/img/arrow.svg">
-        <div><a href="#">fghfghfghf fgh fghfgh</a></div>
-        <div><a href="#">dfdsfsdf</a></div>
-        <div><a href="#">dfdsfsdf</a></div>
-        <div><a href="#">dfdsfsdf</a></div>
+        <div><a href="#">Основные настройки</a></div>
+        <div><a href="/signal_settings/false">Редактирование параметров</a></div>
     </div>
     <div class="user_div">
             <div class="small_user_div">

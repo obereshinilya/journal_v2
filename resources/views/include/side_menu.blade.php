@@ -233,14 +233,12 @@
                     <th rowspan="2">Ед. изм.</th>
                     <th rowspan="2">OPC-тег</th>
                     <th colspan="3">М АСДУ</th>
-                    <th colspan="2">Отображение в ОЖД</th>
+                    <th rowspan="2">Отображение в ОЖД</th>
                     <th rowspan="2"><button class="btn" onclick="add_row_new_signal()">Добавить</button></th>
                 </tr>
                 <tr>
                     <th>РВ</th>
                     <th>2 часа</th>
-                    <th>Сутки</th>
-                    <th>Час</th>
                     <th>Сутки</th>
                 </tr>
             </thead>
@@ -267,9 +265,6 @@
                 <label class="switch"><input class="hour_param" type="checkbox"><span class="slider"></span></label>
             </td>
             <td>
-                <label class="switch"><input class="sut_param" type="checkbox"><span class="slider"></span></label>
-            </td>
-            <td>
                 <svg onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M6 7H5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7H6zm4 12H8v-9h2v9zm6 0h-2v-9h2v9zm.618-15L15 2H9L7.382 4H3v2h18V4z"></path></svg>
             </td>
         </tr>` + tbody.innerHTML
@@ -283,7 +278,7 @@
     }
     function store_new_signal(parent_id){
         var keys_text = ['full_name', 'e_unit', 'tag_name', 'guid_masdu_min', 'guid_masdu_hour', 'guid_masdu_day']
-        var keys_input = ['hour_param', 'sut_param']
+        var keys_input = ['hour_param']
         var out_data = []
         var arr = new Map()
         for(var key_text of keys_text){
@@ -352,23 +347,44 @@
 
     function side_menu_obj_click(){
         var header = document.getElementById('header_doc')
-        header.textContent = 'Часовые показатели. '
         $('#choiced_object').on('click', function (){ ///Обработка выбора элемента в side menu
             if ($(this).text() !== ''){
                 try{
-                    header.textContent = 'Часовые показатели. ' + $(this).text()
+                    header.textContent = header.textContent.split('.')[0] + '. '+ $(this).text()
                     hide_rows($("#choiced_id").text())
                 }catch (e){
                     console.log('проверь функцию side_menu_obj_click')
                 }
             }else {
                 try{
-                    header.textContent = 'Часовые показатели. '
+                    header.textContent = header.textContent.split('.')[0] + '.'
                     show_all_rows()
                 }catch (e){
                     console.log('проверь функцию side_menu_obj_click')
                 }
             }
         })
+    }
+    function hide_rows(parent_id){
+        $.ajax({
+            url:'/get_hide_id/'+parent_id,
+            type:'GET',
+            success:(res)=>{
+                var un_visible_rows = Object.values(res)
+                var all_trs = document.querySelectorAll('tbody tr')
+                for (var one_tr of all_trs){
+                    if (un_visible_rows.includes(Number (one_tr.getAttribute('data-id'))) ){ //если данную строку надо скрыть
+                        one_tr.classList.remove('hidden_rows')
+                    } else {    //если строку надо показать
+                        one_tr.classList.add('hidden_rows')
+                    }
+                }
+            }, async: false
+        })
+        search_object()
+    }
+    function show_all_rows(){
+        $('.hidden_rows').removeClass('hidden_rows');
+        search_object()
     }
 </script>

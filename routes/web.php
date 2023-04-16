@@ -5,18 +5,21 @@ use App\Http\Controllers\HourController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\LdapController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SettingController;
 
 
 Route::group(['middleware' => ['auth']], function() {
 
-    Route::get('/get_data_for_graph/{param_id}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
+    Route::get('/signal_settings/{id_param}', [SettingController::class, 'signal_settings']);
+    Route::get('/save_signal_settings/{id}/{name_param}/{new_value}', [SettingController::class, 'save_signal_settings']);
+    Route::get('/visible_param/{id}', [SettingController::class, 'visible_param']);
 
 
 
 
 
 
-//    Route::get('/test', [LdapController::class, 'test']);
+    Route::get('/test', [LdapController::class, 'test']);
 
 
 
@@ -31,6 +34,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/delete_comment/{id}/{type}', [HourController::class, 'delete_comment']);   //обнуляем комментарий
     Route::get('/print_hour/{date}', [HourController::class, 'print_hour']); //Печать суточных
     Route::get('/excel_hour/{date}', [HourController::class, 'excel_hour']); //Excel суточных
+    Route::get('/get_data_for_graph/{param_id}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
 
     //БЛОК SIDE_MENU
     Route::get('/get_side_object', [MainController::class, 'get_side_object'])->name('get_side_object');    ///Получить древо объектов
