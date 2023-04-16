@@ -1,0 +1,23 @@
+@font-face {
+    font-family: 'HeliosCond';
+    src: url('HeliosCond.ttf');
+    src: url('HeliosCond.eot?#iefix') format('embedded-opentype'),
+        url('HeliosCond.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'HeliosCond';
+    src: url('HeliosCond-Bold.ttf');
+    src: url('HeliosCond-Bold.eot?#iefix') format('embedded-opentype'),
+        url('HeliosCond-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+html,
+body{ font-family: 'HeliosCond'!important;font-weight: normal;}
+.bold{font-weight: bold;}
