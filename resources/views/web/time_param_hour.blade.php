@@ -20,8 +20,8 @@
     </div>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%"></p>
-        <button id="" class="btn header_blocks btn_img"><img onclick="print_window()" src="/assets/img/pdf.svg"></button>
-        <button id="" class="btn header_blocks btn_img"><img src="/assets/img/excel.svg"></button>
+        <button id="" class="btn header_blocks btn_img"><img onclick="print()" src="/assets/img/pdf.svg"></button>
+        <button id="" class="btn header_blocks btn_img"><img onclick="excel()" src="/assets/img/excel.svg"></button>
         @include('include.search_row')
         @include('include.date')
     </div>
@@ -74,6 +74,10 @@
 
 
     function get_table_data(){
+        if (localStorage.getItem('hour')){
+            $("#date_start").val(localStorage.getItem('hour'))
+            localStorage.clear()
+        }
         delete_min_rows()
         $.ajax({
             url: '/get_hour_data/'+$("#date_start").val(),
@@ -94,7 +98,7 @@
                     static_tr.setAttribute('data-id', row['id'])
                     static_tr.innerHTML += `<td>${row['full_name']}</td>`
                     static_tr.innerHTML += `<td>${row['e_unit']}</td>`
-                    static_tr.innerHTML += `<td style="padding: 0"><img class="hover_img" data-id="${row['id']}" data-name="${row['full_name']}" onclick="create_graph(this)" src="/assets/img/chart.svg"></td>`
+                    static_tr.innerHTML += `<td style="padding: 0"><img class="hover_img" data-id="${row['id']}" data-name="${row['full_name']}" data-unit="${row['e_unit']}" onclick="create_graph(this)" src="/assets/img/chart.svg"></td>`
                     for (var id = 0; id <= 24; id++) {
                         if (id === 0){
                             sutki = ' sutki'
@@ -383,17 +387,12 @@
         }
         render_graph()
     }
-    function print_window(){
-        // var ptintContent = document.getElementById('tableDiv').innerHTML
-        // document.body.innerHTML = ptintContent
-        // document.getElementById('tableDiv').style.width = '99%'
-        // document.body.style.zoom = 0.5
-        // console.log(window.innerWidth)
-        // console.log(document.getElementById('tableDiv').clientWidth)
-        // console.log(document.getElementById('tableDiv').offsetWidth)
-        // console.log(document.getElementById('tableDiv').scrollWidth)
-        // window.print()
-        // document.body.setAttribute('onclick', 'window.location.href = \'/\'')
+    function print(){
+        localStorage.setItem('hour', $("#date_start").val())
+        window.location.href = '/print_hour/' + $("#date_start").val()
+    }
+    function excel(){
+        window.location.href = '/excel_hour/' + $("#date_start").val()
     }
     function render_graph(){
         if (document.getElementsByClassName('opened_graph').length > 0){
@@ -402,19 +401,21 @@
             document.getElementById('dynamicGraph').style.display = 'block'
             var schema = []
             schema[0] = {"name": "Time", "type": "date", "format":"%Y-%m-%d %H:%M:%S"}
+            var yaxis = []
             var i = 1
             var param_id = ''
             for (var img of document.getElementsByClassName('opened_graph')){
                 schema[i] = {"name": img.getAttribute('data-name'), "type": "number"}
+                yaxis[i-1] = JSON.parse(`{"plot":{"value": "${img.getAttribute('data-name')}", "type": "smooth-line"},"format": {"suffix": " ${img.getAttribute('data-unit')}"}}`)
                 param_id = param_id +'\'' +img.getAttribute('data-id')+'\'' + ','
                 i++
             }
+            console.log(yaxis)
             $.ajax({
                 url: '/get_data_for_graph/' + param_id,
                 method: 'GET',
                 async: false,
                 success: function (res) {
-                    console.clear()
                     res = JSON.parse(res)
                     let fusionDataStore = new FusionCharts.DataStore();
                     let fusionTable = fusionDataStore.createDataTable(res, schema);
@@ -426,53 +427,20 @@
                         height: height,
                         dataSource: {
                             data: fusionTable,
-                            chart: {
-                                exportenabled: true
-                            },
+                            chart: {exportenabled: true},
                             caption: {},
                             navigator:{
-                                timeFormat:{
-                                    day: "%-d %b %Y",
-                                    hour: "%-d %b %Y, %H:%M",
-                                    minutes: "%-d %b %Y, %H:%M"
-                                }
-                            },
+                                timeFormat:{day: "%-d %b %Y", hour: "%-d %b %Y, %H:%M", minutes: "%-d %b %Y, %H:%M"}},
                             "xAxis": {
-                                outputTimeFormat:{
-                                    day: "%-d %b %Y",
-                                    hour: "%-d %b %Y, %H:%M",
-                                    minutes: "%-d %b %Y, %H:%M"
-                                },
+                                outputTimeFormat:{day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
                                 timemarker: [
-                                    {
-                                    start: "2023-04-13 16:00:00",
-                                    label: "US inflation peaked at 14.8%.",
-                                    timeformat: "%Y-%m-%d %H:%M:%S",
-                                    type: "full",
-                                    style: {
-                                        marker: {
-                                            fill: "#D0D6F4"
-                                        }
-                                    }
-                                },{
-                                    start: "2023-04-13 10:00:00",
-                                    label: "US inflation peaked at 14.8%.",
-                                    timeformat: "%Y-%m-%d %H:%M:%S",
-                                    type: "full",
-                                    style: {
-                                        marker: {
-                                            fill: "#D0D6F4"
-                                        }
-                                    }
-                                },
-                                ],
-                            },
+                                    {start: "2023-04-13 16:00:00",label: "US inflation peaked at 14.8%.",timeformat: "%Y-%m-%d %H:%M:%S",type: "full",style: { marker: {fill: "#D0D6F4" }}},
+                                    {start: "2023-04-13 10:00:00",label: "US inflation peaked at 14.8%.",timeformat: "%Y-%m-%d %H:%M:%S",type: "full",style: {marker: {fill: "#D0D6F4"}}},
+                                ]},
+
                             tooltip: {
-                                outputTimeFormat: {
-                                    hour: "%-d %b %Y, %H:%M",
-                                    minutes: "%-d %b %Y, %H:%M"
-                                }
-                            }
+                                outputTimeFormat: {hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"}},
+                            yaxis:yaxis
                             // series: "Type",
                         }
                     }).render("dynamicGraph")

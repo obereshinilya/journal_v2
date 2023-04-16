@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Exports\HourExport;
 use App\Models\Hour_params;
 use App\Models\Min_params;
 use App\Models\Setting;
@@ -10,6 +11,7 @@ use App\Models\Sut_params;
 use App\Models\TableObj;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HourController extends Controller
 {
@@ -146,7 +148,20 @@ class HourController extends Controller
         }
     }
 
+    public function print_hour($date){
+        $start_hour = Setting::where('name_setting', '=', 'start_smena')->first()->value;
+        return view('web.pdf.hour_param', compact('date', 'start_hour'));
+    }
+    public function excel_hour($date){
+        $data = (new HourController)->get_hour_param($date);
+        $start_hour = Setting::where('name_setting', '=', 'start_smena')->first()->value;
+        $title = 'Часовые показатели за ' . $date;
+        $patch = 'Hour_' . date('Y_m_d', strtotime($date)) . '.xlsx';
+        ob_end_clean(); // this
+        ob_start(); // and this
+        return Excel::download(new HourExport($title, $data, $start_hour), $patch);
 
+    }
 
 }
 

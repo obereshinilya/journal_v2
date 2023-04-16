@@ -13,9 +13,7 @@ Route::group(['middleware' => ['auth']], function() {
 
 
 
-    Route::get('/get_hide_id/{parent_id}', [MainController::class, 'get_hide_id']);   //Получаем все id сигналов родителя
-    Route::post('/save_comment/{id}/{type}', [HourController::class, 'save_comment']);   //Сохраняем комментарий
-    Route::get('/delete_comment/{id}/{type}', [HourController::class, 'delete_comment']);   //обнуляем комментарий
+
 
 
 //    Route::get('/test', [LdapController::class, 'test']);
@@ -28,6 +26,11 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/hours_param_minutes/{date}/{hour}', [HourController::class, 'hours_param_minutes']); //Значения минуток
     Route::get('/create_param/{value}/{timestamp}/{date}/{param_id}', [HourController::class, 'create_param']);  //Сохраняем новую часовку
     Route::get('/update_param/{value}/{id}/{sutki}', [HourController::class, 'update_param']); //Обновляем часовку
+    Route::get('/get_hide_id/{parent_id}', [MainController::class, 'get_hide_id']);   //Получаем все id сигналов родителя
+    Route::post('/save_comment/{id}/{type}', [HourController::class, 'save_comment']);   //Сохраняем комментарий
+    Route::get('/delete_comment/{id}/{type}', [HourController::class, 'delete_comment']);   //обнуляем комментарий
+    Route::get('/print_hour/{date}', [HourController::class, 'print_hour']); //Печать суточных
+    Route::get('/excel_hour/{date}', [HourController::class, 'excel_hour']); //Excel суточных
 
     //БЛОК SIDE_MENU
     Route::get('/get_side_object', [MainController::class, 'get_side_object'])->name('get_side_object');    ///Получить древо объектов

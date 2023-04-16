@@ -116,9 +116,6 @@ class MainController extends Controller
         $result = DB::select("SELECT ".$selectRow." FROM ".$joinRow);
         $json = str_replace($replace,$replace_to, json_encode($result));
         return $json;
-//        dd($json);
-//        dd(json_decode($json));
-
     }
 
     function get_hide_id($parent_id){
