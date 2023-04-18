@@ -11,16 +11,26 @@ use App\Http\Controllers\JournalController;
 
 Route::group(['middleware' => ['auth']], function() {
 
-    Route::get('/admin_journal', [JournalController::class, 'user_log']);
 
     Route::get('/test', [LdapController::class, 'test']);
 
+    ///Блок для чата
+    Route::get('/get_people_block', [Controllers\ChatController::class, 'get_people_block'])->name('get_people_block');   ///получаем список людей
+    Route::get('/get_chat/{name}', [Controllers\ChatController::class, 'get_chat'])->name('get_chat');   ///получаем текст чата
+    Route::get('/set_type_messege/{id}/{type}/{color}', [Controllers\ChatController::class, 'set_type_messege'])->name('set_type_messege');   ///устанавливаем тип сообщения
+    Route::post('/send_messege', [Controllers\ChatController::class, 'send_messege'])->name('send_messege');   ///отправляем сообщение
+    Route::get('/update_people_block', [Controllers\ChatController::class, 'update_people_block'])->name('update_people_block');   ///обновляем список
+    Route::post('/upload_file_chat/{recipient}', [Controllers\ChatController::class, 'upload_file_chat'])->name('upload_file_chat');   ///обновляем список
+    Route::get('/download_file_chat/{file_name}', [Controllers\ChatController::class, 'download_file_chat'])->name('download_file_chat');   ///обновляем список
     //БЛОК журналов
+    Route::get('/admin_journal', [JournalController::class, 'user_log']);
+    Route::get('/admin_journal_data/{date_start}/{date_stop}', [JournalController::class, 'admin_journal_data']);
 
     //БЛОК настроек
     Route::get('/signal_settings/{id_param}', [SettingController::class, 'signal_settings']);
     Route::get('/save_signal_settings/{id}/{name_param}/{new_value}', [SettingController::class, 'save_signal_settings']);
     Route::get('/visible_param/{id}', [SettingController::class, 'visible_param']);
+    Route::get('/delete_param/{id}', [SettingController::class, 'delete_param']);
 
     //БЛОК часовиков
     Route::get('/', [HourController::class, 'main']);

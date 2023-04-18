@@ -22,6 +22,7 @@
                 <th rowspan="2">Имя тега</th>
                 <th rowspan="2">Отображение в ОЖД</th>
                 <th style="padding: 5px 1px" colspan="3">М АСДУ ЕСГ</th>
+                <th rowspan="2">Удаление</th>
             </tr>
             <tr style="position:sticky">
                 <th style="padding: 5px 1px">РВ</th>
@@ -84,6 +85,9 @@
                                 </label>
                             </td>
                         @endif
+                        <td style="text-align: center">
+                            <svg class="hover_img" id="svg_{{$data[$i]['id']}}" data-id="{{$data[$i]['id']}}" onclick="delete_param(this.id)" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M6 7H5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7H6zm4 12H8v-9h2v9zm6 0h-2v-9h2v9zm.618-15L15 2H9L7.382 4H3v2h18V4z"></path></svg>
+                        </td>
                     </tr>
             @endfor
             </tbody>
@@ -99,6 +103,10 @@
         .statickTable tbody tr:hover{
             font-weight: bolder;
         }
+        .statickTable tbody tr:hover svg, .statickTable tbody tr:hover img{
+            opacity: 1;
+        }
+
     </style>
     <script>
         $(document).ready(function () {
@@ -119,6 +127,23 @@
                 $(`tr[data-id=${document.getElementById('selected_td').textContent}]`)[0].getElementsByTagName('td')[0].focus()
             }
         })
+        function delete_param(svg_id){
+            change_header_modal('Удалить параметр?')
+            open_modal_side_menu()
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_delete_param('${svg_id}')`)
+        }
+        function confirm_delete_param(svg_id){
+            var svg = document.getElementById(svg_id)
+            $.ajax({
+                url: '/delete_param/'+svg.getAttribute('data-id'),
+                method: 'GET',
+                async: true,
+                success: function (res) {
+                    svg.parentNode.parentNode.parentNode.removeChild(svg.parentNode.parentNode)
+                    close_modal_side_menu()
+                }
+            })
+        }
         function save_param(id, name_param, new_value){
             $.ajax({
                 url: '/save_signal_settings/'+id+'/'+name_param+'/'+new_value,

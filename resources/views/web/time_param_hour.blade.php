@@ -414,7 +414,7 @@
             var param_id = ''
             for (var img of document.getElementsByClassName('opened_graph')){
                 schema[i] = {"name": img.getAttribute('data-name'), "type": "number"}
-                yaxis[i-1] = JSON.parse(`{"plot":{"value": "${img.getAttribute('data-name')}", "type": "smooth-line"},"format": {"suffix": " ${img.getAttribute('data-unit')}"}}`)
+                yaxis[i-1] = JSON.parse(`{"plot":{"value": "${img.getAttribute('data-name')}", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${img.getAttribute('data-unit')}"}}`)
                 param_id = param_id +'\'' +img.getAttribute('data-id')+'\'' + ','
                 i++
             }

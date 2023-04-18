@@ -27,6 +27,10 @@ class SettingController extends Controller
             TableObj::where('id', '=', $id)->update(['hour_param'=>true]);
         }
     }
+    public function delete_param($id){
+        (new MainController)->create_log_record('Удаление параметра','Параметр "'.TableObj::where('id', '=', $id)->first()->full_name.'"');
+        TableObj::where('id', '=', $id)->delete();
+    }
 }
 
 

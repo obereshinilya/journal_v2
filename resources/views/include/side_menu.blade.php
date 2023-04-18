@@ -318,6 +318,11 @@
             method: 'POST',
             success: function (res) {
                 close_modal_side_menu()
+                try {
+                    get_table_data()
+                }catch (e){
+
+                }
             },
             async: false
         })
@@ -340,6 +345,11 @@
             success: function(res){
                 close_modal_side_menu()
                 update_side_object()
+                try {
+                    get_table_data()
+                }catch (e){
+
+                }
             },
             async: false
         })

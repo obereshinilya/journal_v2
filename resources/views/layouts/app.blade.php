@@ -23,13 +23,15 @@
     <link rel="stylesheet" href="/assets/my_styles/my_style.css">
     <link rel="stylesheet" href="/assets/fonts/fonts.css">
 {{--Подключение таблиц excel--}}
-    <link rel="stylesheet" href="/assets/my_styles/excelTable/jspreadsheet.min.css" type="text/css"/>
-    <script type="text/javascript" src="/assets/js_library/excelTable/index.min.js"></script>
+    <link rel="stylesheet" href="/assets/my_styles/excelTable/jexcel.css" type="text/css"/>
+    <link rel="stylesheet" href="/assets/my_styles/excelTable/jsuites.css" type="text/css"/>
+    <script type="text/javascript" src="/assets/js_library/excelTable/jexcel.js"></script>
+    <script type="text/javascript" src="/assets/js_library/excelTable/jsuites.js"></script>
 
 
 </head>
 <body>
-
+@include('include.messenger')
 @include('include.modal_window')
 @include('include.header')
 
