@@ -1,24 +1,177 @@
 <div class="messenger_mini" id="messenger_mini" onclick="open_messenger()">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 121, 194, 1);transform: scaleX(-1);msFilter:progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);"><path d="M12 2C6.486 2 2 5.589 2 10c0 2.908 1.898 5.515 5 6.934V22l5.34-4.005C17.697 17.852 22 14.32 22 10c0-4.411-4.486-8-10-8zm0 14h-.333L9 18v-2.417l-.641-.247C5.67 14.301 4 12.256 4 10c0-3.309 3.589-6 8-6s8 2.691 8 6-3.589 6-8 6z"></path><path d="M7 7h10v2H7zm0 4h7v2H7z"></path></svg>
 </div>
+<div class="new_group" id="new_group">
+    <h3 id="header_message" style="text-align: center; margin: 10px" >Создание группы</h3>
+        <input id="group_name" class="input" type="text" style="width: 80%; margin-left: 2%" placeholder="Наименование группы...">
+        <input id="search_people_group" oninput="search_people_group(this.value)" class="input" type="text" style="width: 40%; margin-left: 2%; margin-top: 2%" placeholder="Поиск...">
+        <div style="width: 100%; overflow-y: auto; height: calc(100% - 7em - 70px); margin-top: 20px">
+            <table id="table_for_group" class="dynamicTable" style="table-layout: fixed">
+                <thead>
+                <tr>
+                    <th>Имя пользователя</th>
+                    <th style="width: 65px"></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 5px; text-align: center">
+            <button onclick="save_group()" style="margin: 0" class="btn">Сохранить</button>
+            <button onclick="document.getElementById('new_group').style.display = 'none'" style="margin: 0; margin-left: 20px" class="btn">Отменить</button>
+        </div>
+</div>
+<div class="new_group" id="user_info">
+    <h3 style="text-align: center; margin: 10px" >Информация</h3>
+    <div style="width: 100%; overflow-y: hidden; height: calc(100% - 100px); margin-top: 20px">
+        <div class="tab">
+            <button class="tablinks" style="width: 50%" onclick="openBlock(this, 'userInfo')">Общие сведения</button>
+            <button class="tablinks" style="width: 50%" onclick="openBlock(this, 'userFiles')">Вложения</button>
+        </div>
+
+        <div id="userInfo" class="tabcontent" style="display: block">
+            <div style="overflow-y: auto; height: 100%">
+                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="userFiles" class="tabcontent" style="display: block">
+            <div style="overflow-y: auto; height: 100%">
+                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                    <thead>
+                        <tr>
+                            <th>Наименование</th>
+                            <th>Дата отправки</th>
+                            <th>Размер</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 5px; text-align: center">
+        <button onclick="document.getElementById('user_info').style.display = 'none'" style="margin: 0; margin-left: 20px" class="btn">Закрыть</button>
+    </div>
+</div>
+<div class="new_group" id="group_info">
+    <h3 style="text-align: center; margin: 10px" >Информация</h3>
+    <div style="width: 100%; overflow-y: hidden; height: calc(100% - 100px); margin-top: 20px">
+        <div class="tab">
+            <button class="tablinks" style="width: 50%" onclick="openBlock(this, 'groupInfo')">Общие сведения</button>
+            <button class="tablinks" style="width: 50%" onclick="openBlock(this, 'groupFiles')">Вложения</button>
+        </div>
+        <div id="groupInfo" class="tabcontent" style="display: block">
+            <div style="overflow-y: auto; height: 100%">
+                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                    <thead>
+                        <tr>
+                            <th>ФИО</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="groupFiles" class="tabcontent" style="display: block">
+            <div style="overflow-y: auto; height: 100%">
+                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                    <thead>
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Дата отправки</th>
+                        <th>Размер</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 5px; text-align: center">
+        <button onclick="document.getElementById('group_info').style.display = 'none'" style="margin: 0; margin-left: 20px" class="btn">Закрыть</button>
+    </div>
+</div>
+
 <div class="messenger" id="messenger">
     <div class="people_block">
         <div class="search_block">
             <div class="search_input">
-                <input class="text-field__input" type="text" id="search_people" style="width: 100%" placeholder="Поиск пользователя...">
+                <input class="input" type="text" id="search_people" placeholder="Поиск пользователя...">
+                <img onclick="create_group()" data-toggle="tooltip" title="Создать новую группу" class="hover_img" src="/assets/img/add_group.svg">
             </div>
         </div>
         <div class="people" id="people">
+            <div class="one_people" data-id="2" data-group="false">
+                <table class="table_one_people">
+                    <tbody>
+                    <tr>
+                        <td class="nick_name">Илья</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="one_people" data-id="15" data-group="false">
+                <table class="table_one_people">
+                    <tbody>
+                    <tr>
+                        <td class="nick_name">Леха</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="one_people" data-id="3" data-group="true">
+                <table class="table_one_people">
+                    <tbody>
+                    <tr>
+                        <td class="nick_name"><img src="/assets/img/group_img.svg">ПДС</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>
-    <div class="name_recipient">
-        <div class="close_messenger" onclick="open_messenger()">
+    <div id="name_recipient_div" class="name_recipient">
+        <div class="close_messenger" data-toggle="tooltip" title="Закрыть" onclick="close_messenger()">
             <p style="color: white; text-align: center; vertical-align: center; font-weight: bold">&#10006;</p>
         </div>
         <div class="name" style="text-align: center">
             <p style="color: white; width: auto; margin: 5px; font-size: 14px" id="name_people"></p>
             <p style="color: white; width: auto; margin: 0px; font-size: 14px" id="last_visit"></p>
+        </div>
+        <div class="question">
+            <img class="hover_img" onclick="open_info_chat()" data-toggle="tooltip" title="Сведения" src="/assets/img/question.svg">
         </div>
     </div>
     <div class="chat_div">
@@ -31,7 +184,7 @@
         </div>
         <div class="input_message">
             <div style="width: 70%; float: left; height: 100%; position:relative; vertical-align: center">
-                <input class="text-field__input" type="text" id="sender_text" style="width: 100%; float: left; margin-left: 2%; position: absolute; top: 50%; transform: translate(0, -50%)" placeholder="Новое сообщение...">
+                <input class="input" type="text" id="sender_text" style="width: 100%; float: left; margin-left: 2%; position: absolute; top: 50%; transform: translate(0, -50%)" placeholder="Новое сообщение...">
             </div>
             <div class="img_message" style="width: 10%; float: right; height: 100%; text-align: center" onclick="send_messege()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="60%" height="80%" viewBox="0 0 24 24" style="fill: rgba(186, 196, 245, 1);transform: ;msFilter:; margin-top: 10%"><path d="m21.426 11.095-17-8A.999.999 0 0 0 3.03 4.242L4.969 12 3.03 19.758a.998.998 0 0 0 1.396 1.147l17-8a1 1 0 0 0 0-1.81zM5.481 18.197l.839-3.357L12 12 6.32 9.16l-.839-3.357L18.651 12l-13.17 6.197z"></path></svg>
@@ -58,166 +211,348 @@
 <script>
 
     $(document).ready(function() {
-        $('#sender_text').keydown(function(e) {
-            if(e.keyCode === 13) {
-                send_messege()
-            }
-        });
+        $('#sender_text').keydown(function(e) {if(e.keyCode === 13) {send_messege()}});
+        $('#chat_window').scroll(function (){if (this.scrollTop == 0){old_message()}})
     });
-    setInterval(get_chat, 5000)
-    function set_type_messege(type, button, color){
-        var id = button.getAttribute('data-id')
+    /////Часть отображения панели юзеров
+    function get_user_block(){
         $.ajax({
-            url: '/set_type_messege/'+id+'/'+type+'/'+color,
+            url: '/get_user_block',
+            method: 'GET',
+            async: false,
+            success: function(data){
+                var people_main = document.getElementById('people')
+                people_main.innerText = ''
+                var today = data['today'];
+                data = Object.entries(data)
+                for (var i=0; i<data.length-1; i++){
+                    var div = document.createElement('div')
+                    div.setAttribute('data-id', data[i][1]['recipient_id'])
+                    div.setAttribute('data-group', data[i][1]['is_group'])
+                    div.classList.add('one_people')
+                    if (data[i][1]['create_date'].split(' ')[0] === today){
+                        data[i][1]['create_date'] = data[i][1]['create_date'].split(' ')[1].substr(0, 5)
+                    }else {
+                        data[i][1]['create_date'] = data[i][1]['create_date'].split(' ')[0]
+                    }
+                    div.innerHTML = `<table class="table_one_people">
+                            <tbody>
+                            <tr>
+                                <td class="nick_name">${data[i][1]['display_name']}</td>
+                                <td>${data[i][1]['create_date']}</td>
+                            </tr>
+                            <tr>
+                                <td>${data[i][1]['message_body']}</td>
+                                <td>${data[i][1]['sum_unread']}</td>
+                            </tr>
+                            </tbody></table>`
+                    people_main.appendChild(div)
+                }
+                $('.one_people').on('click', function (){open_chat(this)})
+            }
+        })
+    }
+
+    /////Часть по информации
+    function open_info_chat(){
+        var group = document.getElementById('name_recipient_div').getAttribute('data-group')
+        if (group === 'true'){
+            document.getElementById('group_info').style.display = 'block'
+            openBlock($('#group_info .tablinks')[0], 'groupInfo')
+        }else{
+            document.getElementById('user_info').style.display = 'block'
+            openBlock($('#user_info .tablinks')[0], 'userInfo')
+        }
+    }
+    function openBlock(evt, typeInfo) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(typeInfo).style.display = "block";
+        evt.className += " active";
+        var name_div = document.getElementById('name_recipient_div')
+        switch (typeInfo){
+            case 'userInfo':
+                $.ajax({
+                    url: '/get_user_info/'+name_div.getAttribute('data-id'),
+                    method: 'GET',
+                    success: function(data){
+                        // data = Object.entries(data)
+                        var body = document.getElementById('userInfo').getElementsByTagName('tbody')[0]
+                        body.innerText = ''
+                        var name_param = ['ФИО', 'Подразделение', 'Должность', 'e-mail', 'Телефон']
+                        var variable = ['displayname', 'departmentnumber', 'employeetype', 'mail', 'telephonenumber']
+                        for (var i = 0; i<5; i++){
+                            var tr = document.createElement('tr')
+                            tr.innerHTML += `<td>${name_param[i]}</td>`
+                            try{
+                                tr.innerHTML += `<td>${data[variable[i]][0]}</td>`
+                            }catch (e) {
+                                tr.innerHTML += `<td>н/д</td>`
+                            }
+                            body.appendChild(tr)
+                        }
+                    }
+                })
+                break;
+            case 'userFiles':
+                $.ajax({
+                    url: '/get_user_files/'+name_div.getAttribute('data-id'),
+                    method: 'GET',
+                    success: function(data){
+                        var body = document.getElementById('userFiles').getElementsByTagName('tbody')[0]
+                        body.innerText = ''
+                        for (var row of data){
+                            var tr = document.createElement('tr')
+                            tr.innerHTML += `<td>${row['filename']}</td>`
+                            tr.innerHTML += `<td>${row['time']}</td>`
+                            if (Number(row['size']) > 1000000){
+                                row['size'] = (Number(row['size'])/1000000).toFixed(2) + 'MB'
+                            }else if(Number(row['size']) > 1000){
+                                row['size'] = (Number(row['size'])/1000).toFixed(2) + ' KB'
+                            }else {
+                                row['size'] = Number(row['size']) + ' B'
+                            }
+                            tr.innerHTML += `<td>${row['size']}</td>`
+                            tr.innerHTML += `<td onclick="download_file_chat('${row['uid']}')"><img class="hover_img" src="/assets/img/download.svg"></td>`
+                            body.appendChild(tr)
+                        }
+                    }
+                })
+                break;
+            case 'groupFiles':
+                $.ajax({
+                    url: '/get_group_files/'+name_div.getAttribute('data-id'),
+                    method: 'GET',
+                    success: function(data){
+                        var body = document.getElementById('groupFiles').getElementsByTagName('tbody')[0]
+                        body.innerText = ''
+                        for (var row of data){
+                            var tr = document.createElement('tr')
+                            tr.innerHTML += `<td>${row['filename']}</td>`
+                            tr.innerHTML += `<td>${row['time']}</td>`
+                            if (Number(row['size']) > 1000000){
+                                row['size'] = (Number(row['size'])/1000000).toFixed(2) + 'MB'
+                            }else if(Number(row['size']) > 1000){
+                                row['size'] = (Number(row['size'])/1000).toFixed(2) + ' KB'
+                            }else {
+                                row['size'] = Number(row['size']) + ' B'
+                            }
+                            tr.innerHTML += `<td>${row['size']}</td>`
+                            tr.innerHTML += `<td onclick="download_file_chat('${row['uid']}')"><img class="hover_img" src="/assets/img/download.svg"></td>`
+                            body.appendChild(tr)
+                        }
+                    }
+                })
+                break;
+            case 'groupInfo':
+                $.ajax({
+                    url: '/get_group_info/'+name_div.getAttribute('data-id'),
+                    method: 'GET',
+                    success: function(data){
+                        var body = document.getElementById('groupInfo').getElementsByTagName('tbody')[0]
+                        body.innerText = ''
+                        for (var row of data){
+                            var tr = document.createElement('tr')
+                            tr.innerHTML += `<td>${row['nameuser']}</td>`
+                            if (row['text']){
+                                tr.innerHTML += `<td>Создатель</td>`
+                            }else{
+                                tr.innerHTML += `<td></td>`
+                            }
+                            if (row['delete']){
+                                tr.innerHTML += `<td><img onclick="delete_from_group(${row['user_id']})" class="hover_img" src="/assets/img/trash.svg"></td>`
+                            }else {
+                                tr.innerHTML += `<td><img style="opacity: 0.5" src="/assets/img/trash.svg"></td>`
+                            }
+                            body.appendChild(tr)
+                        }
+                    }
+                })
+                break;
+        }
+    }
+    function delete_from_group(id_user){
+
+    }
+
+    /////Часть по созданию группы
+    function search_people_group(search_text){
+        search_text = new RegExp(search_text, 'i');
+        var tablePeople = document.getElementById('table_for_group').getElementsByTagName('tbody')[0]
+        var allTableRow = tablePeople.getElementsByTagName('tr')
+        for(var i=0; i<allTableRow.length; i++){
+            if (!allTableRow[i].classList.contains('hidden_rows')){
+                if (allTableRow[i].getElementsByTagName('td')[0].textContent.match(search_text)){
+                    allTableRow[i].style.display = ''
+                }else {
+                    allTableRow[i].style.display = 'none'
+                }
+            }
+        }
+    }
+    function create_group(){
+        $.ajax({
+            url: '/get_all_users',
             method: 'GET',
             success: function(res){
-                var bottom_div = document.getElementsByClassName('input_message')[0]
-                for (var div of bottom_div.getElementsByTagName('div')){
-                    div.style.display = ''
+                var tableBody = document.getElementById('table_for_group').getElementsByTagName('tbody')[0]
+                tableBody.innerText = ''
+                for (var row of res){
+                    var tr = document.createElement('tr')
+                    tr.innerHTML = `<td data-id="${row['id']}">${row['display_name']}</td>`
+                    tr.innerHTML += `<td><label class="switch"><input data-id="${row['id']}" type="checkbox"><span class="slider"></span></label></td>`
+                    tableBody.appendChild(tr)
                 }
-                for(var button of bottom_div.getElementsByTagName('button')){
-                    button.style.display = 'none'
-                    button.style.height = '35px'
-                    button.setAttribute('data-id', id)
+            }
+        })
+        document.getElementById('group_name').value = ''
+        document.getElementById('search_people_group').value = ''
+        document.getElementById('header_message').textContent = 'Создание группы'
+        document.getElementById('new_group').style.display = 'block'
+        document.getElementById('user_info').style.display = 'none'
+        document.getElementById('group_info').style.display = 'none'
+    }
+    function save_group(){
+        var arr = new Map()
+        arr.set('name_group', document.getElementById('group_name').value)
+        var ids = []
+        for (var checkbox of $('#table_for_group input:checkbox:checked')){
+            ids.push(checkbox.getAttribute('data-id'))
+        }
+        arr.set('users', ids)
+        $.ajax({
+            url: '/save_group',
+            method: 'POST',
+            data: Object.fromEntries(arr),
+            success: function (res) {
+                if (res !== 'false'){
+                    document.getElementById('header_message').textContent = res
+                }else {
+                    document.getElementById('new_group').style.display = 'none'
                 }
-                create_chat(document.getElementById('name_people').textContent)
             }
         })
     }
-    function select_type(p_with_messege){
-        var id = p_with_messege.getAttribute('data-id')
-        var bottom_div = document.getElementsByClassName('input_message')[0]
-        for (var div of bottom_div.getElementsByTagName('div')){
-            div.style.display = 'none'
-        }
-        for(var button of bottom_div.getElementsByTagName('button')){
-            button.style.display = 'inline-block'
-            button.style.height = '35px'
-            button.setAttribute('data-id', id)
+
+    /////Отправка сообщения
+    function send_messege(){
+        if (document.getElementById('sender_text').value !== ''){
+            var name_div = document.getElementById('name_recipient_div')
+            var arr = new Map()
+            arr.set('id', name_div.getAttribute('data-id'))
+            arr.set('group', name_div.getAttribute('data-group'))
+            arr.set('text', document.getElementById('sender_text').value)
+            $.ajax({
+                url: '/new_message',
+                method: 'POST',
+                data: Object.fromEntries(arr),
+                async: false,
+                success: function (res) {
+                    document.getElementById('sender_text').value = ''
+                    new_message(false)
+                    var chat_window = document.getElementById('chat_window')
+                    chat_window.scrollTo(0, chat_window.scrollHeight)
+                }
+            })
         }
     }
-    function get_chat(){
-        $.ajax({
-            url: '/get_people_block',
-            method: 'GET',
-            success: function(data){
-                var name_selected_people = ''
-                if (document.getElementsByClassName('selected_people')[0]){
-                    name_selected_people = document.getElementsByClassName('selected_people')[0].getElementsByClassName('nick_name')[0].textContent
-                }else{
-                    name_selected_people = false
-                }
-                var peoples_div = document.getElementById('people')
-                peoples_div.innerText = ''
-                for (var people of data){
-                    var class_name = ''
-                    if (name_selected_people === people['name']){
-                        class_name = 'one_people selected_people'
-                    }else {
-                        class_name = 'one_people'
-                    }
-                    if (people['group']){
-                        var group_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M9.5 12c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4zm1.5 1H8c-3.309 0-6 2.691-6 6v1h15v-1c0-3.309-2.691-6-6-6z"></path><path d="M16.604 11.048a5.67 5.67 0 0 0 .751-3.44c-.179-1.784-1.175-3.361-2.803-4.44l-1.105 1.666c1.119.742 1.8 1.799 1.918 2.974a3.693 3.693 0 0 1-1.072 2.986l-1.192 1.192 1.618.475C18.951 13.701 19 17.957 19 18h2c0-1.789-.956-5.285-4.396-6.952z"></path></svg>'
-                    }else {
-                        var group_svg = ''
-                    }
-                    peoples_div.innerHTML +=
-                        `<div class="${class_name}">
-                            <table class="table_one_people">
-                                <tbody>
-                                <tr>
-                                    <td class="nick_name">${group_svg}${people['name']}</td>
-                                    <td>${people['time_last_messege']}</td>
-                                </tr>
-                                <tr>
-                                    <td>${people['last_messege']}</td>
-                                    <td>${people['count_unread_messege']}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>`
-                    if (name_selected_people){
-                        create_chat(name_selected_people)
-                    }else {
-                        document.getElementsByClassName('one_people')[0].classList.add('selected_people')
-                        create_chat(document.getElementsByClassName('one_people')[0].getElementsByClassName('nick_name')[0].textContent)
-                    }
-                }
-                $(".one_people").on('click', function () {
-                    $(".one_people").removeClass('selected_people');
-                    $(this).addClass('selected_people');
-                    create_chat(this.getElementsByClassName('nick_name')[0].textContent)
-                    get_chat()
-                });
-            }
-        })
+
+    /////Непосредственно открытие чата, обновления и получения исторических данных
+    function open_chat(one_people_block){
+        $('.selected_people').removeClass('selected_people')
+        one_people_block.classList.add('selected_people')
+        document.getElementById('name_people').textContent = one_people_block.getElementsByClassName('nick_name')[0].textContent
+        var name_block = document.getElementById('name_recipient_div')
+        name_block.setAttribute('data-id', one_people_block.getAttribute('data-id'))
+        name_block.setAttribute('data-group', one_people_block.getAttribute('data-group'))
+        create_chat()
+        document.getElementById('user_info').style.display = 'none'
+        document.getElementById('new_group').style.display = 'none'
+        document.getElementById('group_info').style.display = 'none'
     }
-    function create_chat(name){
+    function create_chat(){
+        var name_div = document.getElementById('name_recipient_div')
         $.ajax({
-            url: '/get_chat/'+name,
+            url: '/get_chat/'+name_div.getAttribute('data-id')+'/'+name_div.getAttribute('data-group'),
             method: 'GET',
             success: function(data){
-                document.getElementById('last_visit').textContent = data['last_seen']
-                document.getElementById('name_people').textContent = name
-                delete data['last_seen']
-                var current_user = data['current_user']
-                delete data['current_user']
                 var body_chat = document.getElementById('body_chat')
                 body_chat.innerText = ''
-                var keys = Object.keys(data)
-                for (var j=0; j<keys.length; j++){
-                    var tr = document.createElement('tr')
-                    tr.innerHTML = `${keys[j]}`
-                    tr.style.textAlign = 'center'
-                    tr.style.fontSize = '12px'
-                    tr.style.fontWeight = 'bolder'
-                    body_chat.appendChild(tr)
-                    for (var messege of data[keys[j]]){
+                for(var day of Object.keys(data)){
+                    var date_tr = document.createElement('tr')
+                    date_tr.setAttribute('data-day', day)
+                    date_tr.style.fontSize = '12px'
+                    date_tr.style.fontWeight = 'bolder'
+                    date_tr.style.textAlign = 'center'
+                    date_tr.innerHTML = `<td>${day}</td>`
+                    body_chat.appendChild(date_tr)
+                    for (var row of data[day]){
                         var tr = document.createElement('tr')
-                        if (messege['user_sender'] === current_user){ //если пишем мы
-                            if (!messege['file']){ ///если не файл
-                                if (messege['type_message'] === 'Дисп. задание закрыто'){   //если дисп сообщение закрыто
-                                    tr.innerHTML = `<td class="mine_td">
-                                                    <p class="info_mine_p">${messege['type_message']}</p>
-                                                    <p class="info_mine_p">${messege['timestamp'].split(' ')[1].slice(0, -3)}</p>
-                                                    <p class="mine_text" style="background: ${messege['color_message']}" data-id="${messege['id']}">${messege['message']}</p>
-                                                </td>`
-                                }else {
-                                    tr.innerHTML = `<td class="mine_td">
-                                                    <p class="info_mine_p">${messege['type_message']}</p>
-                                                    <p class="info_mine_p">${messege['timestamp'].split(' ')[1].slice(0, -3)}</p>
-                                                    <p class="mine_text" style="background: ${messege['color_message']}" data-id="${messege['id']}" oncontextmenu="select_type(this)">${messege['message']}</p>
-                                                </td>`
-                                }
-                            }else {
+                        tr.setAttribute('data-id', row['message_id'])
+                        if (row['mine_message']){
+                            if (!row['filename']){
                                 tr.innerHTML = `<td class="mine_td">
-                                                    <p class="info_mine_p">${messege['type_message']}</p>
-                                                    <p class="info_mine_p">${messege['timestamp'].split(' ')[1].slice(0, -3)}</p>
-                                                    <p class="mine_text" style="background: ${messege['color_message']}" data-id="${messege['id']}" onclick="download_file_chat('${messege['message']}')" oncontextmenu="select_type(this)">
-                                                        <svg style="height: 30px; rgba(78, 69, 69, 1)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.937 8.68c-.011-.032-.02-.063-.033-.094a.997.997 0 0 0-.196-.293l-6-6a.997.997 0 0 0-.293-.196c-.03-.014-.062-.022-.094-.033a.991.991 0 0 0-.259-.051C13.04 2.011 13.021 2 13 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V9c0-.021-.011-.04-.013-.062a.99.99 0 0 0-.05-.258zM16.586 8H14V5.414L16.586 8zM6 20V4h6v5a1 1 0 0 0 1 1h5l.002 10H6z"></path></svg>
-                                                        <br>
-                                                        ${messege['message']}
-                                                    </p>
+                                        <p class="info_mine_p">${row['time']}</p>
+                                        <p class="mine_text" data-id="${row['message_id']}">${row['message']}</p>
+                                    </td>`
+                            }else{
+                                if (Number(row['filesize']) > 1000000){
+                                    row['filesize'] = (Number(row['filesize'])/1000000).toFixed(2) + 'MB'
+                                }else if(Number(row['filesize']) > 1000){
+                                    row['filesize'] = (Number(row['filesize'])/1000).toFixed(2) + ' KB'
+                                }else {
+                                    row['filesize'] = Number(row['filesize']) + ' B'
+                                }
+                                tr.innerHTML = `<td class="mine_td">
+                                                    <p class="info_mine_p">${row['time']}</p>
+                                                    <div class="mine_text" onclick="download_file_chat('${row['fileuid']}')">
+                                                        <div class="messege_img">
+                                                            <img class="hover_img" src="/assets/img/doc.svg">
+                                                        </div>
+                                                        <div class="img_name">
+                                                            <b>${row['filename']}</b><br>
+                                                            <i>${row['filesize']}</i>
+                                                        </div>
+                                                    </div>
                                                 </td>`
                             }
-                        }else {    //если пишут нам
-                            if (messege['file']){
-                                tr.innerHTML = `<td class="other_td" data-name="Отправитель: ${messege['user_sender']}">
-                                                    <p class="other_text" style="background: ${messege['color_message']}" onclick="download_file_chat('${messege['message']}')">
-                                                        <svg style="height: 30px; rgba(78, 69, 69, 1)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.937 8.68c-.011-.032-.02-.063-.033-.094a.997.997 0 0 0-.196-.293l-6-6a.997.997 0 0 0-.293-.196c-.03-.014-.062-.022-.094-.033a.991.991 0 0 0-.259-.051C13.04 2.011 13.021 2 13 2H6c-1.103 0-2 .897-2 2v16c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2V9c0-.021-.011-.04-.013-.062a.99.99 0 0 0-.05-.258zM16.586 8H14V5.414L16.586 8zM6 20V4h6v5a1 1 0 0 0 1 1h5l.002 10H6z"></path></svg>
-                                                        <br>
-                                                        ${messege['message']}
-                                                    </p>
-                                                    <p class="info_other_p">${messege['type_message']}</p>
-                                                    <p class="info_other_p">${messege['timestamp'].split(' ')[1].slice(0, -3)}</p>
-                                                </td>`
+                        }else {
+                            if (!row['filename']){
+                                tr.innerHTML = `<td class="other_td">
+                                        <p class="other_text" data-id="${row['message_id']}">${row['message']}</p>
+                                        <p class="info_other_p">${row['time']}</p>
+                                        <p class="info_other_p name_hidden">${row['creator']}</p>
+                                    </td>`
                             }else {
-                                tr.innerHTML = `<td class="other_td" data-name="Отправитель: ${messege['user_sender']}">
-                                                    <p class="other_text" style="background: ${messege['color_message']}">${messege['message']}</p>
-                                                    <p class="info_other_p">${messege['type_message']}</p>
-                                                    <p class="info_other_p">${messege['timestamp'].split(' ')[1].slice(0, -3)}</p>
+                                if (Number(row['filesize']) > 1000000){
+                                    row['filesize'] = (Number(row['filesize'])/1000000).toFixed(2) + 'MB'
+                                }else if(Number(row['filesize']) > 1000){
+                                    row['filesize'] = (Number(row['filesize'])/1000).toFixed(2) + ' KB'
+                                }else {
+                                    row['filesize'] = Number(row['filesize']) + ' B'
+                                }
+                                tr.innerHTML = `<td class="other_td">
+                                                    <div class="mine_text" onclick="download_file_chat('${row['fileuid']}')">
+                                                        <div class="messege_img">
+                                                            <img class="hover_img" src="/assets/img/doc.svg">
+                                                        </div>
+                                                        <div class="img_name">
+                                                            <b>${row['filename']}</b><br>
+                                                            <i>${row['filesize']}</i>
+                                                        </div>
+                                                    </div>
+                                                    <p class="info_other_p">${row['time']}</p>
+                                                    <p class="info_other_p name_hidden">${row['creator']}</p>
                                                 </td>`
                             }
+
                         }
                         body_chat.appendChild(tr)
                     }
@@ -227,88 +562,313 @@
             }
         })
     }
-    function download_file_chat(name_file){
-        document.getElementById('iframe_message').setAttribute('src', '/download_file_chat/'+name_file)
-        // window.open('/download_file_chat/'+name_file, 'Скачивание')
-    }
+    function old_message(){
+        var name_div = document.getElementById('name_recipient_div')
+        var body_chat = document.getElementById('body_chat')
+        var last_row = body_chat.getElementsByTagName('tr')[1]
+        $.ajax({
+            url: '/get_old_chat/'+name_div.getAttribute('data-id')+'/'+name_div.getAttribute('data-group')+'/'+last_row.getAttribute('data-id'),
+            method: 'GET',
+            async: false,
+            success: function(data){
+                var begin_position_last_row = last_row.getBoundingClientRect()
+                for(var day of Object.keys(data)){
+                    $(`#chat_window [data-day = ${day}]`).remove()
+                    var date_tr = document.createElement('tr')
+                    date_tr.setAttribute('data-day', day)
+                    date_tr.style.fontSize = '12px'
+                    date_tr.style.fontWeight = 'bolder'
+                    date_tr.style.textAlign = 'center'
+                    date_tr.innerHTML = `<td>${day}</td>`
+                    body_chat.insertBefore(date_tr, last_row)
+                    for (var row of data[day]){
+                        var tr = document.createElement('tr')
+                        tr.setAttribute('data-id', row['message_id'])
+                        if (row['mine_message']){
+                            if (!row['filename']){
+                                tr.innerHTML = `<td class="mine_td">
+                                        <p class="info_mine_p">${row['time']}</p>
+                                        <p class="mine_text" data-id="${row['message_id']}">${row['message']}</p>
+                                    </td>`
+                            }else{
+                                if (Number(row['filesize']) > 1000000){
+                                    row['filesize'] = (Number(row['filesize'])/1000000).toFixed(2) + 'MB'
+                                }else if(Number(row['filesize']) > 1000){
+                                    row['filesize'] = (Number(row['filesize'])/1000).toFixed(2) + ' KB'
+                                }else {
+                                    row['filesize'] = Number(row['filesize']) + ' B'
+                                }
+                                tr.innerHTML = `<td class="mine_td">
+                                                    <p class="info_mine_p">${row['time']}</p>
+                                                    <div class="mine_text" onclick="download_file_chat('${row['fileuid']}')">
+                                                        <div class="messege_img">
+                                                            <img class="hover_img" src="/assets/img/doc.svg">
+                                                        </div>
+                                                        <div class="img_name">
+                                                            <b>${row['filename']}</b><br>
+                                                            <i>${row['filesize']}</i>
+                                                        </div>
+                                                    </div>
+                                                </td>`
+                            }
+                        }else {
+                            if (!row['filename']){
+                                tr.innerHTML = `<td class="other_td">
+                                        <p class="other_text" data-id="${row['message_id']}">${row['message']}</p>
+                                        <p class="info_other_p">${row['time']}</p>
+                                        <p class="info_other_p name_hidden">${row['creator']}</p>
+                                    </td>`
+                            }else {
+                                if (Number(row['filesize']) > 1000000){
+                                    row['filesize'] = (Number(row['filesize'])/1000000).toFixed(2) + 'MB'
+                                }else if(Number(row['filesize']) > 1000){
+                                    row['filesize'] = (Number(row['filesize'])/1000).toFixed(2) + ' KB'
+                                }else {
+                                    row['filesize'] = Number(row['filesize']) + ' B'
+                                }
+                                tr.innerHTML = `<td class="other_td">
+                                                    <div class="mine_text" onclick="download_file_chat('${row['fileuid']}')">
+                                                        <div class="messege_img">
+                                                            <img class="hover_img" src="/assets/img/doc.svg">
+                                                        </div>
+                                                        <div class="img_name">
+                                                            <b>${row['filename']}</b><br>
+                                                            <i>${row['filesize']}</i>
+                                                        </div>
+                                                    </div>
+                                                    <p class="info_other_p">${row['time']}</p>
+                                                    <p class="info_other_p name_hidden">${row['creator']}</p>
+                                                </td>`
+                            }
 
-    function send_messege(){
-        if(document.getElementById('sender_text').value){
-            var arr = new Map()
-            arr.set('text', document.getElementById('sender_text').value)
-            arr.set('recipient', document.getElementById('name_people').textContent)
-            var data = Object.fromEntries(arr)
-            $.ajax({
-                url: '/send_messege',
-                method: 'POST',
-                data: data,
-                success: function(res){
-                    document.getElementById('sender_text').value = ''
-                    create_chat(document.getElementById('name_people').textContent)
+                        }
+                        body_chat.insertBefore(tr, last_row)
+                    }
                 }
-            })
+                var end_position_last_row = last_row.getBoundingClientRect()
+                var chat_window = document.getElementById('chat_window')
+                chat_window.scrollTo(0, end_position_last_row.y - begin_position_last_row.y)
+            }
+        })
+    }
+    function new_message(type_sync){
+        var name_div = document.getElementById('name_recipient_div')
+        var body_chat = document.getElementById('body_chat')
+        var first_row = body_chat.getElementsByTagName('tr')[body_chat.getElementsByTagName('tr').length - 1]
+        try{
+            var start_id = first_row.getAttribute('data-id')
+        }catch (e){
+            var start_id = 0
         }
+        $.ajax({
+            url: '/get_new_chat/'+name_div.getAttribute('data-id')+'/'+name_div.getAttribute('data-group')+'/'+start_id,
+            method: 'GET',
+            async: type_sync,
+            success: function(data){
+                for(var day of Object.keys(data)){
+                    for (var row of data[day]){
+                        var tr = document.createElement('tr')
+                        tr.setAttribute('data-id', row['message_id'])
+                        if (row['mine_message']){
+                            if (!row['filename']){
+                                tr.innerHTML = `<td class="mine_td">
+                                        <p class="info_mine_p">${row['time']}</p>
+                                        <p class="mine_text" data-id="${row['message_id']}">${row['message']}</p>
+                                    </td>`
+                            }else{
+                                if (Number(row['filesize']) > 1000000){
+                                    row['filesize'] = (Number(row['filesize'])/1000000).toFixed(2) + 'MB'
+                                }else if(Number(row['filesize']) > 1000){
+                                    row['filesize'] = (Number(row['filesize'])/1000).toFixed(2) + ' KB'
+                                }else {
+                                    row['filesize'] = Number(row['filesize']) + ' B'
+                                }
+                                tr.innerHTML = `<td class="mine_td">
+                                                    <p class="info_mine_p">${row['time']}</p>
+                                                    <div class="mine_text" onclick="download_file_chat('${row['fileuid']}')">
+                                                        <div class="messege_img">
+                                                            <img class="hover_img" src="/assets/img/doc.svg">
+                                                        </div>
+                                                        <div class="img_name">
+                                                            <b>${row['filename']}</b><br>
+                                                            <i>${row['filesize']}</i>
+                                                        </div>
+                                                    </div>
+                                                </td>`
+                            }
+                        }else {
+                            if (!row['filename']){
+                                tr.innerHTML = `<td class="other_td">
+                                        <p class="other_text" data-id="${row['message_id']}">${row['message']}</p>
+                                        <p class="info_other_p">${row['time']}</p>
+                                        <p class="info_other_p name_hidden">${row['creator']}</p>
+                                    </td>`
+                            }else {
+                                if (Number(row['filesize']) > 1000000){
+                                    row['filesize'] = (Number(row['filesize'])/1000000).toFixed(2) + 'MB'
+                                }else if(Number(row['filesize']) > 1000){
+                                    row['filesize'] = (Number(row['filesize'])/1000).toFixed(2) + ' KB'
+                                }else {
+                                    row['filesize'] = Number(row['filesize']) + ' B'
+                                }
+                                tr.innerHTML = `<td class="other_td">
+                                                    <div class="mine_text" onclick="download_file_chat('${row['fileuid']}')">
+                                                        <div class="messege_img">
+                                                            <img class="hover_img" src="/assets/img/doc.svg">
+                                                        </div>
+                                                        <div class="img_name">
+                                                            <b>${row['filename']}</b><br>
+                                                            <i>${row['filesize']}</i>
+                                                        </div>
+                                                    </div>
+                                                    <p class="info_other_p">${row['time']}</p>
+                                                    <p class="info_other_p name_hidden">${row['creator']}</p>
+                                                </td>`
+                            }
+                        }
+                        body_chat.appendChild(tr)
+                    }
+                }
+                if (Object.keys(data).length > 0){
+                    var chat_window = document.getElementById('chat_window')
+                    chat_window.scrollTo(0, chat_window.scrollHeight)
+                }
+            }
+        })
+    }
+    function update_chat(){
+        if ($('.selected_people').length > 0 && $('#messenger').style.display === 'block'){
+            new_message(true)
+        }
+    }
+    function update_chat_people(){
+        if (document.getElementById('messenger').style.display === 'block'){
+            get_user_block()
+        }
+    }
 
-    }
-    function open_messenger(){
-        if (document.getElementById('messenger').style.display === 'none'){
-            document.getElementById('messenger').style.display = 'block'
-            document.getElementById('messenger_mini').style.display = 'none'
-            get_chat()
-        }else {
-            document.getElementById('messenger').style.display = 'none'
-            document.getElementById('messenger_mini').style.display = ''
-        }
-    }
+    /////Часть по выгрузке/загрузке файла
     function file_open(){
         document.getElementById('button_form_file').click()
     }
     function upload_file(){
-        var formData = new FormData();
         if(($('#button_form_file')[0].files).length !=0){
+            var name_div = document.getElementById('name_recipient_div')
+            var formData = new FormData();
             $.each($('#button_form_file')[0].files, function(i, file){
                 formData.append("file[" + i + "]", file);
             });
-        }
-        $.ajax({
-            type: "POST",
-            url: '/upload_file_chat/'+document.getElementById('name_people').textContent,
-            cache:false,
-            dataType:"json",
-            contentType: false,
-            processData: false,
-            data: formData,
-            success: function(data){
-                get_chat()
-            },
-        });
-    }
-    var input_people = document.getElementById('search_people')
-    input_people.oninput = function() {
-        search_people()
-    };
-    function search_people(){
-        var search_text = new RegExp(document.getElementById('search_people').value, 'i');
-        var all_tagnames = document.getElementsByClassName('nick_name')
-        if (all_tagnames){
-            for (var tagname of all_tagnames){
-                if (tagname.textContent.match(search_text)){
-                    tagname.parentNode.parentNode.parentNode.parentNode.style.display = ''
-                }else {
-                    tagname.parentNode.parentNode.parentNode.parentNode.style.display = 'none'
+            $.ajax({
+                type: "POST",
+                url: '/upload_file_chat/'+name_div.getAttribute('data-group')+'/'+name_div.getAttribute('data-id'),
+                cache:false,
+                dataType:"json",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function(){
+                    new_message(false)
                 }
-            }
+            });
         }
     }
+    function download_file_chat(name_file){
+        document.getElementById('iframe_message').setAttribute('src', '/download_file_chat/'+name_file)
+    }
+
+    var updatePeople, updateChat
+    ////Открыть закрыть сайм чат
+    function close_messenger(){
+        document.getElementById('new_group').style.display = 'none'
+        document.getElementById('messenger').style.display = 'none'
+        clearInterval(updatePeople)
+        clearInterval(updateChat)
+    }
+    function open_messenger(){
+        document.getElementById('messenger').style.display = 'block'
+        update_chat_people()
+        update_chat()
+        clearInterval(updatePeople)
+        clearInterval(updateChat)
+        updatePeople = setInterval(update_chat_people, 5000)
+        updateChat = setInterval(update_chat, 5000)
+        if ($('.selected_people').length == 0){
+            $('.one_people ')[0].click()
+        }
+    }
+
 </script>
 
 <style>
+    .tab {
+        overflow: hidden;
+        border: 1px solid #ccc;
+        background-color: #f1f1f1;
+    }
+
+    /* Style the buttons inside the tab */
+    .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 10px 10px;
+        transition: 0.3s;
+        font-size: 15px;
+    }
+
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+
+    /* Create an active/current tablink class */
+    .tab button.active {
+        background-color: #ccc;
+    }
+
+    /* Style the tab content */
+    .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-top: none;
+        overflow-y: hidden;
+        height: calc(100% - 4em);
+    }
+    .img_name{
+        width: calc(100% - 50px); height: 100%; display: inline-block; white-space: nowrap; text-overflow: ellipsis; text-align: left; overflow: hidden;
+    }
+    .messege_img{
+        width: 35px; position: relative; left: 0; height: 100%; display: inline-block;
+    }
+    .other_td:hover p{
+        display: block !important;
+    }
+    .name_hidden{
+        display: none !important;
+    }
+    .new_group{
+        border: 1px solid black;
+        width: 28%;
+        height: 80%;
+        border-radius: 0 10px 10px 0;
+        position: absolute;
+        right: 15px;
+        top: 10%;
+        background: white;
+        z-index: 890;
+        box-shadow: none;
+        display: none;
+    }
     .img_message svg:hover{
         height: 90%;
     }
     .body_chat tr td{
         margin-top: 5px;
     }
+    /*.body_chat tr{ text-align: center; font-size: 12px; font-weight: bolder}*/
     .other_td{
         display: flex; align-items: end; justify-content: flex-start;
     }
@@ -406,7 +966,7 @@
         height: 60px;
         border-top: 1px solid grey;
         border-bottom: 1px solid grey;
-        width: calc(100% - 4px);
+        width: 100%;
     }
     .close_messenger{
         border-radius: 0px 10px 0px 0px;
@@ -416,6 +976,22 @@
         top: 0;
         height: 50px;
         width: 50px;
+    }
+    .name{
+        position: absolute;
+        left: 50px;
+        top: 0;
+        width: calc(100% - 100px);
+        height: 50px;
+    }
+    .question{
+        padding-top: 13px;
+        padding-left: 13px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 50px;
+        height: 50px;
     }
     .chat_div{
         position: absolute;
@@ -439,22 +1015,34 @@
     }
     .search_input{
         /*position: ap;*/
-        margin-top: 10px;
-        margin-bottom: 10px;
-        width: 80%;
+        margin-top: 7px;
+        /*margin-bottom: 10px;*/
+        width: 95%;
         margin-left: 5%;
         top: 10px;
+    }
+    .search_input img{
+        float: right;
+        padding-right: 15px;
+        padding-top: 7px;
     }
     .search_block{
         position: absolute;
         width: 30%;
         top: 0;
-        height: 55px;
+        height: 50px;
     }
+    /*.create_block{*/
+    /*    position: absolute;*/
+    /*    width: 30%;*/
+    /*    top: 55px;*/
+    /*    height: 35px;*/
+    /*    background: #2b542c;*/
+    /*}*/
     .people{
         position: absolute;
         width: 30%;
-        height: calc(100% - 55px);
+        height: calc(100% - 50px);
         overflow-y: auto;
         overflow-x: hidden;
         bottom: 0;
@@ -500,41 +1088,4 @@
         opacity: 0.5;
     }
 
-    .text-field__input {
-        display: block;
-        width: 100%;
-        padding: 0.375rem 0.75rem;
-        font-family: inherit;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #212529;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #bdbdbd;
-        border-radius: 0.25rem;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-    }
-
-    .text-field__input::placeholder {
-        color: #212529;
-        opacity: 0.4;
-    }
-
-    .text-field__input:focus {
-        color: #212529;
-        background-color: #fff;
-        border-color: #bdbdbd;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(158, 158, 158, 0.25);
-    }
-
-    .text-field__input:disabled,
-    .text-field__input[readonly] {
-        background-color: #f5f5f5;
-        opacity: 1;
-    }
 </style>

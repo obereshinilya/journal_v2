@@ -2,227 +2,286 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LevelInfo;
-use App\Models\LogSmena;
-use App\Models\Message_chat;
-use App\Models\NewMessageToGDU;
-use App\Models\UserAuth;
+use App\Models\chat\Files;
+use App\Models\chat\Groups;
+use App\Models\chat\Message;
+use App\Models\chat\MessageRecipient;
+use App\Models\chat\PeopleGroup;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use function Composer\Autoload\includeFile;
-use function GuzzleHttp\Promise\all;
-use function Livewire\str;
+use LdapRecord\Models\OpenLDAP\User;
+use App\Models\chat\Users;
 
 class ChatController extends Controller
 {
-    public function download_file_chat($filename){
-        $path = 'storage/chat_document/'.$filename;
-        return response()->download($path, basename($path));
+    public function get_user_info($id){
+        $user_login = Users::where('id', '=', $id)->first()->login;
+        return User::where('cn', '=', $user_login)->first()->toArray();
     }
-    public function upload_file_chat(Request $request, $recipient){
+    public function get_group_info($id){
+        $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        $user_ids = PeopleGroup::where('group_id', '=', $id)
+            ->join('chat.users', 'users_group.user_id', '=', 'users.id')
+            ->join('chat.groups', 'users_group.group_id', '=', 'groups.id')
+            ->select('users.display_name as nameuser', 'users.id as user_id',
+                DB::raw('(CASE WHEN user_id = groups.creator_id THEN true ELSE false END) AS text'),
+                DB::raw('(CASE WHEN '.$current_user.' = groups.creator_id THEN true ELSE false END) AS delete'))
+            ->get()->toArray();
+        return $user_ids;
+    }
+    public function get_user_files($id){
+        $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        $files = Message::wherein('creator_id', [$current_user, $id])->whereNotNull('file_id')
+            ->join('chat.message_recipient as message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+            ->whereNull('message_recipient.recipient_group_id')
+            ->join('chat.files as files', 'messages.file_id', '=', 'files.id')
+            ->select('files.name as filename', 'files.size', 'files.uid', DB::raw('to_char(messages.create_date, \'YYYY-MM-DD HH24:mi\') as time'))
+            ->orderbydesc('time')
+            ->get()->toArray();
+        return $files;
+    }
+    public function get_group_files($id){
+        $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        $user_ids = PeopleGroup::where('group_id', '=', $id)->get()->pluck('user_id')->toArray();
+        $files = Message::wherein('creator_id', $user_ids)->whereNotNull('file_id')
+            ->join('chat.message_recipient as message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+            ->where('message_recipient.recipient_group_id', '=', $id)->where('message_recipient.recipient_id', '=', $current_user)
+            ->join('chat.files as files', 'messages.file_id', '=', 'files.id')
+            ->select('files.name as filename', 'files.size', 'files.uid', DB::raw('to_char(messages.create_date, \'YYYY-MM-DD HH24:mi\') as time'))
+            ->orderbydesc('time')
+            ->get()->toArray();
+        return $files;
+    }
+
+    public function save_group(Request $request){
+        $request = $request->all();
+        try {
+            if ($request['name_group']){
+                if(isset($request['users'])){
+                    if (count($request['users'])<2){
+                        return 'Указан всего один пользователь!';
+                    }else{
+                        $creator_id = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+                        $group = Groups::create(['name'=>$request['name_group'], 'creator_id'=>$creator_id]);
+                        $group_id = $group->id;
+                        for ($i=0; $i<count($request['users']); $i++){
+                            PeopleGroup::create(['user_id'=>$request['users'][$i], 'group_id'=>$group_id]);
+                        }
+                        PeopleGroup::create(['user_id'=>$creator_id, 'group_id'=>$group_id]);
+                        return 'false';
+                    }
+                }else{
+                    return 'Не выбраны пользователи!';
+                }
+            }else{
+                return 'Укажите наименование группы!';
+            }
+        }catch (\Throwable $e){
+            return $e;
+        }
+
+
+    }
+    public function get_all_users(){
+        return Users::where('login', '!=', Auth::user()->cn[0])->get()->toArray();
+    }
+    public function new_message(Request $request){
+        $request = $request->all();
+        $creator_id = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        $message = Message::create(['creator_id'=>$creator_id, 'message_body'=>$request['text']]);
+        $message_id = $message->id;
+        if($request['group'] == 'true'){
+            foreach (PeopleGroup::where('group_id', '=', $request['id'])->get() as $user_from_group){
+                MessageRecipient::create(['recipient_id'=>$user_from_group->user_id ,'recipient_group_id'=>$request['id'], 'message_id'=>$message_id]);
+            }
+        }else{
+            MessageRecipient::create(['recipient_id'=>$request['id'],'message_id'=>$message_id]);
+        }
+    }
+
+    public function get_chat($id, $group){
+        $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        if ($group == 'true'){
+            $user_ids = PeopleGroup::where('group_id', '=', $id)->get()->pluck('user_id')->toArray();
+            $message = Message::wherein('creator_id', $user_ids)
+                ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+                ->where('message_recipient.recipient_group_id', '=', $id)->where('message_recipient.recipient_id', '=', $current_user)
+                ->leftjoin('chat.users as usr1', 'messages.creator_id', '=', 'usr1.id')
+                ->leftjoin('chat.users', 'message_recipient.recipient_id', '=', 'users.id')
+                ->leftjoin('chat.files', 'messages.file_id', '=', 'files.id')
+                ->select('usr1.display_name as creator', 'messages.message_body as message', 'messages.id as message_id',
+                    'messages.create_date as date', DB::raw('(CASE WHEN messages.creator_id = ' . $current_user . ' THEN true ELSE false END) AS mine_message'),
+                    DB::raw('to_char(messages.create_date, \'HH24:mi\') as time'), 'files.name as filename', 'files.size as filesize', 'files.uid as fileuid')
+                ->orderby('date', 'desc')->limit(50)
+                ->get()->reverse()->groupby(function ($message){
+                    return Carbon::parse($message->date)->format('Y-m-d');
+                });
+        }else{
+            $message = Message::wherein('creator_id', [$current_user, $id])
+                ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+                ->wherein('message_recipient.recipient_id', [$current_user, $id])->whereNull('message_recipient.recipient_group_id')
+                ->leftjoin('chat.users as usr1', 'messages.creator_id', '=', 'usr1.id')
+                ->leftjoin('chat.users', 'message_recipient.recipient_id', '=', 'users.id')
+                ->leftjoin('chat.files', 'messages.file_id', '=', 'files.id')
+                ->select('usr1.display_name as creator', 'users.display_name as recipient', 'messages.message_body as message', 'messages.id as message_id',
+                    'messages.create_date as date', DB::raw('(CASE WHEN messages.creator_id = ' . $current_user . ' THEN true ELSE false END) AS mine_message'),
+                    DB::raw('to_char(messages.create_date, \'HH24:mi\') as time'), 'files.name as filename', 'files.size as filesize', 'files.uid as fileuid')
+                ->orderby('date', 'desc')->limit(50)
+                ->get()->reverse()->groupby(function ($message){
+                    return Carbon::parse($message->date)->format('Y-m-d');
+                });
+        }
+        return $message;
+    }
+    public function get_old_chat($id, $group, $last_id){
+        $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        if ($group == 'true'){
+            $user_ids = PeopleGroup::where('group_id', '=', $id)->get()->pluck('user_id')->toArray();
+            $message = Message::wherein('creator_id', $user_ids)
+                ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+                ->where('message_recipient.recipient_group_id', '=', $id)->where('message_recipient.recipient_id', '=', $current_user)->where('messages.id', '<', $last_id)
+                ->leftjoin('chat.users as usr1', 'messages.creator_id', '=', 'usr1.id')
+                ->leftjoin('chat.users', 'message_recipient.recipient_id', '=', 'users.id')
+                ->leftjoin('chat.files', 'messages.file_id', '=', 'files.id')
+                ->select('usr1.display_name as creator', 'messages.message_body as message', 'messages.id as message_id',
+                    'messages.create_date as date', DB::raw('(CASE WHEN messages.creator_id = ' . $current_user . ' THEN true ELSE false END) AS mine_message'),
+                    DB::raw('to_char(messages.create_date, \'HH24:mi\') as time'), 'files.name as filename', 'files.size as filesize', 'files.uid as fileuid')
+                ->orderby('date', 'desc')->limit(50)
+                ->get()->reverse()->groupby(function ($message){
+                    return Carbon::parse($message->date)->format('Y-m-d');
+                });
+        }else{
+            $message = Message::wherein('creator_id', [$current_user, $id])
+                ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+                ->wherein('message_recipient.recipient_id', [$current_user, $id])->whereNull('message_recipient.recipient_group_id')->where('messages.id', '<', $last_id)
+                ->leftjoin('chat.users as usr1', 'messages.creator_id', '=', 'usr1.id')
+                ->leftjoin('chat.users', 'message_recipient.recipient_id', '=', 'users.id')
+                ->leftjoin('chat.files', 'messages.file_id', '=', 'files.id')
+                ->select('usr1.display_name as creator', 'users.display_name as recipient', 'messages.message_body as message', 'messages.id as message_id',
+                    'messages.create_date as date', DB::raw('(CASE WHEN messages.creator_id = ' . $current_user . ' THEN true ELSE false END) AS mine_message'),
+                    DB::raw('to_char(messages.create_date, \'HH24:mi\') as time'), 'files.name as filename', 'files.size as filesize', 'files.uid as fileuid')
+                ->orderby('date', 'desc')->limit(50)
+                ->get()->reverse()->groupby(function ($message){
+                    return Carbon::parse($message->date)->format('Y-m-d');
+                });
+        }
+        return $message;
+    }
+    public function get_new_chat($id, $group, $first_id){
+        $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        if ($group == 'true'){
+            $user_ids = PeopleGroup::where('group_id', '=', $id)->get()->pluck('user_id')->toArray();
+            $message = Message::wherein('creator_id', $user_ids)
+                ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+                ->where('message_recipient.recipient_group_id', '=', $id)->where('message_recipient.recipient_id', '=', $current_user)->where('messages.id', '>', $first_id)
+                ->leftjoin('chat.users as usr1', 'messages.creator_id', '=', 'usr1.id')
+                ->leftjoin('chat.users', 'message_recipient.recipient_id', '=', 'users.id')
+                ->leftjoin('chat.files', 'messages.file_id', '=', 'files.id')
+                ->select('usr1.display_name as creator', 'messages.message_body as message', 'messages.id as message_id',
+                    'messages.create_date as date', DB::raw('(CASE WHEN messages.creator_id = ' . $current_user . ' THEN true ELSE false END) AS mine_message'),
+                    DB::raw('to_char(messages.create_date, \'HH24:mi\') as time'), 'files.name as filename', 'files.size as filesize', 'files.uid as fileuid')
+                ->orderby('date', 'desc')->limit(50)
+                ->get()->reverse()->groupby(function ($message){
+                    return Carbon::parse($message->date)->format('Y-m-d');
+                });
+        }else{
+            $message = Message::wherein('creator_id', [$current_user, $id])
+                ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
+                ->wherein('message_recipient.recipient_id', [$current_user, $id])->whereNull('message_recipient.recipient_group_id')->where('messages.id', '>', $first_id)
+                ->leftjoin('chat.users as usr1', 'messages.creator_id', '=', 'usr1.id')
+                ->leftjoin('chat.users', 'message_recipient.recipient_id', '=', 'users.id')
+                ->leftjoin('chat.files', 'messages.file_id', '=', 'files.id')
+                ->select('usr1.display_name as creator', 'users.display_name as recipient', 'messages.message_body as message', 'messages.id as message_id',
+                    'messages.create_date as date', DB::raw('(CASE WHEN messages.creator_id = ' . $current_user . ' THEN true ELSE false END) AS mine_message'),
+                    DB::raw('to_char(messages.create_date, \'HH24:mi\') as time'), 'files.name as filename', 'files.size as filesize', 'files.uid as fileuid')
+                ->orderby('date', 'desc')->limit(50)
+                ->get()->reverse()->groupby(function ($message){
+                    return Carbon::parse($message->date)->format('Y-m-d');
+                });
+        }
+        return $message;
+    }
+
+    public function upload_file_chat(Request $request, $group, $id){
         try {
             foreach ($request->file() as $file) {
                 foreach ($file as $f) {
-                    if (!file_exists((public_path('storage/chat_document/' . $f->getClientOriginalName())))) {       // проверка на существование файла
-                        $f->move(public_path('storage/chat_document/'), $f->getClientOriginalName()); //public\storage\docs
+                    $uid = sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
+                    $file_rec = Files::create(['name'=>$f->getClientOriginalName(), 'uid'=>$uid, 'size'=>$f->getSize()]);
+                    $f->move(public_path('storage/chat_document/'), $uid); //public\storage\chat_document
+                    $creator_id = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+                    $message = Message::create(['creator_id'=>$creator_id, 'file_id'=>$file_rec->id]);
+                    if($group == 'true'){
+                        foreach (PeopleGroup::where('group_id', '=', $id)->get() as $user_from_group){
+                            MessageRecipient::create(['recipient_id'=>$user_from_group->user_id ,'recipient_group_id'=>$id, 'message_id'=>$message->id]);
+                        }
+                    }else{
+                        MessageRecipient::create(['recipient_id'=>$id,'message_id'=>$message->id]);
                     }
-                    Message_chat::create([
-                        'user_sender'=>UserAuth::where('ip', '=', \request()->ip())->orderbydesc('id')->first()->username,
-                        'user_recipent'=>$recipient,
-                        'message'=> $f->getClientOriginalName(),
-                        'file'=>true,
-                        'timestamp'=>date('Y-m-d H:i:s')
-                    ]);
                 }
             }
         }catch (\Throwable $e){
             return $e;
         }
     }
-    public function set_type_messege($id, $type, $color){
-        if ($type == '-'){
-            $message = Message_chat::where('id', '=', $id)->first()->update(['type_message'=>'',
-                'color_message'=>'#E3E6EA'
-            ]);
-        }else{
-            if ($type == 'Дисп. задание'){
-                $last_type = Message_chat::where('id', '=', $id)->first()->type_message;
-                if ($last_type == 'Дисп. задание') {
-                    $message = Message_chat::where('id', '=', $id)->first()->update(['type_message'=>'Дисп. задание закрыто',
-                        'color_message'=>$color
-                    ]);
-                }elseif($last_type == 'Дисп. задание закрыто'){
-                    return true;
-                }else{
-                    $message = Message_chat::where('id', '=', $id)->first()->update(['type_message' => $type,
-                        'color_message' => $color
-                    ]);
-                }
-            }else {
-                $message = Message_chat::where('id', '=', $id)->first()->update(['type_message' => $type,
-                    'color_message' => $color
-                ]);
-            }
-        }
+    public function download_file_chat($fileuid){
+        $name = Files::where('uid', '=', $fileuid)->first()->name;
+        $path = 'storage/chat_document/'.$fileuid;
+        return response()->download($path, basename($name));
     }
-    public function send_messege(Request $request){
-        $data_last_user = UserAuth::where('ip', '=', \request()->ip())->orderbydesc('id')->first();
-        Message_chat::create([
-            'user_sender'=>$data_last_user->username,
-            'user_recipent'=>$request['recipient'],
-            'message'=> $request['text'],
-            'timestamp'=>date('Y-m-d H:i:s')
-        ]);
-        if ($request['recipient'] == LevelInfo::where('short_name', '=', 'vlg')->first()->full_name){
-            if ($data_last_user->level == 'cdp'){   //если отправка с уровня ЦДП
-                if (count(NewMessageToGDU::where('id', '=', 1)->get())>0){ //если есть запись уже
-                    $count_new = NewMessageToGDU::where('id', '=', 1)->first()->count + 1;
-                    NewMessageToGDU::where('id', '=', 1)->update(['count'=>$count_new]);
-                }else{
-                    NewMessageToGDU::create(['id'=>1, 'count'=>1]);
-                }
-            }else{  //если отправка с уровня ГДУ
-/*                $content = '<?xml version="1.0" encoding="UTF-8"?>';*/
-//                $content = $content.'<BusinessMessage>';
-//                $content = $content.'   <CountUnreadMessage>1</CountUnreadMessage>';
-//                $content = $content.'</BusinessMessage>';
-//                $disk = Storage::build([
-//                    'driver' => 'sftp',
-//                    'host' => '172.16.205.139',
-//                    'username' => 'horizont',
-//                    'password' => 'demodemo',
-//                    'visibility' => 'public',
-//                    'permPublic' => 0777, /// <- this one did the trick
-//                    'root' => '/usr/PROZESS/horizont/var/cc/dj/new_message/',
-//                ]);
-//                $disk->put('new_message_'.date('Y_m_d_H_i_s_').'.xml', $content, 'public');
-            }
-        }
-        return $request->all();
+
+    public function get_user_block(){
+        $user_id = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        $return_data = DB::select("select * from (select distinct main.group_id as recipient_id, main.name as display_name, message_body, create_date, sum_unread, CASE WHEN 1 IS NULL THEN 'false' ELSE 'true' END as is_group from (
+            select g.id as group_id, g.name, mss.message_body,mss.create_date, mss.sum_unread from chat.users u
+            inner join chat.users_group ug on u.id = ug.user_id
+            inner join chat.groups g on  ug.group_id = g.id
+            inner join (select mr.recipient_group_id, SUM(CASE WHEN mr.is_read = false THEN 1 ELSE 0 END) over (partition by mr.recipient_group_id) as sum_unread, m.message_body,m.create_date
+            from chat.message_recipient mr
+            inner join chat.messages m on mr.message_id = m.id order by m.create_date desc limit 1000) as mss
+            on ug.group_id = mss.recipient_group_id
+            where u.id = ".$user_id." and g.is_active = true
+            order by mss.create_date desc) as main,
+            (select k.group_id, k.name, max(k.create_date) as date from(
+            select g.id as group_id, g.name, mss.message_body,mss.create_date, mss.sum_unread from chat.users u
+            inner join chat.users_group ug on u.id = ug.user_id
+            inner join chat.groups g on  ug.group_id = g.id
+            inner join (select mr.recipient_group_id, SUM(CASE WHEN mr.is_read = false THEN 1 ELSE 0 END) over (partition by mr.recipient_group_id) as sum_unread, m.message_body,m.create_date
+            from chat.message_recipient mr
+            inner join chat.messages m on mr.message_id = m.id order by m.create_date desc limit 1000) as mss
+            on ug.group_id = mss.recipient_group_id
+            where u.id = ".$user_id." and g.is_active = true
+            order by mss.create_date desc) as k group by k.group_id, k.name) max_date
+            where main.group_id =max_date.group_id and main.create_date = max_date.date
+            union
+            select recipient_id, display_name, message_body, create_date, sum_unread,CASE WHEN 1 IS NULL THEN 'true' ELSE 'false' END as is_group from
+            (    select * from (
+            select distinct  recipient_id, sum(case when is_read = false THEN 1 ELSE 0 END) over (partition by recipient_id) as sum_unread from chat.messages
+            join chat. message_recipient
+            on message_recipient.message_id = messages.id
+            where creator_id = ".$user_id." and recipient_id!= ".$user_id.") as recipients
+             join (select t1.creator_id, t1.message_body, t1.create_date from
+            chat.messages t1 join chat.messages t2 on t1.creator_id=t2.creator_id and t2.create_date >= t1.create_date
+            group by t1.creator_id, t1.message_body, t1.create_date
+            having count(*) =1) last_message
+            on recipients.recipient_id = last_message.creator_id
+            left join chat.users on users.id = recipients.recipient_id) as base) as result order by result.create_date desc;");
+        $return_data['today'] = date('Y-m-d');
+        return $return_data;
     }
-    public function get_chat($name){
-        if (count(LevelInfo::where('full_name', '=', $name)->get())>0){    ///если вытягиваем сообщения группы
-            $current_user = UserAuth::where('ip', '=', \request()->ip())->orderbydesc('id')->first()->username;
-            $all_messege = Message_chat::orderby('timestamp')->where('user_sender', '=', $name)
-                ->orWhere('user_recipent', '=', $name)->get()
-                ->groupby(function ($all_messege){
-                    return Carbon::parse($all_messege->timestamp)->format('Y-m-d');
-                });
-            foreach (Message_chat::where('user_recipent', '=', $name)->get() as $row){
-                $row->update(['is_read'=>true]);
-            }
-            $all_messege['last_seen'] = 'Групповой чат';
-        }else{
-            $current_user = UserAuth::where('ip', '=', \request()->ip())->orderbydesc('id')->first()->username;
-            $all_messege = Message_chat::orderby('timestamp')->where([['user_sender', '=', $name], ['user_recipent', '=', $current_user]])
-                ->orWhere([['user_sender', '=', $current_user], ['user_recipent', '=', $name]])->get()
-                ->groupby(function ($all_messege){
-                    return Carbon::parse($all_messege->timestamp)->format('Y-m-d');
-                });
-            foreach (Message_chat::where([['user_sender', '=', $name], ['user_recipent', '=', $current_user]])->get() as $row){
-                $row->update(['is_read'=>true]);
-            }
-            $log_smena = LogSmena::where('name_user', '=', $name)->orderbydesc('id')->get();
-            if (count($log_smena)>0){
-                if ($log_smena->first()->stop_smena){
-                    $all_messege['last_seen'] = 'Был в сети '.date('Y-m-d H:i', strtotime($log_smena->first()->stop_smena));
-                }else{
-                    $all_messege['last_seen'] = 'На смене';
-                }
+
+
+    public function update_users(){
+        foreach (User::all() as $user){
+            try {
+                Users::create(['display_name'=>$user->displayname[0],
+                    'login'=>$user->cn[0]]);
+            }catch (\Throwable $e){
+                Users::where('login', '=', $user->cn[0])->update(['display_name'=>$user->displayname[0]]);
             }
         }
-        $all_messege['current_user'] = $current_user;
-        return $all_messege;
-    }
-    public function get_people_block(){
-        $users = UserAuth::groupby('username')->select('username')->get();
-        $current_user = UserAuth::where('ip', '=', \request()->ip())->orderbydesc('id')->first()->username;
-        $data = [];
-        foreach ($users as $user){
-            if ($user->username != $current_user){
-                $to_data['name'] = $user->username;
-                $last_messege = Message_chat::orderbydesc('timestamp')->where([['user_sender', '=', $user->username], ['user_recipent', '=', $current_user]])
-                    ->orWhere([['user_sender', '=', $current_user], ['user_recipent', '=', $user->username]])->get();
-                if (count($last_messege)){
-                    $last_messege = $last_messege->first();
-                    $time_last_message = $last_messege->timestamp;
-                    if (date('Y-m-d', strtotime($time_last_message)) == date('Y-m-d')){
-                        $to_data['time_last_messege'] = date('H:i', strtotime($last_messege->timestamp));
-                    }else{
-                        $to_data['time_last_messege'] = date('d.m', strtotime($last_messege->timestamp));
-                    }
-                    if ($last_messege->message){
-                        $to_data['last_messege'] = $last_messege->message;
-                    }else{
-                        $to_data['last_messege'] = '';
-                    }
-                    $count = count(Message_chat::where('user_recipent', '=', $current_user)->where('user_sender', '=', $to_data['name'])->where('is_read', false)->get());
-                    if ($count>0){
-                        $to_data['count_unread_messege'] = $count;
-                    }else{
-                        $to_data['count_unread_messege'] = '';
-                    }
-                    $to_data['for_sort'] = strtotime($last_messege->timestamp);
-                }else{
-                    $to_data['time_last_messege'] = '';
-                    $to_data['last_messege'] = '';
-                    $to_data['count_unread_messege'] = '';
-                    $to_data['for_sort'] = 0;
-                }
-                $to_data['group']= false;
-                array_push($data, $to_data);
-            }
-        }
-        ///Создание групп
-        $level_current_user = UserAuth::where('ip', '=', \request()->ip())->orderbydesc('id')->first()->level;
-        if ($level_current_user == 'cdp'){
-            $operator = '!=';
-        }else{
-            $operator = '=';
-        }
-        foreach (LevelInfo::where('short_name', $operator, $level_current_user)->get() as $name_filiala){
-            $to_data['name'] = $name_filiala->full_name;
-            $last_messege = Message_chat::orderbydesc('timestamp')->where('user_sender', '=', $name_filiala->full_name)
-                ->orWhere('user_recipent', '=', $name_filiala->full_name)->get();
-            if (count($last_messege)){
-                $last_messege = $last_messege->first();
-                $time_last_message = $last_messege->timestamp;
-                if (date('Y-m-d', strtotime($time_last_message)) == date('Y-m-d')){
-                    $to_data['time_last_messege'] = date('H:i', strtotime($last_messege->timestamp));
-                }else{
-                    $to_data['time_last_messege'] = date('d.m', strtotime($last_messege->timestamp));
-                }
-                if ($last_messege->message){
-                    $to_data['last_messege'] = $last_messege->message;
-                }else{
-                    $to_data['last_messege'] = '';
-                }
-                $count = count(Message_chat::where('user_recipent', '=', $current_user)->where('user_sender', '=', $to_data['name'])->where('is_read', false)->get());
-                if ($count>0){
-                    $to_data['count_unread_messege'] = $count;
-                }else{
-                    $to_data['count_unread_messege'] = '';
-                }
-                $to_data['for_sort'] = strtotime($last_messege->timestamp);
-            }else{
-                $to_data['time_last_messege'] = '';
-                $to_data['last_messege'] = '';
-                $to_data['count_unread_messege'] = '';
-                $to_data['for_sort'] = 0;
-            }
-            $to_data['group']= true;
-            array_push($data, $to_data);
-        }
-        usort($data,function($a,$b){
-            if ($a['for_sort'] < $b['for_sort']){
-                return 1;
-            }else{
-                return -1;
-            }
-        });
-        return $data;
     }
 
 }

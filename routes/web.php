@@ -7,6 +7,7 @@ use App\Http\Controllers\LdapController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\ChatController;
 
 
 Route::group(['middleware' => ['auth']], function() {
@@ -14,14 +15,33 @@ Route::group(['middleware' => ['auth']], function() {
 
     Route::get('/test', [LdapController::class, 'test']);
 
-    ///Блок для чата
-    Route::get('/get_people_block', [Controllers\ChatController::class, 'get_people_block'])->name('get_people_block');   ///получаем список людей
-    Route::get('/get_chat/{name}', [Controllers\ChatController::class, 'get_chat'])->name('get_chat');   ///получаем текст чата
-    Route::get('/set_type_messege/{id}/{type}/{color}', [Controllers\ChatController::class, 'set_type_messege'])->name('set_type_messege');   ///устанавливаем тип сообщения
-    Route::post('/send_messege', [Controllers\ChatController::class, 'send_messege'])->name('send_messege');   ///отправляем сообщение
-    Route::get('/update_people_block', [Controllers\ChatController::class, 'update_people_block'])->name('update_people_block');   ///обновляем список
-    Route::post('/upload_file_chat/{recipient}', [Controllers\ChatController::class, 'upload_file_chat'])->name('upload_file_chat');   ///обновляем список
-    Route::get('/download_file_chat/{file_name}', [Controllers\ChatController::class, 'download_file_chat'])->name('download_file_chat');   ///обновляем список
+    ///БЛОК чата
+    Route::get('/update_users', [ChatController::class, 'update_users'])->name('update_users');   ///обновляем список пользователей
+    Route::get('/get_all_users', [ChatController::class, 'get_all_users'])->name('get_all_users');   ///Список всех пользователей кроме текущего
+    Route::post('/save_group', [ChatController::class, 'save_group'])->name('save_group');   ///Сохранить группу
+    Route::post('/new_message', [ChatController::class, 'new_message'])->name('new_message');   ///Сохранить сообзение
+    Route::get('/get_chat/{id}/{group}', [ChatController::class, 'get_chat'])->name('get_chat');   ///Получить чат
+    Route::get('/get_old_chat/{id}/{group}/{last_id}', [ChatController::class, 'get_old_chat'])->name('get_old_chat');   ///Получить старые сообщения
+    Route::get('/get_new_chat/{id}/{group}/{first_id}', [ChatController::class, 'get_new_chat'])->name('get_new_chat');   ///Получить новые сообщения
+    Route::post('/upload_file_chat/{group}/{id}', [ChatController::class, 'upload_file_chat'])->name('upload_file_chat');   ///Загрузка файла
+    Route::get('/download_file_chat/{uid}', [ChatController::class, 'download_file_chat'])->name('download_file_chat');   ///Скачивание файла
+
+    Route::get('/get_user_info/{id}', [ChatController::class, 'get_user_info'])->name('get_user_info');   ///получаем данные по пользователю
+    Route::get('/get_user_files/{id}', [ChatController::class, 'get_user_files'])->name('get_user_files');   ///получаем вложения чата
+    Route::get('/get_group_files/{id}', [ChatController::class, 'get_group_files'])->name('get_group_files');   ///получаем вложения чата
+    Route::get('/get_group_info/{id}', [ChatController::class, 'get_group_info'])->name('get_group_info');   ///получаем список пользователей
+
+
+    Route::get('/get_user_block', [ChatController::class, 'get_user_block'])->name('get_user_block');   ///Получаем список чатов
+    ///
+    ///
+//    Route::get('/get_people_block', [ChatController::class, 'get_people_block'])->name('get_people_block');   ///получаем список людей
+//    Route::get('/get_chat/{name}', [ChatController::class, 'get_chat'])->name('get_chat');   ///получаем текст чата
+//    Route::get('/set_type_messege/{id}/{type}/{color}', [ChatController::class, 'set_type_messege'])->name('set_type_messege');   ///устанавливаем тип сообщения
+//    Route::post('/send_messege', [ChatController::class, 'send_messege'])->name('send_messege');   ///отправляем сообщение
+//    Route::get('/update_people_block', [ChatController::class, 'update_people_block'])->name('update_people_block');   ///обновляем список
+
+
     //БЛОК журналов
     Route::get('/admin_journal', [JournalController::class, 'user_log']);
     Route::get('/admin_journal_data/{date_start}/{date_stop}', [JournalController::class, 'admin_journal_data']);

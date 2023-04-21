@@ -50,6 +50,11 @@
         }
     });
     $("body").on("contextmenu", false);
+    $('[data-toggle="tooltip"]').tooltip({
+        content: function () {
+            return $(this).prop('title');
+        }
+    })
 </script>
 </body>
 </html>

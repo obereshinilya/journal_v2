@@ -441,8 +441,8 @@
                             "xAxis": {
                                 outputTimeFormat:{day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
                                 timemarker: [
-                                    {start: "2023-04-13 16:00:00",label: "US inflation peaked at 14.8%.",timeformat: "%Y-%m-%d %H:%M:%S",type: "full",style: { marker: {fill: "#D0D6F4" }}},
-                                    {start: "2023-04-13 10:00:00",label: "US inflation peaked at 14.8%.",timeformat: "%Y-%m-%d %H:%M:%S",type: "full",style: {marker: {fill: "#D0D6F4"}}},
+                                    {start: "2023-04-13 16:00:00",label: "Проведение ТО",timeformat: "%Y-%m-%d %H:%M:%S",type: "full",style: { marker: {fill: "#D0D6F4" }}},
+                                    {start: "2023-04-12 10:00:00",label: "Сработал датчик загазованности",timeformat: "%Y-%m-%d %H:%M:%S",type: "full",style: {marker: {fill: "#D0D6F4"}}},
                                 ]},
 
                             tooltip: {

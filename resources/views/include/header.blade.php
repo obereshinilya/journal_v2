@@ -25,18 +25,9 @@
 
 
 <script>
-
     $('.div_list').click(function (){
         if (this.getElementsByTagName('img')[0].style.transform == 'rotate(90deg)'){
-            this.style.margin = ''
-            this.style.border = ''
-            this.style.boxShadow = ''
-            this.getElementsByTagName('img')[0].style.transform = ''
-            for (var div of this.getElementsByTagName('div')){
-                div.style.opacity = 0
-                div.style.top = '37px'
-            }
-            slow_hide(this)
+            hide_header(this)
         }else {
             this.style.boxShadow = '5px 5px 5px black'
             this.style.margin = '16px 23px 0px 0px'
@@ -66,8 +57,27 @@
                     div.style.width = max_width+'px'
                 }
             }
+            var div_main = this
+            setTimeout(function (){
+                $('body').on('click', function (){
+                    hide_header(div_main)
+                })
+            }, 300)
+
         }
     })
+    function hide_header(div){
+        div.style.margin = ''
+        div.style.border = ''
+        div.style.boxShadow = ''
+        div.getElementsByTagName('img')[0].style.transform = ''
+        for (var one_div of div.getElementsByTagName('div')){
+            one_div.style.opacity = 0
+            one_div.style.top = '37px'
+        }
+        slow_hide(div)
+        $('body').off('click')
+    }
     function slow_hide(divs){
         setTimeout(function (){
             for (var div of divs.getElementsByTagName('div')){
