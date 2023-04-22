@@ -42,7 +42,7 @@
         </div>
         <div id="userFiles" class="tabcontent" style="display: block">
             <div style="overflow-y: auto; height: 100%">
-                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                <table id="user_files_tab" class="dynamicTable" style="table-layout: auto">
                     <thead>
                         <tr>
                             <th>Наименование</th>
@@ -71,7 +71,7 @@
         </div>
         <div id="groupInfo" class="tabcontent" style="display: block">
             <div style="overflow-y: auto; height: 100%">
-                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                <table id="group_info_tab" class="dynamicTable" style="table-layout: auto">
                     <thead>
                         <tr>
                             <th>ФИО</th>
@@ -87,7 +87,7 @@
         </div>
         <div id="groupFiles" class="tabcontent" style="display: block">
             <div style="overflow-y: auto; height: 100%">
-                <table id="user_info_tab" class="dynamicTable" style="table-layout: auto">
+                <table id="group_files_tab" class="dynamicTable" style="table-layout: auto">
                     <thead>
                     <tr>
                         <th>Наименование</th>
@@ -221,6 +221,13 @@
             method: 'GET',
             async: false,
             success: function(data){
+                try{
+                    var selected_people = $('.selected_people')[0]
+                    var group_sel = selected_people.getAttribute('data-group')
+                    var id_sel = selected_people.getAttribute('data-id')
+                }catch (e) {
+
+                }
                 var people_main = document.getElementById('people')
                 people_main.innerText = ''
                 var today = data['today'];
@@ -233,7 +240,18 @@
                     if (data[i][1]['create_date'].split(' ')[0] === today){
                         data[i][1]['create_date'] = data[i][1]['create_date'].split(' ')[1].substr(0, 5)
                     }else {
-                        data[i][1]['create_date'] = data[i][1]['create_date'].split(' ')[0]
+                        var date = data[i][1]['create_date'].split(' ')[0].split('-')
+                        data[i][1]['create_date'] = date[2]+'.'+date[1]
+                    }
+                    if (data[i][1]['is_group'] === 'true'){
+                        data[i][1]['display_name'] = `<img src="/assets/img/group_img.svg">${data[i][1]['display_name']}`
+                    }else {
+                        data[i][1]['display_name'] = `${data[i][1]['display_name']}`
+                    }
+                    if (Number(data[i][1]['sum_unread'])>0){
+                        data[i][1]['sum_unread'] = `<p class="unread">${data[i][1]['sum_unread']}</p>`
+                    }else{
+                        data[i][1]['sum_unread'] = ''
                     }
                     div.innerHTML = `<table class="table_one_people">
                             <tbody>
@@ -249,6 +267,12 @@
                     people_main.appendChild(div)
                 }
                 $('.one_people').on('click', function (){open_chat(this)})
+                try{
+                    $(`.one_people[data-group = "${group_sel}"][data-id = "${id_sel}"]`).addClass('selected_people')
+                }catch (e) {
+
+                }
+
             }
         })
     }
@@ -360,6 +384,7 @@
                         body.innerText = ''
                         for (var row of data){
                             var tr = document.createElement('tr')
+                            tr.setAttribute('data-id', row['user_id'])
                             tr.innerHTML += `<td>${row['nameuser']}</td>`
                             if (row['text']){
                                 tr.innerHTML += `<td>Создатель</td>`
@@ -367,10 +392,16 @@
                                 tr.innerHTML += `<td></td>`
                             }
                             if (row['delete']){
-                                tr.innerHTML += `<td><img onclick="delete_from_group(${row['user_id']})" class="hover_img" src="/assets/img/trash.svg"></td>`
+                                tr.innerHTML += `<td><img onclick="delete_from_group(this.parentNode.parentNode)" class="hover_img" src="/assets/img/trash.svg"></td>`
                             }else {
                                 tr.innerHTML += `<td><img style="opacity: 0.5" src="/assets/img/trash.svg"></td>`
                             }
+                            body.appendChild(tr)
+                        }
+                        if (row['delete']){
+                            var tr = document.createElement('tr')
+                            tr.innerHTML += `<td colspan="2"><b>Удалить группу</b></td>`
+                            tr.innerHTML += `<td><img onclick="delete_group()" class="hover_img" src="/assets/img/trash.svg"></td>`
                             body.appendChild(tr)
                         }
                     }
@@ -378,10 +409,28 @@
                 break;
         }
     }
-    function delete_from_group(id_user){
-
+    function delete_from_group(tr){
+        var id = tr.getAttribute('data-id')
+        if (tr.getElementsByTagName('td')[1].textContent !== 'Создатель'){
+            $.ajax({
+                url: '/delete_user_from_group/'+id+'/'+document.getElementById('name_recipient_div').getAttribute('data-id'),
+                method: 'get',
+                success: function (res) {
+                    openBlock($('#group_info .tablinks')[0], 'groupInfo')
+                }
+            })
+        }
     }
-
+    function delete_group(){
+        $.ajax({
+            url: '/delete_group/'+document.getElementById('name_recipient_div').getAttribute('data-id'),
+            method: 'get',
+            success: function (res) {
+                get_user_block()
+                $('.one_people')[0].click()
+            }
+        })
+    }
     /////Часть по созданию группы
     function search_people_group(search_text){
         search_text = new RegExp(search_text, 'i');
@@ -435,7 +484,8 @@
                 if (res !== 'false'){
                     document.getElementById('header_message').textContent = res
                 }else {
-                    document.getElementById('new_group').style.display = 'none'
+                    get_user_block()
+                    $('.one_people')[0].click()
                 }
             }
         })
@@ -737,13 +787,8 @@
         })
     }
     function update_chat(){
-        if ($('.selected_people').length > 0 && $('#messenger').style.display === 'block'){
+        if ($('.selected_people').length > 0){
             new_message(true)
-        }
-    }
-    function update_chat_people(){
-        if (document.getElementById('messenger').style.display === 'block'){
-            get_user_block()
         }
     }
 
@@ -786,11 +831,11 @@
     }
     function open_messenger(){
         document.getElementById('messenger').style.display = 'block'
-        update_chat_people()
+        get_user_block()
         update_chat()
         clearInterval(updatePeople)
         clearInterval(updateChat)
-        updatePeople = setInterval(update_chat_people, 5000)
+        updatePeople = setInterval(get_user_block, 5000)
         updateChat = setInterval(update_chat, 5000)
         if ($('.selected_people').length == 0){
             $('.one_people ')[0].click()
@@ -800,6 +845,9 @@
 </script>
 
 <style>
+    .unread{
+        background: #3E546A; margin: 0; text-align: center; padding-top: 2px; padding-bottom: 2px; border-radius: 10px; width: auto; color: white
+    }
     .tab {
         overflow: hidden;
         border: 1px solid #ccc;

@@ -16,13 +16,24 @@ use App\Models\chat\Users;
 
 class ChatController extends Controller
 {
+    function delete_user_from_group($user_id, $group_id){
+        PeopleGroup::where('group_id', '=', $group_id)->where('user_id', '=', $user_id)->update(['is_active'=>false]);
+    }
+    function delete_group($id){
+        PeopleGroup::where('group_id', '=', $id)->delete();
+        $ids_message = MessageRecipient::where('recipient_group_id', '=', $id)
+            ->select('message_id')->get()->pluck('message_id')->toArray();
+        MessageRecipient::where('recipient_group_id', '=', $id)->delete();
+        Groups::where('id', '=', $id)->delete();
+        Message::wherein('id', $ids_message)->delete();
+    }
     public function get_user_info($id){
         $user_login = Users::where('id', '=', $id)->first()->login;
         return User::where('cn', '=', $user_login)->first()->toArray();
     }
     public function get_group_info($id){
         $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
-        $user_ids = PeopleGroup::where('group_id', '=', $id)
+        $user_ids = PeopleGroup::where('group_id', '=', $id)->where('users_group.is_active', '=', true)
             ->join('chat.users', 'users_group.user_id', '=', 'users.id')
             ->join('chat.groups', 'users_group.group_id', '=', 'groups.id')
             ->select('users.display_name as nameuser', 'users.id as user_id',
@@ -33,10 +44,10 @@ class ChatController extends Controller
     }
     public function get_user_files($id){
         $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
-        $files = Message::wherein('creator_id', [$current_user, $id])->whereNotNull('file_id')
-            ->join('chat.message_recipient as message_recipient', 'messages.id', '=', 'message_recipient.message_id')
-            ->whereNull('message_recipient.recipient_group_id')
+        $files = Message::join('chat.message_recipient as mr', 'messages.id', '=', 'mr.message_id')
             ->join('chat.files as files', 'messages.file_id', '=', 'files.id')
+            ->whereNotNull('file_id')->whereNull('recipient_group_id')
+            ->whereRaw('(creator_id = '.$id.' and recipient_id = '.$current_user.' or creator_id = '.$current_user.' and recipient_id = '.$id.')')
             ->select('files.name as filename', 'files.size', 'files.uid', DB::raw('to_char(messages.create_date, \'YYYY-MM-DD HH24:mi\') as time'))
             ->orderbydesc('time')
             ->get()->toArray();
@@ -70,6 +81,12 @@ class ChatController extends Controller
                             PeopleGroup::create(['user_id'=>$request['users'][$i], 'group_id'=>$group_id]);
                         }
                         PeopleGroup::create(['user_id'=>$creator_id, 'group_id'=>$group_id]);
+                        $new_message = Message::create(['creator_id'=>$creator_id, 'message_body'=>'Создана группа "'.$request['name_group'].'"']);
+                        $id_new_message = $new_message->id;
+                        for ($i=0; $i<count($request['users']); $i++){
+                            MessageRecipient::create(['recipient_id'=>$request['users'][$i], 'recipient_group_id'=>$group_id, 'message_id'=>$id_new_message]);
+                        }
+                        MessageRecipient::create(['recipient_id'=>$creator_id, 'recipient_group_id'=>$group_id, 'message_id'=>$id_new_message]);
                         return 'false';
                     }
                 }else{
@@ -81,8 +98,6 @@ class ChatController extends Controller
         }catch (\Throwable $e){
             return $e;
         }
-
-
     }
     public function get_all_users(){
         return Users::where('login', '!=', Auth::user()->cn[0])->get()->toArray();
@@ -93,7 +108,7 @@ class ChatController extends Controller
         $message = Message::create(['creator_id'=>$creator_id, 'message_body'=>$request['text']]);
         $message_id = $message->id;
         if($request['group'] == 'true'){
-            foreach (PeopleGroup::where('group_id', '=', $request['id'])->get() as $user_from_group){
+            foreach (PeopleGroup::where('group_id', '=', $request['id'])->where('users_group.is_active', '=', true)->get() as $user_from_group){
                 MessageRecipient::create(['recipient_id'=>$user_from_group->user_id ,'recipient_group_id'=>$request['id'], 'message_id'=>$message_id]);
             }
         }else{
@@ -105,6 +120,7 @@ class ChatController extends Controller
         $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
         if ($group == 'true'){
             $user_ids = PeopleGroup::where('group_id', '=', $id)->get()->pluck('user_id')->toArray();
+            $read_message = MessageRecipient::where('recipient_id', '=', $current_user)->where('recipient_group_id', '=', $id)->where('is_read', '=', false)->update(['is_read'=>true]);
             $message = Message::wherein('creator_id', $user_ids)
                 ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
                 ->where('message_recipient.recipient_group_id', '=', $id)->where('message_recipient.recipient_id', '=', $current_user)
@@ -119,6 +135,7 @@ class ChatController extends Controller
                     return Carbon::parse($message->date)->format('Y-m-d');
                 });
         }else{
+            $read_message = MessageRecipient::where('recipient_id', '=', $current_user)->whereNull('recipient_group_id')->where('is_read', '=', false)->update(['is_read'=>true]);
             $message = Message::wherein('creator_id', [$current_user, $id])
                 ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
                 ->wherein('message_recipient.recipient_id', [$current_user, $id])->whereNull('message_recipient.recipient_group_id')
@@ -173,6 +190,7 @@ class ChatController extends Controller
         $current_user = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
         if ($group == 'true'){
             $user_ids = PeopleGroup::where('group_id', '=', $id)->get()->pluck('user_id')->toArray();
+            $read_message = MessageRecipient::where('recipient_id', '=', $current_user)->where('recipient_group_id', '=', $id)->where('is_read', '=', false)->update(['is_read'=>true]);
             $message = Message::wherein('creator_id', $user_ids)
                 ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
                 ->where('message_recipient.recipient_group_id', '=', $id)->where('message_recipient.recipient_id', '=', $current_user)->where('messages.id', '>', $first_id)
@@ -187,6 +205,7 @@ class ChatController extends Controller
                     return Carbon::parse($message->date)->format('Y-m-d');
                 });
         }else{
+            $read_message = MessageRecipient::where('recipient_id', '=', $current_user)->whereNull('recipient_group_id')->where('is_read', '=', false)->update(['is_read'=>true]);
             $message = Message::wherein('creator_id', [$current_user, $id])
                 ->leftjoin('chat.message_recipient', 'messages.id', '=', 'message_recipient.message_id')
                 ->wherein('message_recipient.recipient_id', [$current_user, $id])->whereNull('message_recipient.recipient_group_id')->where('messages.id', '>', $first_id)
@@ -234,40 +253,53 @@ class ChatController extends Controller
 
     public function get_user_block(){
         $user_id = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
-        $return_data = DB::select("select * from (select distinct main.group_id as recipient_id, main.name as display_name, message_body, create_date, sum_unread, CASE WHEN 1 IS NULL THEN 'false' ELSE 'true' END as is_group from (
-            select g.id as group_id, g.name, mss.message_body,mss.create_date, mss.sum_unread from chat.users u
-            inner join chat.users_group ug on u.id = ug.user_id
-            inner join chat.groups g on  ug.group_id = g.id
-            inner join (select mr.recipient_group_id, SUM(CASE WHEN mr.is_read = false THEN 1 ELSE 0 END) over (partition by mr.recipient_group_id) as sum_unread, m.message_body,m.create_date
-            from chat.message_recipient mr
-            inner join chat.messages m on mr.message_id = m.id order by m.create_date desc limit 1000) as mss
-            on ug.group_id = mss.recipient_group_id
-            where u.id = ".$user_id." and g.is_active = true
-            order by mss.create_date desc) as main,
-            (select k.group_id, k.name, max(k.create_date) as date from(
-            select g.id as group_id, g.name, mss.message_body,mss.create_date, mss.sum_unread from chat.users u
-            inner join chat.users_group ug on u.id = ug.user_id
-            inner join chat.groups g on  ug.group_id = g.id
-            inner join (select mr.recipient_group_id, SUM(CASE WHEN mr.is_read = false THEN 1 ELSE 0 END) over (partition by mr.recipient_group_id) as sum_unread, m.message_body,m.create_date
-            from chat.message_recipient mr
-            inner join chat.messages m on mr.message_id = m.id order by m.create_date desc limit 1000) as mss
-            on ug.group_id = mss.recipient_group_id
-            where u.id = ".$user_id." and g.is_active = true
-            order by mss.create_date desc) as k group by k.group_id, k.name) max_date
-            where main.group_id =max_date.group_id and main.create_date = max_date.date
-            union
-            select recipient_id, display_name, message_body, create_date, sum_unread,CASE WHEN 1 IS NULL THEN 'true' ELSE 'false' END as is_group from
-            (    select * from (
-            select distinct  recipient_id, sum(case when is_read = false THEN 1 ELSE 0 END) over (partition by recipient_id) as sum_unread from chat.messages
-            join chat. message_recipient
-            on message_recipient.message_id = messages.id
-            where creator_id = ".$user_id." and recipient_id!= ".$user_id.") as recipients
-             join (select t1.creator_id, t1.message_body, t1.create_date from
-            chat.messages t1 join chat.messages t2 on t1.creator_id=t2.creator_id and t2.create_date >= t1.create_date
-            group by t1.creator_id, t1.message_body, t1.create_date
-            having count(*) =1) last_message
-            on recipients.recipient_id = last_message.creator_id
-            left join chat.users on users.id = recipients.recipient_id) as base) as result order by result.create_date desc;");
+        $return_data = DB::select("select group_id as recipient_id, name as display_name, create_date,message_body, sum_unread, case when 1 is NULL then 'false' else 'true' end as is_group from (
+select u.id as user_id, u.display_name, g.id as group_id, g.name  from chat.users u
+inner join chat.users_group ug on u.id=ug.user_id
+inner join chat.groups g on ug.group_id = g.id
+where user_id = ".$user_id." and ug.is_active=true) as us_group
+inner join
+-- вытащить последнее сообщение из каждой группы
+(select g_m.* from(
+select mr.recipient_group_id, max(m.create_date) as create_date,case when m.message_body is NULL then 'Файл' else m.message_body end  as message_body from chat.messages m
+inner join chat.message_recipient mr on m.id = mr.message_id
+where mr.recipient_group_id is not NULL
+group by mr.recipient_group_id, m.message_body) as g_m
+inner join (select mr.recipient_group_id, max(m.create_date) as create_date from chat.messages m
+inner join chat.message_recipient mr on m.id = mr.message_id
+where mr.recipient_group_id is not NULL
+group by mr.recipient_group_id) g_m2
+on g_m.recipient_group_id=g_m2.recipient_group_id and g_m.create_date = g_m2.create_date) as message_for_group
+on us_group.group_id = message_for_group.recipient_group_id
+left join (select mr.recipient_group_id, count(is_read) as sum_unread from chat.message_recipient as mr
+where mr.recipient_id = ".$user_id." and mr.is_read = false
+group by mr.recipient_group_id) as unread
+         on group_id = unread.recipient_group_id
+
+union
+select main.recipient_id as group_id,u.display_name,main.create_date, case when main.message_body is NULL then 'Файл' else main.message_body end as message_body, main.sum_unread,  main.is_group from (
+-- for chats
+select c_g.creator_id, c_g.recipient_id, c_g.sum_unread, c_g.create_date,c_g.message_body, case when 1 is NULL then 'true' else 'false' end as is_group from (
+select  case when m.creator_id = ".$user_id." then m.creator_id else mr.recipient_id end as creator_id ,
+        case when mr.recipient_id =".$user_id." then m.creator_id else mr.recipient_id end as recipient_id ,
+        sum( case when mr.recipient_id =".$user_id." and mr.is_read = false then 1 else 0 end) as sum_unread ,
+        m.create_date,  m.message_body from chat.message_recipient mr
+left join chat.messages as m on m.id = mr.message_id
+where recipient_group_id is NULL and (creator_id = ".$user_id." or recipient_id=".$user_id.")
+group by m.creator_id, mr.recipient_id, m.message_body, m.create_date) as c_g
+
+inner join (
+select creator_id, recipient_id, max(create_date) as create_date from (
+select  case when m.creator_id = ".$user_id." then m.creator_id else mr.recipient_id end as creator_id ,
+        case when mr.recipient_id =".$user_id." then m.creator_id else mr.recipient_id end as recipient_id ,
+        max(m.create_date) as create_date from chat.message_recipient mr
+left join chat.messages as m on m.id = mr.message_id
+where recipient_group_id is NULL and (creator_id = ".$user_id." or recipient_id=".$user_id.")
+group by m.creator_id, mr.recipient_id, m.create_date) as fooo
+group by creator_id, recipient_id) as c_g1
+on c_g.creator_id=c_g1.creator_id and c_g.recipient_id = c_g1.recipient_id and c_g.create_date = c_g1.create_date) as main
+left join chat.users u on u.id = main.recipient_id
+order by create_date desc ;");
         $return_data['today'] = date('Y-m-d');
         return $return_data;
     }

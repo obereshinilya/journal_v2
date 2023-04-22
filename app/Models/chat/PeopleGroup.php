@@ -9,7 +9,7 @@ class PeopleGroup extends Model{
     public $timestamps = false;
     public $primaryKey = 'id';
     protected $fillable = [
-        'user_id', 'group_id'
+        'user_id', 'group_id', 'is_active'
     ];
 
 
