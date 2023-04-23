@@ -16,6 +16,24 @@ use App\Models\chat\Users;
 
 class ChatController extends Controller
 {
+    function save_new_member($user_id, $group_id){
+        try {
+            PeopleGroup::where('user_id', '=', $user_id)->where('group_id', '=', $group_id)->first()->update(['is_active'=>true]);
+        }catch (\Throwable $e){
+            PeopleGroup::create(['user_id'=>$user_id, 'group_id'=>$group_id]);
+        }
+    }
+    function add_user_to_group($group_id){
+        $current_user_id = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+        $creator_id = Groups::where('id', '=', $group_id)->first()->creator_id;
+        if ($current_user_id == $creator_id){
+            $includes_people = PeopleGroup::where('group_id', '=', $group_id)->where('is_active', '=', true)->get()->pluck('user_id')->toArray();
+            $users = Users::whereNotIn('id', $includes_people)->get()->toArray();
+            return $users;
+        }else{
+            return 'false';
+        }
+    }
     function delete_user_from_group($user_id, $group_id){
         PeopleGroup::where('group_id', '=', $group_id)->where('user_id', '=', $user_id)->update(['is_active'=>false]);
     }

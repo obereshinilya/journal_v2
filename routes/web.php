@@ -32,6 +32,8 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/get_group_info/{id}', [ChatController::class, 'get_group_info'])->name('get_group_info');   ///получаем список пользователей
     Route::get('/delete_group/{id}', [ChatController::class, 'delete_group'])->name('delete_group');   ///Удаляем группу
     Route::get('/delete_user_from_group/{user_id}/{group_id}', [ChatController::class, 'delete_user_from_group'])->name('delete_user_from_group');   ///Удаляем пользователя из группы
+    Route::get('/add_user_to_group/{group_id}', [ChatController::class, 'add_user_to_group'])->name('add_user_to_group');   ///Добавляем пользователя в группу
+    Route::get('/save_new_member/{user_id}/{group_id}', [ChatController::class, 'save_new_member'])->name('save_new_member');   ///Сохраняем пользователя в группу
 
 
     Route::get('/get_user_block', [ChatController::class, 'get_user_block'])->name('get_user_block');   ///Получаем список чатов

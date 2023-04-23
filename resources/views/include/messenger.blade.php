@@ -66,8 +66,9 @@
     <h3 style="text-align: center; margin: 10px" >Информация</h3>
     <div style="width: 100%; overflow-y: hidden; height: calc(100% - 100px); margin-top: 20px">
         <div class="tab">
-            <button class="tablinks" style="width: 50%" onclick="openBlock(this, 'groupInfo')">Общие сведения</button>
-            <button class="tablinks" style="width: 50%" onclick="openBlock(this, 'groupFiles')">Вложения</button>
+            <button class="tablinks" style="width: 33%" onclick="openBlock(this, 'groupInfo')">Общие сведения</button>
+            <button class="tablinks" style="width: 33%" onclick="openBlock(this, 'groupFiles')">Вложения</button>
+            <button class="tablinks" style="width: 33%" onclick="openBlock(this, 'groupNewPeople')">Приглашение</button>
         </div>
         <div id="groupInfo" class="tabcontent" style="display: block">
             <div style="overflow-y: auto; height: 100%">
@@ -102,63 +103,56 @@
                 </table>
             </div>
         </div>
+        <div id="groupNewPeople" class="tabcontent" style="display: block">
+            <div style="overflow-y: auto; height: 100%">
+                <table id="group_files_tab" class="dynamicTable" style="table-layout: auto">
+                    <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th style="width: 60px"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
     <div style="margin-top: 5px; text-align: center">
         <button onclick="document.getElementById('group_info').style.display = 'none'" style="margin: 0; margin-left: 20px" class="btn">Закрыть</button>
     </div>
 </div>
+<div class="new_group" id="new_message">
+    <h3 style="text-align: center; margin: 10px" >Новое сообщение</h3>
+    <input oninput="search_new_message(this.value)" class="input" type="text" style="width: 40%; margin-left: 2%; margin-top: 2%" placeholder="Поиск...">
+    <div style="width: 100%; overflow-y: auto; height: calc(100% - 5em - 70px); margin-top: 20px">
+        <table id="table_for_users" class="dynamicTable" style="table-layout: fixed">
+            <thead>
+            <tr>
+                <th>Имя пользователя</th>
+                <th style="width: 65px"></th>
+            </tr>
+            </thead>
+            <tbody>
 
+            </tbody>
+        </table>
+    </div>
+    <div style="margin-top: 5px; text-align: center">
+        <button onclick="document.getElementById('new_message').style.display = 'none'" style="margin: 0; margin-left: 20px" class="btn">Отменить</button>
+    </div>
+</div>
 <div class="messenger" id="messenger">
     <div class="people_block">
         <div class="search_block">
             <div class="search_input">
-                <input class="input" type="text" id="search_people" placeholder="Поиск пользователя...">
-                <img onclick="create_group()" data-toggle="tooltip" title="Создать новую группу" class="hover_img" src="/assets/img/add_group.svg">
+                <input class="input" type="text" style="width: calc(100% - 120px)" id="search_people" oninput="search_people(this.value)" placeholder="Поиск пользователя...">
+                <img onclick="create_new_msg()" data-toggle="tooltip" title="Новое сообщение" class="hover_img" src="/assets/img/edit.svg">
+                <img onclick="create_group()" data-toggle="tooltip" title="Новая группа" class="hover_img" src="/assets/img/add_group.svg">
             </div>
         </div>
         <div class="people" id="people">
-            <div class="one_people" data-id="2" data-group="false">
-                <table class="table_one_people">
-                    <tbody>
-                    <tr>
-                        <td class="nick_name">Илья</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="one_people" data-id="15" data-group="false">
-                <table class="table_one_people">
-                    <tbody>
-                    <tr>
-                        <td class="nick_name">Леха</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="one_people" data-id="3" data-group="true">
-                <table class="table_one_people">
-                    <tbody>
-                    <tr>
-                        <td class="nick_name"><img src="/assets/img/group_img.svg">ПДС</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
 
         </div>
     </div>
@@ -192,11 +186,11 @@
             <div class="img_message" style="width: 10%; float: right; height: 100%; text-align: center" onclick="file_open()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="60%" height="80%" viewBox="0 0 24 24" style="fill: rgba(186, 196, 245, 1); margin-top: 10%;transform: rotate(90deg);msFilter:progid:DXImageTransform.Microsoft.BasicImage(rotation=1);"><path d="M17.004 5H9c-1.838 0-3.586.737-4.924 2.076C2.737 8.415 2 10.163 2 12c0 1.838.737 3.586 2.076 4.924C5.414 18.263 7.162 19 9 19h8v-2H9c-1.303 0-2.55-.529-3.51-1.49C4.529 14.55 4 13.303 4 12c0-1.302.529-2.549 1.49-3.51C6.45 7.529 7.697 7 9 7h8V6l.001 1h.003c.79 0 1.539.314 2.109.886.571.571.886 1.322.887 2.116a2.966 2.966 0 0 1-.884 2.11A2.988 2.988 0 0 1 17 13H9a.99.99 0 0 1-.698-.3A.991.991 0 0 1 8 12c0-.252.11-.507.301-.698A.987.987 0 0 1 9 11h8V9H9c-.79 0-1.541.315-2.114.889C6.314 10.461 6 11.211 6 12s.314 1.54.888 2.114A2.974 2.974 0 0 0 9 15h8.001a4.97 4.97 0 0 0 3.528-1.473 4.967 4.967 0 0 0-.001-7.055A4.95 4.95 0 0 0 17.004 5z"></path></svg>
             </div>
-            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Пожар', this, 'rgba(228, 8, 8, 1)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(228, 8, 8, 1);transform: ;msFilter:;"><path d="M16.5 8c0 1.5-.5 3.5-2.9 4.3.7-1.7.8-3.4.3-5-.7-2.1-3-3.7-4.6-4.6-.4-.3-1.1.1-1 .7 0 1.1-.3 2.7-2 4.4C4.1 10 3 12.3 3 14.5 3 17.4 5 21 9 21c-4-4-1-7.5-1-7.5.8 5.9 5 7.5 7 7.5 1.7 0 5-1.2 5-6.4 0-3.1-1.3-5.5-2.4-6.9-.3-.5-1-.2-1.1.3"></path></svg></button>
-            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Тренировка', this, 'rgba(186, 196, 245, 1)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(186, 196, 245, 1);transform: ;msFilter:;"><circle cx="17" cy="4" r="2"></circle><path d="M15.777 10.969a2.007 2.007 0 0 0 2.148.83l3.316-.829-.483-1.94-3.316.829-1.379-2.067a2.01 2.01 0 0 0-1.272-.854l-3.846-.77a1.998 1.998 0 0 0-2.181 1.067l-1.658 3.316 1.789.895 1.658-3.317 1.967.394L7.434 17H3v2h4.434c.698 0 1.355-.372 1.715-.971l1.918-3.196 5.169 1.034 1.816 5.449 1.896-.633-1.815-5.448a2.007 2.007 0 0 0-1.506-1.33l-3.039-.607 1.772-2.954.417.625z"></path></svg></button>
-            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Происшествие', this, 'rgba(110, 251, 97, 1)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(110, 251, 97, 1);transform: ;msFilter:;"><path d="M9.912 8.531 7.121 3.877a.501.501 0 0 0-.704-.166 9.982 9.982 0 0 0-4.396 7.604.505.505 0 0 0 .497.528l5.421.09a4.042 4.042 0 0 1 1.973-3.402zm8.109-4.51a.504.504 0 0 0-.729.151L14.499 8.83a4.03 4.03 0 0 1 1.546 3.112l5.419-.09a.507.507 0 0 0 .499-.53 9.986 9.986 0 0 0-3.942-7.301zm-4.067 11.511a4.015 4.015 0 0 1-1.962.526 4.016 4.016 0 0 1-1.963-.526l-2.642 4.755a.5.5 0 0 0 .207.692A9.948 9.948 0 0 0 11.992 22a9.94 9.94 0 0 0 4.396-1.021.5.5 0 0 0 .207-.692l-2.641-4.755z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
-            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Дисп. задание', this, 'rgb(34, 139, 34)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgb(34, 139, 34);transform: ;msFilter:;"><path d="M19 2.01H6c-1.206 0-3 .799-3 3v14c0 2.201 1.794 3 3 3h15v-2H6.012C5.55 19.998 5 19.815 5 19.01c0-.101.009-.191.024-.273.112-.575.583-.717.987-.727H20c.018 0 .031-.009.049-.01H21V4.01c0-1.103-.897-2-2-2zm0 14H5v-11c0-.806.55-.988 1-1h7v7l2-1 2 1v-7h2v12z"></path></svg></button>
-            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('-', this)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(12, 12, 12, 1);transform: ;msFilter:;"><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg></button>
+{{--            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Пожар', this, 'rgba(228, 8, 8, 1)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(228, 8, 8, 1);transform: ;msFilter:;"><path d="M16.5 8c0 1.5-.5 3.5-2.9 4.3.7-1.7.8-3.4.3-5-.7-2.1-3-3.7-4.6-4.6-.4-.3-1.1.1-1 .7 0 1.1-.3 2.7-2 4.4C4.1 10 3 12.3 3 14.5 3 17.4 5 21 9 21c-4-4-1-7.5-1-7.5.8 5.9 5 7.5 7 7.5 1.7 0 5-1.2 5-6.4 0-3.1-1.3-5.5-2.4-6.9-.3-.5-1-.2-1.1.3"></path></svg></button>--}}
+{{--            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Тренировка', this, 'rgba(186, 196, 245, 1)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(186, 196, 245, 1);transform: ;msFilter:;"><circle cx="17" cy="4" r="2"></circle><path d="M15.777 10.969a2.007 2.007 0 0 0 2.148.83l3.316-.829-.483-1.94-3.316.829-1.379-2.067a2.01 2.01 0 0 0-1.272-.854l-3.846-.77a1.998 1.998 0 0 0-2.181 1.067l-1.658 3.316 1.789.895 1.658-3.317 1.967.394L7.434 17H3v2h4.434c.698 0 1.355-.372 1.715-.971l1.918-3.196 5.169 1.034 1.816 5.449 1.896-.633-1.815-5.448a2.007 2.007 0 0 0-1.506-1.33l-3.039-.607 1.772-2.954.417.625z"></path></svg></button>--}}
+{{--            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Происшествие', this, 'rgba(110, 251, 97, 1)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(110, 251, 97, 1);transform: ;msFilter:;"><path d="M9.912 8.531 7.121 3.877a.501.501 0 0 0-.704-.166 9.982 9.982 0 0 0-4.396 7.604.505.505 0 0 0 .497.528l5.421.09a4.042 4.042 0 0 1 1.973-3.402zm8.109-4.51a.504.504 0 0 0-.729.151L14.499 8.83a4.03 4.03 0 0 1 1.546 3.112l5.419-.09a.507.507 0 0 0 .499-.53 9.986 9.986 0 0 0-3.942-7.301zm-4.067 11.511a4.015 4.015 0 0 1-1.962.526 4.016 4.016 0 0 1-1.963-.526l-2.642 4.755a.5.5 0 0 0 .207.692A9.948 9.948 0 0 0 11.992 22a9.94 9.94 0 0 0 4.396-1.021.5.5 0 0 0 .207-.692l-2.641-4.755z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>--}}
+{{--            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('Дисп. задание', this, 'rgb(34, 139, 34)')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgb(34, 139, 34);transform: ;msFilter:;"><path d="M19 2.01H6c-1.206 0-3 .799-3 3v14c0 2.201 1.794 3 3 3h15v-2H6.012C5.55 19.998 5 19.815 5 19.01c0-.101.009-.191.024-.273.112-.575.583-.717.987-.727H20c.018 0 .031-.009.049-.01H21V4.01c0-1.103-.897-2-2-2zm0 14H5v-11c0-.806.55-.988 1-1h7v7l2-1 2 1v-7h2v12z"></path></svg></button>--}}
+{{--            <button class="button button1" style="margin-left: 15px; display: none" onclick="set_type_messege('-', this)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(12, 12, 12, 1);transform: ;msFilter:;"><path d="M5 20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8h2V6h-4V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H3v2h2zM9 4h6v2H9zM8 8h9v12H7V8z"></path><path d="M9 10h2v8H9zm4 0h2v8h-2z"></path></svg></button>--}}
         </div>
     </div>
 </div>
@@ -214,6 +208,8 @@
         $('#sender_text').keydown(function(e) {if(e.keyCode === 13) {send_messege()}});
         $('#chat_window').scroll(function (){if (this.scrollTop == 0){old_message()}})
     });
+
+
     /////Часть отображения панели юзеров
     function get_user_block(){
         $.ajax({
@@ -221,12 +217,15 @@
             method: 'GET',
             async: false,
             success: function(data){
+                var selected_people, group_sel, id_sel
                 try{
-                    var selected_people = $('.selected_people')[0]
-                    var group_sel = selected_people.getAttribute('data-group')
-                    var id_sel = selected_people.getAttribute('data-id')
+                    selected_people = $('.selected_people')[0]
+                    group_sel = selected_people.getAttribute('data-group')
+                    id_sel = selected_people.getAttribute('data-id')
                 }catch (e) {
-
+                    selected_people = document.getElementById('name_recipient_div')
+                    group_sel = selected_people.getAttribute('data-group')
+                    id_sel = selected_people.getAttribute('data-id')
                 }
                 var people_main = document.getElementById('people')
                 people_main.innerText = ''
@@ -270,11 +269,25 @@
                 try{
                     $(`.one_people[data-group = "${group_sel}"][data-id = "${id_sel}"]`).addClass('selected_people')
                 }catch (e) {
-
                 }
-
+                search_people(document.getElementById('search_people').value)
             }
         })
+    }
+
+    /////Поиск пользователя
+    function search_people(search_text){
+        search_text = new RegExp(search_text, 'i');
+        var tablePeople = $('.nick_name')
+        for(var i=0; i<tablePeople.length; i++){
+            if (!tablePeople[i].classList.contains('hidden_rows')){
+                if (tablePeople[i].textContent.match(search_text)){
+                    tablePeople[i].parentNode.parentNode.parentNode.parentNode.style.display = ''
+                }else {
+                    tablePeople[i].parentNode.parentNode.parentNode.parentNode.style.display = 'none'
+                }
+            }
+        }
     }
 
     /////Часть по информации
@@ -407,6 +420,28 @@
                     }
                 })
                 break;
+            case 'groupNewPeople':
+                $.ajax({
+                    url: '/add_user_to_group/'+name_div.getAttribute('data-id'),
+                    method: 'GET',
+                    success: function(data){
+                        var body = document.getElementById('groupNewPeople').getElementsByTagName('tbody')[0]
+                        body.innerText = ''
+                        if (data === 'false'){
+                            var tr = document.createElement('tr')
+                            tr.innerHTML += `<td colspan="2">Добавление доступно только создателю</td>`
+                            body.appendChild(tr)
+                        }else {
+                            for (var row of data){
+                                var tr = document.createElement('tr')
+                                tr.innerHTML += `<td>${row['display_name']}</td>`
+                                tr.innerHTML += `<td><img onclick="add_user_to_group(${row['id']})" class="hover_img" src="/assets/img/add_plus_icon.svg"></td>`
+                                body.appendChild(tr)
+                            }
+                        }
+                    }
+                })
+                break;
         }
     }
     function delete_from_group(tr){
@@ -467,6 +502,7 @@
         document.getElementById('new_group').style.display = 'block'
         document.getElementById('user_info').style.display = 'none'
         document.getElementById('group_info').style.display = 'none'
+        document.getElementById('new_message').style.display = 'none'
     }
     function save_group(){
         var arr = new Map()
@@ -490,7 +526,67 @@
             }
         })
     }
+    function add_user_to_group(id_user){
+        $.ajax({
+            url: '/save_new_member/'+id_user+'/'+document.getElementById('name_recipient_div').getAttribute('data-id'),
+            method: 'GET',
+            success: function(res){
+                openBlock($('#group_info .tablinks')[2], 'groupNewPeople')
+            }
+        })
+    }
+    /////Часть по созданию нового чата
+    function create_new_msg(){
+        $.ajax({
+            url: '/get_all_users',
+            method: 'GET',
+            success: function(res){
+                var tableBody = document.getElementById('table_for_users').getElementsByTagName('tbody')[0]
+                tableBody.innerText = ''
+                for (var row of res){
+                    var tr = document.createElement('tr')
+                    tr.innerHTML = `<td>${row['display_name']}</td>`
+                    tr.innerHTML += `<td><img class="hover_img" onclick="open_new_chat(${row['id']}, '${row['display_name']}')" src="/assets/img/edit.svg"></td>`
+                    tableBody.appendChild(tr)
+                }
+            }
+        })
+        document.getElementById('search_people_group').value = ''
+        document.getElementById('new_group').style.display = 'none'
+        document.getElementById('user_info').style.display = 'none'
+        document.getElementById('group_info').style.display = 'none'
+        document.getElementById('new_message').style.display = 'block'
+    }
+    function open_new_chat(id, name){
+        $('.selected_people').removeClass('selected_people')
+        var name_block = document.getElementById('name_recipient_div')
+        name_block.setAttribute('data-id', id)
+        name_block.setAttribute('data-group', 'false')
+        document.getElementById('name_people').textContent = name
+        document.getElementById('new_message').style.display = 'none'
+        document.getElementById('search_people').value = ''
+        search_people('')
+        create_chat()
+        try{
+            $(`.one_people[data-group = "false"][data-id = "${id}"]`).addClass('selected_people')
+        }catch (e) {
 
+        }
+    }
+    function search_new_message(search_text){
+        search_text = new RegExp(search_text, 'i');
+        var tablePeople = document.getElementById('table_for_users').getElementsByTagName('tbody')[0]
+        var allTableRow = tablePeople.getElementsByTagName('tr')
+        for(var i=0; i<allTableRow.length; i++){
+            if (!allTableRow[i].classList.contains('hidden_rows')){
+                if (allTableRow[i].getElementsByTagName('td')[0].textContent.match(search_text)){
+                    allTableRow[i].style.display = ''
+                }else {
+                    allTableRow[i].style.display = 'none'
+                }
+            }
+        }
+    }
     /////Отправка сообщения
     function send_messege(){
         if (document.getElementById('sender_text').value !== ''){
@@ -526,6 +622,7 @@
         document.getElementById('user_info').style.display = 'none'
         document.getElementById('new_group').style.display = 'none'
         document.getElementById('group_info').style.display = 'none'
+        document.getElementById('new_message').style.display = 'none'
     }
     function create_chat(){
         var name_div = document.getElementById('name_recipient_div')
@@ -810,6 +907,7 @@
                 dataType:"json",
                 contentType: false,
                 processData: false,
+                async: false,
                 data: formData,
                 success: function(){
                     new_message(false)
@@ -822,7 +920,7 @@
     }
 
     var updatePeople, updateChat
-    ////Открыть закрыть сайм чат
+    ////Открыть закрыть сам чат
     function close_messenger(){
         document.getElementById('new_group').style.display = 'none'
         document.getElementById('messenger').style.display = 'none'
