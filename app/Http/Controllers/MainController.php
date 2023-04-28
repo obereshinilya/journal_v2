@@ -110,12 +110,14 @@ class MainController extends Controller
         }
     }
 
-    public function get_data_for_graph($param_id)
+    public function get_data_for_graph($param_id, $number)
     {
         $param_string = substr($param_id, 0, -1);
         $param_id = explode(",", $param_string);
+        $date_end = date('Y-m-d');
+        $date_start = date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 7 * $number, date("Y")));
         $sql = 'SELECT time.date, ';
-        $joinrow = "(SELECT date_trunc('minute', time.timestamp) as date from app_info.hour_params as time where time.param_id in ($param_string) group by  time.timestamp order by time.timestamp) as time";
+        $joinrow = "(SELECT date_trunc('minute', time.timestamp) as date from app_info.hour_params as time where time.param_id in ($param_string) and time.timestamp between date '$date_start' and date '$date_end' group by  time.timestamp order by time.timestamp) as time";
         foreach ($param_id as $key => $id) {
             if ($param_id[$key] != end($param_id)) {
                 $sql .= 'p' . $key . '.val as val' . $key . ', ';
@@ -123,7 +125,7 @@ class MainController extends Controller
                 $sql .= 'p' . $key . '.val as val' . $key;
 
             }
-            $joinrow .= " left join (SELECT date_trunc('minute', p$key.timestamp) as date_p$key, val from app_info.hour_params as p$key where p$key.param_id=$id) as p$key";
+            $joinrow .= " left join (SELECT date_trunc('minute', p$key.timestamp) as date_p$key, val from app_info.hour_params as p$key where p$key.param_id=$id and p$key.timestamp between date '$date_start' and date '$date_end' ) as p$key";
             $joinrow .= " on p$key.date_p$key = time.date";
         }
         $sql .= ' FROM ';
@@ -138,7 +140,7 @@ class MainController extends Controller
 //            $selectRow = $selectRow.', p'.$i.'.val as val'.$i;
 //            $joinRow = $joinRow."left join(SELECT date_trunc('minute', p".$i." . timestamp) as date_p".$i.", val FROM app_info . hour_params as p".$i." WHERE p".$i." . param_id = ".$param_id[$i].") as p".$i." on p".$i." . date_p".$i." = time . date ";
 //        }
-
+//        return $sql;
         $result = DB::select($sql);
 //      $result = DB::select("SELECT $selectRow FROM $joinRow"); // старый запрос
         foreach ($result as $row) {

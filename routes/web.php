@@ -67,7 +67,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/delete_comment/{id}/{type}', [HourController::class, 'delete_comment']);   //обнуляем комментарий
     Route::get('/print_hour/{date}', [HourController::class, 'print_hour']); //Печать суточных
     Route::get('/excel_hour/{date}', [HourController::class, 'excel_hour']); //Excel суточных
-    Route::get('/get_data_for_graph/{param_id}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
+    Route::get('/get_data_for_graph/{param_id}/{number_of_weeks}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
 
     //БЛОК SIDE_MENU
     Route::get('/get_side_object', [MainController::class, 'get_side_object'])->name('get_side_object');    ///Получить древо объектов
