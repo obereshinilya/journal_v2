@@ -76,6 +76,11 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/store_new_signal/{parent_id}', [MainController::class, 'store_new_signal'])->name('store_new_signal');    ///Сохранить новые сигналы
     Route::get('/delete_object/{parent_id}', [MainController::class, 'delete_object'])->name('delete_object');    ///Сохранить новые сигналы
 
+
+    Route::get('/test_page', [MainController::class,'test_page']);
+    Route::get('/test_data_for_charts/{param_id}/{number_of_weeks}', [MainController::class,'test_data_for_charts']);
+
+
 });
 
 Route::get('/logout',  [Controller::class, 'logout']);

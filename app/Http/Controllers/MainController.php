@@ -180,6 +180,43 @@ class MainController extends Controller
         $record['comment'] = $comment;
         Log::create($record);
     }
+
+    public function test_page()
+    {
+        $all_param_hour = TableObj::where('hour_param', '=', true)->select('id', 'full_name', 'e_unit')->orderby('full_name')->get();
+
+        return view('test_page', compact('all_param_hour'));
+    }
+
+    public function test_data_for_charts($param_id, $number)
+    {
+        $params = explode('!', $param_id);
+        unset($params[count($params) - 1]);
+        $date_end = date('Y-m-d');
+        $date_start = date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 7 * $number, date("Y")));
+        foreach ($params as $key => $param) {
+            $param = substr($param, 0, -1);
+            $result[] = $param;
+            $array_params = explode(',', $param);
+            $sql = '';
+            foreach ($array_params as $parametr) {
+                $sql .= 'SELECT time.date,name.full_name, p0.val as val0  FROM ';
+                $joinrow = "(SELECT date_trunc('minute', time.timestamp) as date from app_info.hour_params as time where time.param_id in ($parametr)  and time.timestamp between date '$date_start' and date '$date_end' group by  time.timestamp order by time.timestamp) as time";
+                $joinrow .= " left join (SELECT date_trunc('minute', p0.timestamp) as date_p0, val,param_id from app_info.hour_params as p0 where p0.param_id=$parametr and p0.timestamp between date '$date_start' and date '$date_end') as p0  on p0.date_p0 = time.date";
+                $joinrow .= " left join (SELECT id, full_name from app_info.main_table as name where name.id='$parametr' ) as name on p0.param_id=name.id";
+                $sql .= $joinrow;
+                if ($parametr != end($array_params) && count($array_params) > 1) {
+                    $sql .= ' UNION ';
+                }
+            }
+            $result = DB::select($sql);
+            foreach ($result as $row) {
+                $new_result[$key][] = array_values((array)$row);
+            }
+        }
+        return json_encode($new_result);
+
+    }
 }
 
 
