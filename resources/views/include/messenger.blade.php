@@ -915,6 +915,7 @@
             });
         }
     }
+
     function download_file_chat(name_file){
         document.getElementById('iframe_message').setAttribute('src', '/download_file_chat/'+name_file)
     }

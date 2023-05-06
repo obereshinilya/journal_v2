@@ -17,16 +17,17 @@
 {{--Подключение графиков--}}
     <script src="/assets/js_library/fusionCharts/fusioncharts.js"></script>
     <script src="/assets/js_library/fusionCharts/fusioncharts.theme.fusion.js"></script>
-
-    <link rel="stylesheet" href="/assets/my_styles/air-datepicker.css">
-
-    <link rel="stylesheet" href="/assets/my_styles/my_style.css">
-    <link rel="stylesheet" href="/assets/fonts/fonts.css">
 {{--Подключение таблиц excel--}}
     <link rel="stylesheet" href="/assets/my_styles/excelTable/jexcel.css" type="text/css"/>
     <link rel="stylesheet" href="/assets/my_styles/excelTable/jsuites.css" type="text/css"/>
     <script type="text/javascript" src="/assets/js_library/excelTable/jexcel.js"></script>
     <script type="text/javascript" src="/assets/js_library/excelTable/jsuites.js"></script>
+
+    <link rel="stylesheet" href="/assets/my_styles/air-datepicker.css">
+
+    <link rel="stylesheet" href="/assets/my_styles/my_style.css">
+    <link rel="stylesheet" href="/assets/fonts/fonts.css">
+
 
 
 </head>

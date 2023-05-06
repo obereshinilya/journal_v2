@@ -1,3 +1,12 @@
+/*Блок для таблицы js*/
+.jexcel thead{
+    position: sticky;
+    top: 0;
+    z-index: 3;
+}
+.jexcel_filter{
+    display: none;
+}
 /*Блок главного контента*/
 .content{
     width: 88%;

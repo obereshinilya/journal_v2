@@ -7,19 +7,6 @@
         .content{
             width: 100%;
         }
-        .jexcel{
-            width: 100%;
-            table-layout: auto;
-            height: 100%;
-        }
-        .jexcel thead{
-            position: sticky;
-            top: 0;
-            z-index: 3;
-        }
-        .jexcel_filter{
-            display: none;
-        }
     </style>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Журнал действий оператора</p>
@@ -39,6 +26,7 @@
         function get_table_data(){
             document.getElementById('search_row').value = ''
             document.getElementById('main_div').innerText = ''
+            var width = ($('#main_div').width()-270)/3 + 'px'
             var date_str = $("#period").val().replace(/ /g,'')
             date_str = date_str.split('-')
             $.ajax({
@@ -57,10 +45,10 @@
                         tableHeight: $('#main_div').height()+'px',
                         rowResize: false,
                         columns: [
-                            {type:'text',name:'username',title:'Пользователь',readOnly:true,},
-                            {type:'text',name:'event',title:'Действие',readOnly:true,},
-                            {type:'text',name:'comment',title:'Описание',readOnly:true,},
-                            {type:'calendar',name:'date',title:'Дата', options: { format:'DD.MM.YYYY HH:mm' },readOnly:true,},
+                            {width:width,type:'text',name:'username',title:'Пользователь',readOnly:true,},
+                            {width:width,type:'text',name:'event',title:'Действие',readOnly:true,},
+                            {width:width,type:'text',name:'comment',title:'Описание',readOnly:true,},
+                            {width:'200px',type:'calendar',name:'date',title:'Дата', options: { format:'DD.MM.YYYY HH:mm' },readOnly:true,},
                         ],
                         csvFileName: 'Журнал_действий_оператора'
                     });

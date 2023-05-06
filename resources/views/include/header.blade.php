@@ -10,6 +10,9 @@
         <div><a href="/admin_journal">Журнал действий оператора</a></div>
         <div><a href="/signal_settings/false">Редактирование параметров</a></div>
     </div>
+    <div class="header_cell div_list">
+        <a href="/reports">Отчеты</a>
+    </div>
     <div class="user_div">
             <div class="small_user_div">
                 <span>{{\Illuminate\Support\Facades\Auth::user()->displayname[0]}}</span>
