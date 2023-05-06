@@ -8,6 +8,9 @@
 @endsection
 
 @section('content')
+    <style>
+        #period{display: none}
+    </style>
     <div id="context_time_params" class="context_menu">
         <a id="open_edit_comment">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -27,12 +30,11 @@
     </div>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Часовые показатели.</p>
-        <button id="" class="btn header_blocks btn_img"><img onclick="print()" src="/assets/img/pdf.svg"></button>
-        <button id="" class="btn header_blocks btn_img"><img onclick="excel()" src="/assets/img/excel.svg"></button>
-        <button class="btn header_blocks btn_img" disabled id="add_weeks" onclick="increment_weeks()"> + неделя
-        </button>
+        <button id="pdf_btn" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить PDF" ><img onclick="print()" src="/assets/img/pdf.svg"></button>
+        <button id="excel_btn" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить XLSX" ><img onclick="excel()" src="/assets/img/excel.svg"></button>
         @include('include.search_row')
         @include('include.date')
+        @include('include.period_date_time')
     </div>
     <div id="tableDiv" class="tableDiv">
         <div id="statickTableDiv" class="statickTableDiv">
@@ -77,7 +79,6 @@
 
 
     <script>
-        let number_of_weeks = 1;
         $(document).ready(function () {
             side_menu_obj_click()
             initial_resize()
@@ -419,7 +420,6 @@
             } else {
                 document.getElementById('clear_graph').style.display = 'none'
             }
-            document.getElementById('add_weeks').removeAttribute('disabled');
             render_graph()
         }
 
@@ -432,92 +432,36 @@
             window.location.href = '/excel_hour/' + $("#date_start").val()
         }
 
-        function increment_weeks() {
-            number_of_weeks++
-            console.log(number_of_weeks)
-            render_graph();
-        }
-
         function render_graph() {
             if (document.getElementsByClassName('opened_graph').length > 0) {
                 document.getElementById('dynamicGraph').innerText = ''
                 document.getElementById('dynamicTable').style.display = 'none'
                 document.getElementById('dynamicGraph').style.display = 'block'
+                document.getElementById('pdf_btn').style.display = 'none'
+                document.getElementById('excel_btn').style.display = 'none'
+                document.getElementById('date_start').style.display = 'none'
+                document.getElementById('period').style.display = 'block'
                 var schema = []
                 schema[0] = {"name": "Time", "type": "date", "format": "%Y-%m-%d %H:%M:%S"}
-                schema[1] = {"name": "Parametr", "type": "string"}
-                schema[2] = {"name": "Value", "type": "number"}
-
                 var yaxis = []
                 var i = 1
                 var param_id = ''
-                let suffixes = [];
-                for (var img of document.getElementsByClassName('opened_graph')) {
-                    if (suffixes.indexOf(img.getAttribute('data-unit')) < 0) {
-                        suffixes.push(img.getAttribute('data-unit'));
-                    }
-                    // param_id = param_id + '\'' + img.getAttribute('data-id') + '\'' + ','
-                }
-
-                console.log(suffixes)
-                suffixes.forEach((el) => {
-                    switch (el) {
-                        case '-':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Положение/степень", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-                        case '%':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Задание/запас/моквелд", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-                        case '°C':
-                        case 'градус':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Температура", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-
-                        case 'кПа':
-                        case 'МПа':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Давление", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-                        case 'м3/ч':
-                        case 'Нм3/ч':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Расход", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-                        case 'об/мин':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Частота", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-                        case 'шт':
-                            yaxis[i - 1] = JSON.parse(`{"plot":{"value": "Кол-во ГПА в работе", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${el}"}}`)
-                            i++
-                            break
-
-                    }
-
-                })
-                console.log(yaxis);
-                i = 1;
                 for (var img of document.getElementsByClassName('opened_graph')) {
                     schema[i] = {"name": img.getAttribute('data-name'), "type": "number"}
                     yaxis[i - 1] = JSON.parse(`{"plot":{"value": "${img.getAttribute('data-name')}", "connectnulldata": true, "type": "smooth-line"},"format": {"suffix": " ${img.getAttribute('data-unit')}"}}`)
                     param_id = param_id + '\'' + img.getAttribute('data-id') + '\'' + ','
                     i++
                 }
-                console.log(yaxis)
-                // console.log(schema)
+                var date_str = $("#period").val().replace(/ /g,'')
+                date_str = date_str.split('-')
                 $.ajax({
-                    url: '/get_data_for_graph/' + param_id + '/' + number_of_weeks,
+                    url: '/get_data_for_graph/' + param_id + '/'+date_str[0]+'/'+date_str[1],
                     method: 'GET',
                     async: false,
                     success: function (res) {
                         res = JSON.parse(res)
-                        console.log(res)
                         let fusionDataStore = new FusionCharts.DataStore();
                         let fusionTable = fusionDataStore.createDataTable(res, schema);
-                        console.log(fusionTable);
                         var height = $('#tableDiv').height()
                         new FusionCharts({
                             type: 'timeseries',
@@ -528,19 +472,14 @@
                                 data: fusionTable,
                                 chart: {exportenabled: true},
                                 caption: {},
-                                navigator: {
-                                    timeFormat: {
-                                        day: "%-d %b %Y",
-                                        hour: "%-d %b %Y, %H:%M",
-                                        minutes: "%-d %b %Y, %H:%M"
+                                navigator: {timeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"}},
+                                "extensions": {
+                                    "customRangeSelector": {
+                                        "enabled": "0"
                                     }
                                 },
                                 "xAxis": {
-                                    outputTimeFormat: {
-                                        day: "%-d %b %Y",
-                                        hour: "%-d %b %Y, %H:%M",
-                                        minutes: "%-d %b %Y, %H:%M"
-                                    },
+                                    outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
                                     timemarker: [
                                         {
                                             start: "2023-04-13 16:00:00",
@@ -558,25 +497,25 @@
                                         },
                                     ]
                                 },
-
                                 tooltip: {
                                     outputTimeFormat: {hour: "%-d %b %Y, %H:%M", minutes: "%-d %b %Y, %H:%M"}
                                 },
                                 yaxis: yaxis
-                                // series: "Type",
                             }
                         }).render("dynamicGraph")
                     },
                     error: function () {
-                        document.getElementById('dynamicGraph').innerHTML='<h1>Нет данных!</h1>'
+                        document.getElementById('dynamicGraph').innerHTML='<h1>За выбранный период нет данных!</h1>'
                         document.getElementById('dynamicGraph').style.textAlign='center'
                     }
                 })
             } else {
                 document.getElementById('dynamicTable').style.display = ''
                 document.getElementById('dynamicGraph').style.display = 'none'
-                document.getElementById('add_weeks').setAttribute('disabled', 'true');
-                number_of_weeks=1;
+                document.getElementById('pdf_btn').style.display = ''
+                document.getElementById('excel_btn').style.display = ''
+                document.getElementById('date_start').style.display = ''
+                document.getElementById('period').style.display = ''
             }
         }
 

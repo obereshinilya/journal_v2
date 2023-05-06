@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\Hour_params;
 use App\Models\JournalSodu;
 use App\Models\Log;
-use App\Models\TableObj;
+use Illuminate\Http\Request;
 
 class JournalController extends Controller
 {
@@ -23,7 +22,19 @@ class JournalController extends Controller
     }
     public function journal_sodu_data($date_start, $date_stop){
         return JournalSodu::wherebetween('date', [date('d.m.Y 00:00', strtotime($date_start)), date('d.m.Y 23:59', strtotime($date_stop))])
-            ->orderbydesc('id')->selectRaw("fio,event,type_event,date,otdel")->get();
+            ->orderbydesc('id')->selectRaw("fio,event,type_event,date,otdel,id")->get();
+    }
+    public function edit_sodu(Request $request){
+        $request = $request->all();
+        JournalSodu::where('id', '=', $request['id'])->update([$request['column']=>$request['value']]);
+        (new MainController)->create_log_record('Редактирование журнала СОДУ', 'Запись от '.date('d.m.Y H:i', strtotime(JournalSodu::where('id', '=', $request['id'])->first()->date)));
+    }
+    public function delete_sodu($id){
+        (new MainController)->create_log_record('Удаление записи журнала СОДУ', 'Запись от '.date('d.m.Y H:i', strtotime(JournalSodu::where('id', '=', $id)->first()->date)));
+        JournalSodu::where('id', '=', $id)->delete();
+    }
+    public function create_sodu(){
+        JournalSodu::create();
     }
 }
 

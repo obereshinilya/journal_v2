@@ -110,12 +110,12 @@ class MainController extends Controller
         }
     }
 
-    public function get_data_for_graph($param_id, $number)
+    public function get_data_for_graph($param_id, $date_start, $date_stop)
     {
         $param_string = substr($param_id, 0, -1);
         $param_id = explode(",", $param_string);
-        $date_end = date('Y-m-d');
-        $date_start = date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 7 * $number, date("Y")));
+        $date_end = date('d.m.Y 00:00', strtotime($date_stop.' +1 days'));
+        $date_start = date('d.m.Y 00:00', strtotime($date_start));
         $sql = 'SELECT time.date, ';
         $joinrow = "(SELECT date_trunc('minute', time.timestamp) as date from app_info.hour_params as time where time.param_id in ($param_string) and time.timestamp between date '$date_start' and date '$date_end' group by  time.timestamp order by time.timestamp) as time";
         foreach ($param_id as $key => $id) {
@@ -130,24 +130,10 @@ class MainController extends Controller
         }
         $sql .= ' FROM ';
         $sql .= $joinrow;
-//        $selectRow = 'time.date'; //старый запрос
-//        $joinRow = "(SELECT date_trunc('minute', time . timestamp) as date FROM app_info . hour_params as time WHERE time . param_id in(".$param_string.") GROUP BY time . timestamp ORDER BY time . timestamp) as time ";
-//        $replace = array('{', '}', '"date":');
-//        $replace_to = array('[',']', '');
-//        for ($i = 0; $i<count($param_id); $i++){
-//            array_push($replace, '"val'.$i.'":');
-//            array_push($replace_to, '');
-//            $selectRow = $selectRow.', p'.$i.'.val as val'.$i;
-//            $joinRow = $joinRow."left join(SELECT date_trunc('minute', p".$i." . timestamp) as date_p".$i.", val FROM app_info . hour_params as p".$i." WHERE p".$i." . param_id = ".$param_id[$i].") as p".$i." on p".$i." . date_p".$i." = time . date ";
-//        }
-//        return $sql;
         $result = DB::select($sql);
-//      $result = DB::select("SELECT $selectRow FROM $joinRow"); // старый запрос
         foreach ($result as $row) {
             $new_result[] = array_values((array)$row);
         }
-
-//         $json = str_replace($replace, $replace_to, json_encode($result)); //старый запрос
         return json_encode($new_result);
     }
 
@@ -178,45 +164,14 @@ class MainController extends Controller
         }
         $record['event'] = $message;
         $record['comment'] = $comment;
-        Log::create($record);
-    }
+        $last_record = Log::orderbydesc('id')->first()->toArray();
+        if ($last_record['username'] == $record['username'] && $last_record['event'] == $record['event'] && $last_record['comment'] == $record['comment']){
 
-    public function test_page()
-    {
-        $all_param_hour = TableObj::where('hour_param', '=', true)->select('id', 'full_name', 'e_unit')->orderby('full_name')->get();
-
-        return view('test_page', compact('all_param_hour'));
-    }
-
-    public function test_data_for_charts($param_id, $number)
-    {
-        $params = explode('!', $param_id);
-        unset($params[count($params) - 1]);
-        $date_end = date('Y-m-d');
-        $date_start = date('Y-m-d', mktime(0, 0, 0, date("m"), date("d") - 7 * $number, date("Y")));
-        foreach ($params as $key => $param) {
-            $param = substr($param, 0, -1);
-            $result[] = $param;
-            $array_params = explode(',', $param);
-            $sql = '';
-            foreach ($array_params as $parametr) {
-                $sql .= 'SELECT time.date,name.full_name, p0.val as val0  FROM ';
-                $joinrow = "(SELECT date_trunc('minute', time.timestamp) as date from app_info.hour_params as time where time.param_id in ($parametr)  and time.timestamp between date '$date_start' and date '$date_end' group by  time.timestamp order by time.timestamp) as time";
-                $joinrow .= " left join (SELECT date_trunc('minute', p0.timestamp) as date_p0, val,param_id from app_info.hour_params as p0 where p0.param_id=$parametr and p0.timestamp between date '$date_start' and date '$date_end') as p0  on p0.date_p0 = time.date";
-                $joinrow .= " left join (SELECT id, full_name from app_info.main_table as name where name.id='$parametr' ) as name on p0.param_id=name.id";
-                $sql .= $joinrow;
-                if ($parametr != end($array_params) && count($array_params) > 1) {
-                    $sql .= ' UNION ';
-                }
-            }
-            $result = DB::select($sql);
-            foreach ($result as $row) {
-                $new_result[$key][] = array_values((array)$row);
-            }
+        }else{
+            Log::create($record);
         }
-        return json_encode($new_result);
-
     }
+
 }
 
 

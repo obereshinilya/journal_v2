@@ -20,6 +20,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/reports', [ReportController::class, 'reports'])->name('reports');   ///Главная страница отчетов
     Route::get('/journal_sodu', [JournalController::class, 'journal_sodu'])->name('journal_sodu');   ///Страница журнала СОДУ
     Route::get('/journal_sodu_data/{date_start}/{date_stop}', [JournalController::class, 'journal_sodu_data'])->name('journal_sodu_data');   ///Данные журнала СОДУ
+    Route::post('/edit_sodu', [JournalController::class, 'edit_sodu'])->name('edit_sodu');   ///Сохранить изменения в журнале
+    Route::get('/delete_sodu/{id}', [JournalController::class, 'delete_sodu'])->name('delete_sodu');   ///Удалить запись
+    Route::get('/create_sodu', [JournalController::class, 'create_sodu'])->name('create_sodu');   ///Создать запись
 
 
 
@@ -64,7 +67,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/delete_comment/{id}/{type}', [HourController::class, 'delete_comment']);   //обнуляем комментарий
     Route::get('/print_hour/{date}', [HourController::class, 'print_hour']); //Печать суточных
     Route::get('/excel_hour/{date}', [HourController::class, 'excel_hour']); //Excel суточных
-    Route::get('/get_data_for_graph/{param_id}/{number_of_weeks}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
+    Route::get('/get_data_for_graph/{param_id}/{date_start}/{date_stop}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
 
     //БЛОК SIDE_MENU
     Route::get('/get_side_object', [MainController::class, 'get_side_object'])->name('get_side_object');    ///Получить древо объектов
@@ -72,11 +75,6 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/store_new_name/{id}/{new_name}', [MainController::class, 'store_new_name'])->name('store_new_name');    ///Переименовать объект
     Route::post('/store_new_signal/{parent_id}', [MainController::class, 'store_new_signal'])->name('store_new_signal');    ///Сохранить новые сигналы
     Route::get('/delete_object/{parent_id}', [MainController::class, 'delete_object'])->name('delete_object');    ///Сохранить новые сигналы
-
-
-    Route::get('/test_page', [MainController::class,'test_page']);
-    Route::get('/test_data_for_charts/{param_id}/{number_of_weeks}', [MainController::class,'test_data_for_charts']);
-
 
 });
 

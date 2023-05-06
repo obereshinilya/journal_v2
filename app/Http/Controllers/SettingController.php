@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\HiddenHour;
 use App\Models\Setting;
 use App\Models\TableObj;
+use Illuminate\Support\Facades\Auth;
 
 class SettingController extends Controller
 {
     public function signal_settings($id_param){
-        $data = TableObj::where('inout', '!=', '!')->orderby('id')->get();
-        return view('web.signal_settings', compact('data', 'id_param'));
+        $data = TableObj::where('inout', '!=', '!')->orderby('main_table.id')
+            ->get();
+        $hidden_hour = HiddenHour::where('login_user', '=', Auth::user()->cn[0])->get()->pluck('param_id')->toArray();
+        return view('web.signal_settings', compact('data', 'id_param', 'hidden_hour'));
     }
     public function save_signal_settings($id, $name_param, $new_value){
         if ($new_value == 'false'){
@@ -21,10 +25,10 @@ class SettingController extends Controller
         }
     }
     public function visible_param($id){
-        if (TableObj::where('id', '=', $id)->first()->hour_param){
-            TableObj::where('id', '=', $id)->update(['hour_param'=>false]);
+        if (HiddenHour::where('param_id', '=', $id)->where('login_user', '=', Auth::user()->cn[0])->first()){
+            HiddenHour::where('param_id', '=', $id)->where('login_user', '=', Auth::user()->cn[0])->delete();
         }else{
-            TableObj::where('id', '=', $id)->update(['hour_param'=>true]);
+            HiddenHour::create(['param_id'=>$id, 'login_user'=>Auth::user()->cn[0]]);
         }
     }
     public function delete_param($id){

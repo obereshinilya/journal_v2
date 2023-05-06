@@ -17,7 +17,7 @@
             <div class="small_user_div">
                 <span>{{\Illuminate\Support\Facades\Auth::user()->displayname[0]}}</span>
             </div>
-            <div class="out_div" onclick="window.location.href = '/logout'">
+            <div class="out_div" onclick="window.location.href = '/logout'"  data-toggle="tooltip" title="Выход" >
                 <img src="/assets/img/logout.svg">
             </div>
     </div>

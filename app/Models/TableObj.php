@@ -10,7 +10,7 @@ class TableObj extends Model{
     public $timestamps = false;
     public $primaryKey = 'id';
     protected $fillable = [
-        'full_name', 'inout', 'e_unit', 'short_name', 'parent_id', 'level', 'tag_name', 'hour_param', 'sut_param', 'guid_masdu_hour', 'guid_masdu_min', 'guid_masdu_day',
+        'full_name', 'inout', 'e_unit', 'short_name', 'parent_id', 'level', 'tag_name', 'sut_param', 'guid_masdu_hour', 'guid_masdu_min', 'guid_masdu_day',
     ];
 
     static function createTree(&$list, $parent){

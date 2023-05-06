@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Exports\HourExport;
+use App\Models\HiddenHour;
 use App\Models\Hour_params;
 use App\Models\Min_params;
 use App\Models\Setting;
@@ -22,7 +23,8 @@ class HourController extends Controller
 
     public function get_hour_param($date){
         try {
-            $all_param_hour = TableObj::where('hour_param', '=', true)->select('id', 'full_name', 'e_unit')->orderby('full_name')->get();
+            $hidden_hour = HiddenHour::where('login_user', '=', Auth::user()->cn[0])->get()->pluck('param_id');
+            $all_param_hour = TableObj::whereNotIn('id', $hidden_hour)->where('inout', '!=', '!')->select('id', 'full_name', 'e_unit')->orderby('full_name')->get();
             $array_id = [];
             for ($j = 0; $j < 25; $j++) {
                 $zero_array[$j] = ['id' => false];
@@ -66,7 +68,8 @@ class HourController extends Controller
         }
         $date_start = $date . ' ' . date("$hour:05");
         $date_stop = date('Y-m-d H:59', strtotime($date_start));
-        $data = TableObj::where('hour_param', '=', true)->select('id')->get();
+        $hidden_hour = HiddenHour::where('login_user', '=', Auth::user()->cn[0])->get()->pluck('param_id');
+        $data = TableObj::whereNotIn('id', $hidden_hour)->where('inout', '!=', '!')->orderby('full_name')->get();
         $i = 0;
         $array_id = [];
         $zero_array = [null, null, null, null, null, null, null, null, null, null, null];
@@ -79,7 +82,7 @@ class HourController extends Controller
             ->whereBetween('timestamp', [date('Y-m-d H:i', strtotime($date_start)),
                 date('Y-m-d H:i', strtotime($date_stop))])->get();
         foreach ($buff_data as $row) {
-            $k = array_search((int)$row->hfrpok_id, $array_id);
+            $k = array_search((int)$row->param_id, $array_id);
             $j = floor(((int)date('i', strtotime($row->timestamp))) / 5);
             $result[$k][$j] = $row->val;
         }

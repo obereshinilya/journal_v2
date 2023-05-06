@@ -10083,124 +10083,125 @@ if (! jSuites && typeof(require) === 'function') {
          * @param integer numOfRows - number of lines
          * @return void
          */
-        obj.deleteRow = function(rowNumber, numOfRows) {
-            // Global Configuration
-            if (obj.options.allowDeleteRow == true) {
-                if (obj.options.allowDeletingAllRows == true || obj.options.data.length > 1) {
-                    // Delete row definitions
-                    if (rowNumber == undefined) {
-                        var number = obj.getSelectedRows();
 
-                        if (! number[0]) {
-                            rowNumber = obj.options.data.length - 1;
-                            numOfRows = 1;
-                        } else {
-                            rowNumber = parseInt(number[0].getAttribute('data-y'));
-                            numOfRows = number.length;
-                        }
-                    }
-
-                    // Last column
-                    var lastRow = obj.options.data.length - 1;
-
-                    if (rowNumber == undefined || rowNumber > lastRow || rowNumber < 0) {
-                        rowNumber = lastRow;
-                    }
-
-                    if (! numOfRows) {
-                        numOfRows = 1;
-                    }
-
-                    // Do not delete more than the number of records
-                    if (rowNumber + numOfRows >= obj.options.data.length) {
-                        numOfRows = obj.options.data.length - rowNumber;
-                    }
-
-                    // Onbeforedeleterow
-                    if (obj.dispatch('onbeforedeleterow', el, rowNumber, numOfRows) === false) {
-                        return false;
-                    }
-
-                    if (parseInt(rowNumber) > -1) {
-                        // Merged cells
-                        var mergeExists = false;
-                        if (Object.keys(obj.options.mergeCells).length > 0) {
-                            for (var row = rowNumber; row < rowNumber + numOfRows; row++) {
-                                if (obj.isRowMerged(row, false).length) {
-                                    mergeExists = true;
-                                }
-                            }
-                        }
-                        if (mergeExists) {
-                            if (! confirm(obj.options.text.thisActionWillDestroyAnyExistingMergedCellsAreYouSure)) {
-                                return false;
-                            } else {
-                                obj.destroyMerged();
-                            }
-                        }
-
-                        // Clear any search
-                        if (obj.options.search == true) {
-                            if (obj.results && obj.results.length != obj.rows.length) {
-                                if (confirm(obj.options.text.thisActionWillClearYourSearchResultsAreYouSure)) {
-                                    obj.resetSearch();
-                                } else {
-                                    return false;
-                                }
-                            }
-
-                            obj.results = null;
-                        }
-
-                        // If delete all rows, and set allowDeletingAllRows false, will stay one row
-                        if (obj.options.allowDeletingAllRows == false && lastRow + 1 === numOfRows) {
-                            numOfRows--;
-                            console.error('Jspreadsheet: It is not possible to delete the last row');
-                        }
-
-                        // Remove node
-                        for (var row = rowNumber; row < rowNumber + numOfRows; row++) {
-                            if (Array.prototype.indexOf.call(obj.tbody.children, obj.rows[row]) >= 0) {
-                                obj.rows[row].className = '';
-                                obj.rows[row].parentNode.removeChild(obj.rows[row]);
-                            }
-                        }
-
-                        // Remove data
-                        var rowRecords = obj.records.splice(rowNumber, numOfRows);
-                        var rowData = obj.options.data.splice(rowNumber, numOfRows);
-                        var rowNode = obj.rows.splice(rowNumber, numOfRows);
-
-                        // Respect pagination
-                        if (obj.options.pagination > 0 && obj.tbody.children.length != obj.options.pagination) {
-                            obj.page(obj.pageNumber);
-                        }
-
-                        // Remove selection
-                        obj.conditionalSelectionUpdate(1, rowNumber, (rowNumber + numOfRows) - 1);
-
-                        // Keep history
-                        obj.setHistory({
-                            action: 'deleteRow',
-                            rowNumber: rowNumber,
-                            numOfRows: numOfRows,
-                            insertBefore: 1,
-                            rowRecords: rowRecords,
-                            rowData: rowData,
-                            rowNode: rowNode
-                        });
-
-                        // Remove table references
-                        obj.updateTableReferences();
-
-                        // Events
-                        obj.dispatch('ondeleterow', el, rowNumber, numOfRows, rowRecords);
-                    }
-                } else {
-                    console.error('Jspreadsheet: It is not possible to delete the last row');
-                }
-            }
-        }
+        // obj.deleteRow = function(rowNumber, numOfRows) {
+        //     // Global Configuration
+        //     if (obj.options.allowDeleteRow == true) {
+        //         if (obj.options.allowDeletingAllRows == true || obj.options.data.length > 1) {
+        //             // Delete row definitions
+        //             if (rowNumber == undefined) {
+        //                 var number = obj.getSelectedRows();
+        //
+        //                 if (! number[0]) {
+        //                     rowNumber = obj.options.data.length - 1;
+        //                     numOfRows = 1;
+        //                 } else {
+        //                     rowNumber = parseInt(number[0].getAttribute('data-y'));
+        //                     numOfRows = number.length;
+        //                 }
+        //             }
+        //
+        //             // Last column
+        //             var lastRow = obj.options.data.length - 1;
+        //
+        //             if (rowNumber == undefined || rowNumber > lastRow || rowNumber < 0) {
+        //                 rowNumber = lastRow;
+        //             }
+        //
+        //             if (! numOfRows) {
+        //                 numOfRows = 1;
+        //             }
+        //
+        //             // Do not delete more than the number of records
+        //             if (rowNumber + numOfRows >= obj.options.data.length) {
+        //                 numOfRows = obj.options.data.length - rowNumber;
+        //             }
+        //
+        //             // Onbeforedeleterow
+        //             if (obj.dispatch('onbeforedeleterow', el, rowNumber, numOfRows) === false) {
+        //                 return false;
+        //             }
+        //
+        //             if (parseInt(rowNumber) > -1) {
+        //                 // Merged cells
+        //                 var mergeExists = false;
+        //                 if (Object.keys(obj.options.mergeCells).length > 0) {
+        //                     for (var row = rowNumber; row < rowNumber + numOfRows; row++) {
+        //                         if (obj.isRowMerged(row, false).length) {
+        //                             mergeExists = true;
+        //                         }
+        //                     }
+        //                 }
+        //                 if (mergeExists) {
+        //                     if (! confirm(obj.options.text.thisActionWillDestroyAnyExistingMergedCellsAreYouSure)) {
+        //                         return false;
+        //                     } else {
+        //                         obj.destroyMerged();
+        //                     }
+        //                 }
+        //
+        //                 // Clear any search
+        //                 if (obj.options.search == true) {
+        //                     if (obj.results && obj.results.length != obj.rows.length) {
+        //                         if (confirm(obj.options.text.thisActionWillClearYourSearchResultsAreYouSure)) {
+        //                             obj.resetSearch();
+        //                         } else {
+        //                             return false;
+        //                         }
+        //                     }
+        //
+        //                     obj.results = null;
+        //                 }
+        //
+        //                 // If delete all rows, and set allowDeletingAllRows false, will stay one row
+        //                 if (obj.options.allowDeletingAllRows == false && lastRow + 1 === numOfRows) {
+        //                     numOfRows--;
+        //                     console.error('Jspreadsheet: It is not possible to delete the last row');
+        //                 }
+        //
+        //                 // Remove node
+        //                 for (var row = rowNumber; row < rowNumber + numOfRows; row++) {
+        //                     if (Array.prototype.indexOf.call(obj.tbody.children, obj.rows[row]) >= 0) {
+        //                         obj.rows[row].className = '';
+        //                         obj.rows[row].parentNode.removeChild(obj.rows[row]);
+        //                     }
+        //                 }
+        //
+        //                 // Remove data
+        //                 var rowRecords = obj.records.splice(rowNumber, numOfRows);
+        //                 var rowData = obj.options.data.splice(rowNumber, numOfRows);
+        //                 var rowNode = obj.rows.splice(rowNumber, numOfRows);
+        //
+        //                 // Respect pagination
+        //                 if (obj.options.pagination > 0 && obj.tbody.children.length != obj.options.pagination) {
+        //                     obj.page(obj.pageNumber);
+        //                 }
+        //
+        //                 // Remove selection
+        //                 obj.conditionalSelectionUpdate(1, rowNumber, (rowNumber + numOfRows) - 1);
+        //
+        //                 // Keep history
+        //                 obj.setHistory({
+        //                     action: 'deleteRow',
+        //                     rowNumber: rowNumber,
+        //                     numOfRows: numOfRows,
+        //                     insertBefore: 1,
+        //                     rowRecords: rowRecords,
+        //                     rowData: rowData,
+        //                     rowNode: rowNode
+        //                 });
+        //
+        //                 // Remove table references
+        //                 obj.updateTableReferences();
+        //
+        //                 // Events
+        //                 obj.dispatch('ondeleterow', el, rowNumber, numOfRows, rowRecords);
+        //             }
+        //         } else {
+        //             console.error('Jspreadsheet: It is not possible to delete the last row');
+        //         }
+        //     }
+        // }
 
 
         /**
@@ -13332,17 +13333,17 @@ if (! jSuites && typeof(require) === 'function') {
                     // Delete
                     if (jexcel.current.options.editable == true) {
                         if (jexcel.current.selectedRow) {
-                            if (jexcel.current.options.allowDeleteRow == true) {
-                                if (confirm(jexcel.current.options.text.areYouSureToDeleteTheSelectedRows)) {
+                            // if (jexcel.current.options.allowDeleteRow == true) {
+                            //     if (confirm(jexcel.current.options.text.areYouSureToDeleteTheSelectedRows)) {
                                     jexcel.current.deleteRow();
-                                }
-                            }
+                                // }
+                            // }
                         } else if (jexcel.current.selectedHeader) {
-                            if (jexcel.current.options.allowDeleteColumn == true) {
-                                if (confirm(jexcel.current.options.text.areYouSureToDeleteTheSelectedColumns)) {
-                                    jexcel.current.deleteColumn();
-                                }
-                            }
+                            // if (jexcel.current.options.allowDeleteColumn == true) {
+                            //     if (confirm(jexcel.current.options.text.areYouSureToDeleteTheSelectedColumns)) {
+                            //         jexcel.current.deleteColumn();
+                            //     }
+                            // }
                         } else {
                             // Change value
                             jexcel.current.setValue(jexcel.current.highlighted, '');

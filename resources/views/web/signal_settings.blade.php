@@ -36,7 +36,7 @@
                         <td class="full_name" contenteditable="true">{{$data[$i]['full_name']}}</td>
                         <td class="e_unit" contenteditable="true">{{$data[$i]['e_unit']}}</td>
                         <td class="tag_name" contenteditable="true">{{$data[$i]['tag_name']}}</td>
-                        <td style="text-align: center"><label class="switch"><input onclick="visible_param({{$data[$i]['id']}})" type="checkbox" @if ($data[$i]['hour_param']) checked @endif><span class="slider"></span></label></td>
+                        <td style="text-align: center"><label class="switch"><input onclick="visible_param({{$data[$i]['id']}})" type="checkbox" @if (!in_array($data[$i]['id'], $hidden_hour)) checked @endif><span class="slider"></span></label></td>
                         @if ($data[$i]['guid_masdu_min'])
                             <td style="text-align: center">
                                 <label class="switch">

@@ -10,9 +10,9 @@
     </style>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Журнал действий оператора</p>
-        <button id="download_csw" class="btn header_blocks btn_img"><img src="/assets/img/excel.svg"></button>
-        @include('include.period_date_time')
+        <button id="download_csw" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить CSV"><img src="/assets/img/excel.svg"></button>
         <input class="input header_blocks" style="width: 200px" oninput="seach_jsExcel()" type="text" id="search_row" placeholder="Поиск...">
+        @include('include.period_date_time')
 
     </div>
     <div style="width: calc(100% - 10px); height: calc(100% - 80px)" id="main_div">
