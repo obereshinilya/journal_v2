@@ -24,6 +24,7 @@
         document.getElementById('content_modal_side_menu').style.marginLeft = ''
         $('#table_modal_side_menu').remove()
         $('#modal_side_menu input').remove()
+        $('#time_div').remove()
     }
     function open_modal_side_menu(){
         var modal = document.getElementById('modal_side_menu')

@@ -30,8 +30,12 @@ class JournalController extends Controller
         (new MainController)->create_log_record('Редактирование журнала СОДУ', 'Запись от '.date('d.m.Y H:i', strtotime(JournalSodu::where('id', '=', $request['id'])->first()->date)));
     }
     public function delete_sodu($id){
-        (new MainController)->create_log_record('Удаление записи журнала СОДУ', 'Запись от '.date('d.m.Y H:i', strtotime(JournalSodu::where('id', '=', $id)->first()->date)));
-        JournalSodu::where('id', '=', $id)->delete();
+        $arr = explode(',', $id);
+        array_pop($arr);
+        for ($i=0; $i<count($arr); $i++){
+            (new MainController)->create_log_record('Удаление записи журнала СОДУ', 'Запись от '.date('d.m.Y H:i', strtotime(JournalSodu::where('id', '=', $arr[$i])->first()->date)));
+        }
+        JournalSodu::wherein('id', $arr)->delete();
     }
     public function create_sodu(){
         JournalSodu::create();

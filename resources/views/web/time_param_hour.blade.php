@@ -12,20 +12,30 @@
         #period{display: none}
     </style>
     <div id="context_time_params" class="context_menu">
-        <a id="open_edit_comment">
+        <a id="open_edit_comment" style="white-space: nowrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                 style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
+                 style="fill: rgba(0, 0, 0, 1);">
                 <path d="m16 2.012 3 3L16.713 7.3l-3-3zM4 14v3h3l8.299-8.287-3-3zm0 6h16v2H4z"></path>
             </svg>
             Добавить комментарий
         </a>
-        <a id="delete_comment">
+        <a id="delete_comment" style="white-space: nowrap">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                 style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
+                 style="fill: rgba(0, 0, 0, 1);">
                 <path
                     d="M6 7H5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7H6zm4 12H8v-9h2v9zm6 0h-2v-9h2v9zm.618-15L15 2H9L7.382 4H3v2h18V4z"></path>
             </svg>
             Очистить
+        </a>
+    </div>
+    <div id="context_h1" class="context_menu">
+        <a id="confirm_hour" style="white-space: nowrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="m10.933 13.519-2.226-2.226-1.414 1.414 3.774 3.774 5.702-6.84-1.538-1.282z"></path><path d="M19 3H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM5 19V5h14l.002 14H5z"></path></svg>
+            Подтвердить/снять достоверность
+        </a>
+        <a id="copy_hour" style="white-space: nowrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="M20 2H10c-1.103 0-2 .897-2 2v4H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM4 20V10h10l.002 10H4zm16-6h-4v-4c0-1.103-.897-2-2-2h-4V4h10v10z"></path><path d="M6 12h6v2H6zm0 4h6v2H6z"></path></svg>
+            Скопировать сводку
         </a>
     </div>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
@@ -54,21 +64,25 @@
         </div>
         <div id="dynamicTableDiv" class="dynamicTableDiv">
             <table id="dynamicTable" class="dynamicTable">
-                <thead>
+                <thead id="thead_dynamic">
                 <tr>
                     <th class="sutki" style="z-index: 6">Сутки</th>
                     @for($j=0; $j<24; $j++)
-                        @if($j >= $start_hour && $j <= 21)
-                            <th onclick="goToHour(this)">0{{$j - $start_hour}}:00</th>
-                        @elseif($j>21)
-                            <th onclick="goToHour(this)">{{$j - $start_hour}}:00</th>
+                        @if($j + $start_hour < 10)
+                            <th onclick="goToHour(this)">0{{$j + $start_hour}}:00</th>
+                        @elseif($j + $start_hour > 23)
+                            @if($j + $start_hour <= 33)
+                                <th onclick="goToHour(this)">0{{$j + $start_hour - 24}}:00</th>
+                            @else
+                                <th onclick="goToHour(this)">{{$j + $start_hour - 24}}:00</th>
+                            @endif
                         @else
-                            <th onclick="goToHour(this)">{{$start_hour+$j}}:00</th>
+                            <th onclick="goToHour(this)">{{$j + $start_hour}}:00</th>
                         @endif
                     @endfor
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="tbody_dynamic">
 
                 </tbody>
             </table>
@@ -77,14 +91,124 @@
         </div>
     </div>
 
-
+<style>
+    .air-datepicker{
+        z-index: 905;
+    }
+</style>
     <script>
         $(document).ready(function () {
             side_menu_obj_click()
             initial_resize()
             get_table_data()
+            initial_trigger_on_header()
         })
-
+        function initial_trigger_on_header(){
+            $('#thead_dynamic th').on('contextmenu', function (event) {
+                var context_menu = document.getElementById('context_h1')
+                context_menu.style.display = 'block'
+                context_menu.style.top = Number(event.pageY - $('#header_block_param').height()) + 'px'
+                context_menu.style.left = Number(event.pageX - $('#side_menu').width()) + 'px'
+                document.getElementById('confirm_hour').setAttribute('onclick', `confirm_hour("${this.textContent}")`)
+                document.getElementById('copy_hour').setAttribute('onclick', `copy_hour("${this.textContent}")`)
+                $('body').on('click', function () {
+                    document.getElementById('context_h1').style.display = 'none'
+                })
+            })
+        }
+        function copy_hour(hour){
+            change_header_modal('Копирование сводки за '+hour.toLowerCase()+' '+$("#date_start").val()+'<br>Существующие данные будут потеряны!')
+            $('#text_modal_side_menu').after('<input type="text" id="time_div" placeholder="Укажите время назначения сводки..." class="datepicker-here" style="text-align: center" />')
+            var today = new Date();
+            if (hour === 'Сутки'){
+                new AirDatepicker('#time_div',
+                    {
+                        timepicker: false,
+                        autoClose: true,
+                        maxDate: today,
+                        keyboardNav: true
+                    })
+            }else {
+                today.setMinutes(0)
+                new AirDatepicker('#time_div',
+                    {
+                        timepicker: true,
+                        autoClose: false,
+                        maxDate: today,
+                        maxHours: 23,
+                        maxMinutes:0,
+                        keyboardNav: true
+                    })
+            }
+            open_modal_side_menu()
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_copy_hour('${hour}')`)
+        }
+        function confirm_copy_hour(hour){
+            var arr = new Map()
+            arr.set('date_from', $("#date_start").val())
+            arr.set('hour_from', hour)
+            arr.set('date_to', document.getElementById('time_div').value)
+            $.ajax({
+                url: '/copy_hour',
+                method: 'POST',
+                data: Object.fromEntries(arr),
+                success: function (res) {
+                    console.log(arr)
+                    if (res !== 'false'){
+                        change_header_modal(res)
+                    }else {
+                        get_table_data()
+                        close_modal_side_menu()
+                    }
+                }
+            })
+        }
+        function confirm_hour(hour){
+            var arr = new Map()
+            arr.set('date', $("#date_start").val())
+            arr.set('hour', hour)
+            $.ajax({
+                url: '/confirm_hour',
+                method: 'POST',
+                data: Object.fromEntries(arr),
+                success: function (res) {
+                    get_table_data()
+                }
+            })
+        }
+        function paint_confirm_hour(){
+            $.ajax({
+                url: '/get_confirmed_hours/'+$("#date_start").val(),
+                method: 'get',
+                success: function (res) {
+                    var cellIndex = []
+                    var ths = document.getElementById('thead_dynamic').getElementsByTagName('th')
+                    if (res.indexOf(null) >= 0){
+                        ths[0].style.background = '#98FB98'
+                        cellIndex.push(0)
+                    }else {
+                        ths[0].style.background = ''
+                    }
+                    for(var i = 1; i<=24; i++){
+                        if (res.indexOf(ths[i].textContent) >= 0){
+                            ths[i].style.background = '#98FB98'
+                            cellIndex.push(i)
+                        }else{
+                            ths[i].style.background = ''
+                        }
+                    }
+                    if (cellIndex.length>0){
+                        var trs = document.getElementById('tbody_dynamic').getElementsByTagName('tr')
+                        for (var tr of trs){
+                            var tds = tr.getElementsByTagName('td')
+                            for (var index of cellIndex){
+                                tds[index].setAttribute('contenteditable', 'false')
+                            }
+                        }
+                    }
+                }
+            })
+        }
 
         function get_table_data() {
             if (localStorage.getItem('hour')) {
@@ -121,13 +245,13 @@
                             if (row[id]['id']) {
                                 if (Boolean(row[id]['xml_create'] === true)) {
                                     if (Boolean(row[id]['manual']) === true) {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="Изменил: ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="manual ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="manual ${sutki}">${row[id]['val']}</td>`
                                     } else {
                                         tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="xml ${sutki}">${row[id]['val']}</td>`
                                     }
                                 } else {
                                     if (Boolean(row[id]['manual']) === true) {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="Изменил: ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="manual ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="manual ${sutki}">${row[id]['val']}</td>`
                                     } else {
                                         tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="usialy ${sutki}">${row[id]['val']}</td>`
                                     }
@@ -153,6 +277,7 @@
                     search_object()
                     create_tooltip_and_comment()
                     go_to_setting()
+                    paint_confirm_hour()
                 }
             })
         }
@@ -163,7 +288,7 @@
                     return $(this).prop('title');
                 }
             })
-            $('[data-toggle="tooltip"]').on('contextmenu', function (event) {
+            $('#tbody_dynamic [data-toggle="tooltip"]').on('contextmenu', function (event) {
                 var context_menu = document.getElementById('context_time_params')
                 context_menu.style.display = 'block'
                 context_menu.style.top = Number(event.pageY - $('#header_block_param').height()) + 'px'
@@ -274,8 +399,9 @@
                             dataType: 'html',
                             async: true,
                             success: function (res) {
-                                td.textContent = value.replace(',', '.')
-                                td.setAttribute('class', 'manual')
+                                get_table_data()
+                                // td.textContent = value.replace(',', '.')
+                                // td.setAttribute('class', 'manual')
                                 close_modal_side_menu()
                             }
                         })

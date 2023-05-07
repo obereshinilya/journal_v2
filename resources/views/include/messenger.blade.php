@@ -205,12 +205,12 @@
 <script>
 
     $(document).ready(function() {
-        $('#sender_text').keydown(function(e) {if(e.keyCode === 13) {send_messege()}});
-        $('#chat_window').scroll(function (){if (this.scrollTop == 0){old_message()}})
+        //Переместил в функцию open_messenger чтоб не тормозить
+        // $('#sender_text').keydown(function(e) {if(e.keyCode === 13) {send_messege()}});
+        // $('#chat_window').scroll(function (){if (this.scrollTop == 0){old_message()}})
     });
 
-
-    /////Часть отображения панели юзеров
+        /////Часть отображения панели юзеров
     function get_user_block(){
         $.ajax({
             url: '/get_user_block',
@@ -929,6 +929,8 @@
         clearInterval(updateChat)
     }
     function open_messenger(){
+        $('#sender_text').keydown(function(e) {if(e.keyCode === 13) {send_messege()}});
+        $('#chat_window').scroll(function (){if (this.scrollTop == 0){old_message()}})
         document.getElementById('messenger').style.display = 'block'
         get_user_block()
         update_chat()

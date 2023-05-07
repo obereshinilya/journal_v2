@@ -78,12 +78,11 @@
                     })
                     jsTable.deleteRow = function(numOfRows) {
                         var number = jsTable.getSelectedRows();
-                        if (!number[0]) {
-                            numOfRows = 1;
-                        } else {
-                            numOfRows = number.length;
+                        var ids = ''
+                        for (var i = 0; i<number.length; i++){
+                            ids+=number[i].lastElementChild.textContent+','
                         }
-                        confirm_delete_sodu(document.getElementById('main_div').getElementsByTagName('tr')[numOfRows+2].lastElementChild.textContent)
+                        confirm_delete_sodu(ids)
                     }
                 }
             })
@@ -97,9 +96,9 @@
             open_modal_side_menu()
             document.getElementById('submit_button_side_menu').setAttribute('onclick', `delete_sodu(${id})`)
         }
-        function delete_sodu(id){
+        function delete_sodu(ids){
             $.ajax({
-                url: '/delete_sodu/'+id,
+                url: '/delete_sodu/'+ids,
                 method: 'get',
                 success: function (res) {
                     close_modal_side_menu()

@@ -68,6 +68,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/print_hour/{date}', [HourController::class, 'print_hour']); //Печать суточных
     Route::get('/excel_hour/{date}', [HourController::class, 'excel_hour']); //Excel суточных
     Route::get('/get_data_for_graph/{param_id}/{date_start}/{date_stop}', [MainController::class, 'get_data_for_graph']);   //Данные для отображения в графике
+    Route::post('/confirm_hour', [MainController::class, 'confirm_hour']);   //Подтверждение/снятие достоверности
+    Route::get('/get_confirmed_hours/{date}', [MainController::class, 'get_confirmed_hours']);   //Получение подтвержденных часовиков
+    Route::post('/copy_hour', [MainController::class, 'copy_hour']);   //Откуда и куда копируем
 
     //БЛОК SIDE_MENU
     Route::get('/get_side_object', [MainController::class, 'get_side_object'])->name('get_side_object');    ///Получить древо объектов

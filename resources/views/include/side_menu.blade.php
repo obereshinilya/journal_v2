@@ -268,13 +268,13 @@
                 <svg onclick="this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M6 7H5v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7H6zm4 12H8v-9h2v9zm6 0h-2v-9h2v9zm.618-15L15 2H9L7.382 4H3v2h18V4z"></path></svg>
             </td>
         </tr>` + tbody.innerHTML
-        $('input[type="checkbox"]').on('click', function (){
-            if(this.checked){
-                this.setAttribute('checked', false)
-            }else {
-                this.removeAttribute('checked')
-            }
-        })
+        // $('input[type="checkbox"]').on('click', function (){
+        //     if(this.checked){
+        //         this.setAttribute('checked', false)
+        //     }else {
+        //         this.removeAttribute('checked')
+        //     }
+        // })
     }
     function store_new_signal(parent_id){
         var keys_text = ['full_name', 'e_unit', 'tag_name', 'guid_masdu_min', 'guid_masdu_hour', 'guid_masdu_day']

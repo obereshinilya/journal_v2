@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\ConfirmHour;
+use App\Models\HiddenHour;
 use App\Models\Hour_params;
 use App\Models\Log;
+use App\Models\Setting;
+use App\Models\Sut_params;
 use App\Models\TableObj;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +16,87 @@ use Illuminate\Support\Facades\DB;
 
 class MainController extends Controller
 {
+    public function copy_hour(Request $request){
+        $data = $request->all();
+        $hour = mb_strtolower($data['hour_from']);
+        $start_sutki = Setting::where('name_setting', '=', 'start_smena')->first()->value;
+        if ($data['hour_from'] == 'Сутки'){
+            if (strtotime(date('Y-m-d '.$start_sutki.':00', strtotime($data['date_to'].' + 1 days')))<strtotime(date('Y-m-d H:i'))){
+                $data_from = Sut_params::where('timestamp', '=', date('Y-m-d ', strtotime($data['date_from'])))
+                    ->get();
+                if (count($data_from) == 0){
+                    return 'Нет данных для копирования!';
+                }
+                $param_ids = $data_from->pluck('param_id');
+                Sut_params::wherein('param_id', $param_ids)->where('timestamp', '=', $data['date_to'])->delete();
+                foreach ($data_from as $row) {
+                    $newRow = $row->replicate();
+                    $newRow->timestamp = $data['date_to'];
+                    $newRow->comment = '<b>Комментарий:</b><br>'.Auth::user()->displayname[0].':<br><em>Скопировано с '.$data['date_from'].'</em>';
+                    $newRow->save();
+                }
+                (new MainController)->create_log_record('Копирование суточных показателей', 'С '.$data['date_from'].' на '.$data['date_to']);
+                return 'false';
+            }else{
+                return 'Операция невозможна!<br>Время сводки не наступило';
+            }
+        }else{
+            if (strtotime(date('Y-m-d H:i', strtotime($data['date_to'])))<strtotime(date('Y-m-d H:i'))){
+                $data_from = Hour_params::where('timestamp', '=', date('Y-m-d H:i', strtotime($data['date_from'].' '.$data['hour_from'])))
+                    ->get();
+                if (count($data_from) == 0){
+                    return 'Нет данных для копирования!';
+                }
+                $param_ids = $data_from->pluck('param_id');
+                Hour_params::wherein('param_id', $param_ids)->where('timestamp', '=', date('Y-m-d H:i', strtotime($data['date_to'])))->delete();
+                foreach ($data_from as $row) {
+                    $newRow = $row->replicate();
+                    $newRow->timestamp = $data['date_to'];
+                    $newRow->comment = '<b>Комментарий:</b><br>'.Auth::user()->displayname[0].':<br><em>Скопировано с '.$data['hour_from'].' '.$data['date_from'].'</em>';
+                    $newRow->save();
+                }
+                (new MainController)->create_log_record('Копирование часовых показателей', 'С '.$data['date_from'].' '.$data['hour_from'].' на '.$data['date_to']);
+                return 'false';
+            }else{
+                return 'Операция невозможна!<br>Время сводки не наступило';
+            }
+        }
+    }
+    public function confirm_hour(Request $request){
+        $data = $request->all();
+        $hour = mb_strtolower($data['hour']);
+        if ($data['hour'] == 'Сутки'){
+            $data['hour'] = null;
+        }else{
+            $setting = Setting::where('name_setting', '=', 'start_smena')->first()->value;
+            if (date('H:i', strtotime($data['hour']))<date('H:i', strtotime($setting.':00'))){
+                $data['date'] = date('d.m.Y', strtotime($data['date'].' +1 days'));
+            }
+        }
+        $from_db = ConfirmHour::where('hour', '=', $data['hour'])->where('date', '=', $data['date'])->get();
+        if(count($from_db) > 0){
+            (new MainController)->create_log_record('Снятие отметки достоверности', 'За '.$hour.' '.$data['date']);
+            try {
+                $from_db->first()->delete();
+            }catch (\Throwable $e){
+                return $e;
+            }
+        }else{
+            (new MainController)->create_log_record('Подтверждение достоверности', 'За '.$hour.' '.$data['date']);
+            ConfirmHour::create($data);
+        }
+    }
+    public function get_confirmed_hours($date){
+        $setting = Setting::where('name_setting', '=', 'start_smena')->first()->value;
+        $confirmed = ConfirmHour::
+            where([['date', '=', $date], ['hour', '>=', date('H:i', strtotime($setting.':00'))]])
+            ->orwhere([['date', '=', date('d.m.Y', strtotime($date.' +1 days'))], ['hour', '<', date('H:i', strtotime($setting.':00'))]])
+            ->orwhere([['date', '=', $date], ['hour', '=', null]])
+            ->select(DB::raw("to_char(hour, 'HH24:mi') as time"))
+            ->get()->pluck('time');
+        return $confirmed;
+    }
+
     public function delete_object($parent_id)
     {
         (new MainController)->create_log_record('Удаление объекта', 'Объект: "' . TableObj::where('id', '=', $parent_id)->first()->full_name . '"');
@@ -44,7 +129,12 @@ class MainController extends Controller
                 $data_to_base['level'] = $level;
                 $data_to_base['inout'] = 'ВХОД';
                 $data_to_base['parent_id'] = $parent_id;
-                TableObj::create($data_to_base);
+                $visible_hour_param = $data_to_base['hour_param'];
+                unset($data_to_base['hour_param']);
+                $new_signal_data = TableObj::create($data_to_base);
+                if ($visible_hour_param == 'false'){
+                    HiddenHour::create(['login_user'=>Auth::user()->cn[0], 'param_id'=>$new_signal_data->id]);
+                }
             }
         } catch (\Throwable $e) {
             return $e;
