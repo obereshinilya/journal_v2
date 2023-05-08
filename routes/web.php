@@ -24,6 +24,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/delete_sodu/{id}', [JournalController::class, 'delete_sodu'])->name('delete_sodu');   ///Удалить запись
     Route::get('/create_sodu', [JournalController::class, 'create_sodu'])->name('create_sodu');   ///Создать запись
 
+    //БЛОК общих настроек
+    Route::get('/main_setting', [SettingController::class, 'main_setting'])->name('main_setting');   ///Общая страница настроек
+    Route::get('/save_main_setting/{param}/{value}', [SettingController::class, 'save_main_setting'])->name('save_main_setting');   ///Сохранение настроек
 
 
     //БЛОК чата

@@ -19,13 +19,16 @@ class MainController extends Controller
     public function copy_hour(Request $request){
         $data = $request->all();
         $hour = mb_strtolower($data['hour_from']);
-        $start_sutki = Setting::where('name_setting', '=', 'start_smena')->first()->value;
+        $setting = Setting::get()->pluck('value', 'name_setting');
         if ($data['hour_from'] == 'Сутки'){
-            if (strtotime(date('Y-m-d '.$start_sutki.':00', strtotime($data['date_to'].' + 1 days')))<strtotime(date('Y-m-d H:i'))){
+            if (strtotime(date('Y-m-d '.$setting['start_smena'].':00', strtotime($data['date_to'].' + 1 days')))<strtotime(date('Y-m-d H:i'))){
                 $data_from = Sut_params::where('timestamp', '=', date('Y-m-d ', strtotime($data['date_from'])))
                     ->get();
                 if (count($data_from) == 0){
-                    return 'Нет данных для копирования!';
+                    return 'Копирование сводки за сутки '.$data['date_from'].'<br><br>Нет данных для копирования!';
+                }
+                if (count(ConfirmHour::where('date', '=', $data['date_to'])->where('hour', '=', null)->get())>0 && $setting['authenticity_copy'] == 'false'){
+                    return 'Копирование сводки за сутки '.$data['date_from'].'<br><br>Запрещено копировать в достоверную сводку!';
                 }
                 $param_ids = $data_from->pluck('param_id');
                 Sut_params::wherein('param_id', $param_ids)->where('timestamp', '=', $data['date_to'])->delete();
@@ -38,17 +41,22 @@ class MainController extends Controller
                 (new MainController)->create_log_record('Копирование суточных показателей', 'С '.$data['date_from'].' на '.$data['date_to']);
                 return 'false';
             }else{
-                return 'Операция невозможна!<br>Время сводки не наступило';
+                return 'Копирование сводки за сутки '.$data['date_from'].'<br><br>Операция невозможна!<br>Время выбранной сводки не наступило!';
             }
         }else{
             if (strtotime(date('Y-m-d H:i', strtotime($data['date_to'])))<strtotime(date('Y-m-d H:i'))){
-                $data_from = Hour_params::where('timestamp', '=', date('Y-m-d H:i', strtotime($data['date_from'].' '.$data['hour_from'])))
+                $data_from = Hour_params::whereRaw("date_trunc('hour', timestamp) = '".date('Y-m-d H:i', strtotime($data['date_from'].' '.$data['hour_from']))."'")
                     ->get();
                 if (count($data_from) == 0){
-                    return 'Нет данных для копирования!';
+                    return 'Копирование сводки за '.$data['hour_from'].' '.$data['date_from'].'<br><br>Нет данных для копирования!';
+                }
+                if (count(ConfirmHour::where('date', '=', substr($data['date_to'],0,-5))->where('hour', '=', mb_substr($data['date_to'], 10).':00')->get())>0 && $setting['authenticity_copy'] == 'false'){
+                    return 'Копирование сводки за '.$data['hour_from'].' '.$data['date_from'].'<br><br>Запрещено копировать в достоверную сводку!';
                 }
                 $param_ids = $data_from->pluck('param_id');
-                Hour_params::wherein('param_id', $param_ids)->where('timestamp', '=', date('Y-m-d H:i', strtotime($data['date_to'])))->delete();
+                Hour_params::wherein('param_id', $param_ids)->
+                whereRaw("date_trunc('hour', timestamp) = '".date('Y-m-d H:i', strtotime($data['date_to']))."'")
+                    ->delete();
                 foreach ($data_from as $row) {
                     $newRow = $row->replicate();
                     $newRow->timestamp = $data['date_to'];
@@ -58,28 +66,32 @@ class MainController extends Controller
                 (new MainController)->create_log_record('Копирование часовых показателей', 'С '.$data['date_from'].' '.$data['hour_from'].' на '.$data['date_to']);
                 return 'false';
             }else{
-                return 'Операция невозможна!<br>Время сводки не наступило';
+                return 'Копирование сводки за '.$data['hour_from'].' '.$data['date_from'].'<br><br>Операция невозможна!<br>Время выбранной сводки не наступило!';
             }
         }
     }
     public function confirm_hour(Request $request){
+        $setting = Setting::get()->pluck('value', 'name_setting');
         $data = $request->all();
         $hour = mb_strtolower($data['hour']);
         if ($data['hour'] == 'Сутки'){
             $data['hour'] = null;
         }else{
-            $setting = Setting::where('name_setting', '=', 'start_smena')->first()->value;
-            if (date('H:i', strtotime($data['hour']))<date('H:i', strtotime($setting.':00'))){
+            if (date('H:i', strtotime($data['hour']))<date('H:i', strtotime($setting['start_smena'].':00'))){
                 $data['date'] = date('d.m.Y', strtotime($data['date'].' +1 days'));
             }
         }
         $from_db = ConfirmHour::where('hour', '=', $data['hour'])->where('date', '=', $data['date'])->get();
         if(count($from_db) > 0){
-            (new MainController)->create_log_record('Снятие отметки достоверности', 'За '.$hour.' '.$data['date']);
-            try {
-                $from_db->first()->delete();
-            }catch (\Throwable $e){
-                return $e;
+            if($setting['authenticity_remove'] == 'true'){
+                (new MainController)->create_log_record('Снятие отметки достоверности', 'За '.$hour.' '.$data['date']);
+                try {
+                    $from_db->first()->delete();
+                }catch (\Throwable $e){
+                    return $e;
+                }
+            }else{
+                return 'Снятие отметки о достоверности запрещено!';
             }
         }else{
             (new MainController)->create_log_record('Подтверждение достоверности', 'За '.$hour.' '.$data['date']);

@@ -1,4 +1,4 @@
-<div class="messenger_mini" id="messenger_mini" onclick="open_messenger()">
+<div class="messenger_mini" id="messenger_mini" ondblclick="open_messenger()">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 121, 194, 1);transform: scaleX(-1);msFilter:progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);"><path d="M12 2C6.486 2 2 5.589 2 10c0 2.908 1.898 5.515 5 6.934V22l5.34-4.005C17.697 17.852 22 14.32 22 10c0-4.411-4.486-8-10-8zm0 14h-.333L9 18v-2.417l-.641-.247C5.67 14.301 4 12.256 4 10c0-3.309 3.589-6 8-6s8 2.691 8 6-3.589 6-8 6z"></path><path d="M7 7h10v2H7zm0 4h7v2H7z"></path></svg>
 </div>
 <div class="new_group" id="new_group">
@@ -208,6 +208,26 @@
         //Переместил в функцию open_messenger чтоб не тормозить
         // $('#sender_text').keydown(function(e) {if(e.keyCode === 13) {send_messege()}});
         // $('#chat_window').scroll(function (){if (this.scrollTop == 0){old_message()}})
+
+        var image = document.getElementById('messenger_mini');
+        image.onmousedown = function(e) {
+            moveAt(e);
+            image.style.zIndex = 1000;
+            function moveAt(e) {
+                image.style.left = e.pageX - image.offsetWidth / 2 + 'px';
+                image.style.top = e.pageY - image.offsetHeight / 2 + 'px';
+            }
+            document.onmousemove = function(e) {
+                moveAt(e);
+            }
+            image.onmouseup = function() {
+                document.onmousemove = null;
+                image.onmouseup = null;
+            }
+            image.ondragstart = function() {
+                return false;
+            };
+        }
     });
 
         /////Часть отображения панели юзеров

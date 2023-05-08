@@ -33,10 +33,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="m10.933 13.519-2.226-2.226-1.414 1.414 3.774 3.774 5.702-6.84-1.538-1.282z"></path><path d="M19 3H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM5 19V5h14l.002 14H5z"></path></svg>
             Подтвердить/снять достоверность
         </a>
-        <a id="copy_hour" style="white-space: nowrap">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="M20 2H10c-1.103 0-2 .897-2 2v4H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM4 20V10h10l.002 10H4zm16-6h-4v-4c0-1.103-.897-2-2-2h-4V4h10v10z"></path><path d="M6 12h6v2H6zm0 4h6v2H6z"></path></svg>
-            Скопировать сводку
-        </a>
+        @if($setting['param_copy'] == 'true')
+            <a id="copy_hour" style="white-space: nowrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="M20 2H10c-1.103 0-2 .897-2 2v4H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM4 20V10h10l.002 10H4zm16-6h-4v-4c0-1.103-.897-2-2-2h-4V4h10v10z"></path><path d="M6 12h6v2H6zm0 4h6v2H6z"></path></svg>
+                Скопировать сводку
+            </a>
+        @endif
     </div>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Часовые показатели.</p>
@@ -68,16 +70,16 @@
                 <tr>
                     <th class="sutki" style="z-index: 6">Сутки</th>
                     @for($j=0; $j<24; $j++)
-                        @if($j + $start_hour < 10)
-                            <th onclick="goToHour(this)">0{{$j + $start_hour}}:00</th>
-                        @elseif($j + $start_hour > 23)
-                            @if($j + $start_hour <= 33)
-                                <th onclick="goToHour(this)">0{{$j + $start_hour - 24}}:00</th>
+                        @if($j + $setting['start_smena'] < 10)
+                            <th onclick="goToHour(this)">0{{$j + $setting['start_smena']}}:00</th>
+                        @elseif($j + $setting['start_smena'] > 23)
+                            @if($j + $setting['start_smena'] <= 33)
+                                <th onclick="goToHour(this)">0{{$j + $setting['start_smena'] - 24}}:00</th>
                             @else
-                                <th onclick="goToHour(this)">{{$j + $start_hour - 24}}:00</th>
+                                <th onclick="goToHour(this)">{{$j + $setting['start_smena'] - 24}}:00</th>
                             @endif
                         @else
-                            <th onclick="goToHour(this)">{{$j + $start_hour}}:00</th>
+                            <th onclick="goToHour(this)">{{$j + $setting['start_smena']}}:00</th>
                         @endif
                     @endfor
                 </tr>
@@ -110,7 +112,9 @@
                 context_menu.style.top = Number(event.pageY - $('#header_block_param').height()) + 'px'
                 context_menu.style.left = Number(event.pageX - $('#side_menu').width()) + 'px'
                 document.getElementById('confirm_hour').setAttribute('onclick', `confirm_hour("${this.textContent}")`)
+                @if($setting['param_copy'] == 'true')
                 document.getElementById('copy_hour').setAttribute('onclick', `copy_hour("${this.textContent}")`)
+                @endif
                 $('body').on('click', function () {
                     document.getElementById('context_h1').style.display = 'none'
                 })
@@ -153,7 +157,7 @@
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
-                    console.log(arr)
+                    console.log(res)
                     if (res !== 'false'){
                         change_header_modal(res)
                     }else {
@@ -172,7 +176,13 @@
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
-                    get_table_data()
+                    if (res){
+                        change_header_modal(res)
+                        document.getElementById('submit_button_side_menu').setAttribute('onclick', 'close_modal_side_menu()')
+                        open_modal_side_menu()
+                    }else {
+                        get_table_data()
+                    }
                 }
             })
         }
@@ -197,6 +207,7 @@
                             ths[i].style.background = ''
                         }
                     }
+                    @if($setting['authenticity_edit'] == 'false')
                     if (cellIndex.length>0){
                         var trs = document.getElementById('tbody_dynamic').getElementsByTagName('tr')
                         for (var tr of trs){
@@ -206,6 +217,7 @@
                             }
                         }
                     }
+                    @endif
                 }
             })
         }
@@ -245,13 +257,13 @@
                             if (row[id]['id']) {
                                 if (Boolean(row[id]['xml_create'] === true)) {
                                     if (Boolean(row[id]['manual']) === true) {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="manual ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['hand_edit']}}" class="manual ${sutki}">${row[id]['val']}</td>`
                                     } else {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="xml ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['masdu_edit']}}" class="xml ${sutki}">${row[id]['val']}</td>`
                                     }
                                 } else {
                                     if (Boolean(row[id]['manual']) === true) {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="manual ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['hand_edit']}}" class="manual ${sutki}">${row[id]['val']}</td>`
                                     } else {
                                         tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="usialy ${sutki}">${row[id]['val']}</td>`
                                     }

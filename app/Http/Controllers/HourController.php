@@ -17,8 +17,8 @@ use Maatwebsite\Excel\Facades\Excel;
 class HourController extends Controller
 {
     public function main(){
-        $start_hour = Setting::where('name_setting', '=', 'start_smena')->first()->value;
-        return view('web.time_param_hour', compact('start_hour'));
+        $setting = Setting::get()->pluck('value', 'name_setting');
+        return view('web.time_param_hour', compact('setting'));
     }
 
     public function get_hour_param($date){

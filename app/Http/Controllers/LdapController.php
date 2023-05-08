@@ -14,15 +14,6 @@ class LdapController extends Controller
 {
     public function test()
     {
-//        echo 'вызвал';
-//        foreach (TableObj::where('inout', '!=', '!')->select('id')->get() as $item) {
-//            for ($date = date('Y-m-d 12:00', strtotime('-1 month')); strtotime($date)<strtotime(date('Y-m-d H:i')); $date=date('Y-m-d H:i', strtotime($date.' +1 hours'))){
-//                Hour_params::create(['param_id'=>$item->id, 'val'=>rand(0, 100), 'timestamp'=>$date]);
-//            }
-//        }
-//        dd('fsdfsdf');
-
-
 
 //        dd(Auth::user()->displayname[0]);
 //        $users = User::get();

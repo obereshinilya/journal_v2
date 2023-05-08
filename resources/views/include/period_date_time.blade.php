@@ -17,9 +17,13 @@
             onSelect: function (date){
                 if (date['date'].length === 2){
                     try{
-                        get_table_data()
+                        render_graph()
                     }catch (e){
-
+                        try{
+                            get_table_data()
+                        }catch (e){
+                            console.log(e)
+                        }
                     }
                 }
             }
