@@ -52,6 +52,8 @@ Route::group(['middleware' => ['auth']], function() {
     //БЛОК журналов
     Route::get('/admin_journal', [JournalController::class, 'user_log']);
     Route::get('/admin_journal_data/{date_start}/{date_stop}', [JournalController::class, 'admin_journal_data']);
+    Route::get('/xml_journal', [JournalController::class, 'xml_journal']);
+    Route::get('/xml_journal_data/{date_start}/{date_stop}', [JournalController::class, 'xml_journal_data']);
 
     //БЛОК настройки сигналов
     Route::get('/signal_settings/{id_param}', [SettingController::class, 'signal_settings']);

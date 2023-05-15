@@ -8,6 +8,7 @@
         <img src="/assets/img/arrow.svg">
         <div><a href="/main_setting">Основные настройки</a></div>
         <div><a href="/admin_journal">Журнал действий оператора</a></div>
+        <div><a href="/xml_journal">Журнал отправки XML</a></div>
         <div><a href="/signal_settings/false">Редактирование параметров</a></div>
     </div>
     <div class="header_cell div_list">

@@ -157,7 +157,6 @@
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
-                    console.log(res)
                     if (res !== 'false'){
                         change_header_modal(res)
                     }else {

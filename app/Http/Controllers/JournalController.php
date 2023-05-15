@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JournalSodu;
 use App\Models\Log;
+use App\Models\XMLJournal;
 use Illuminate\Http\Request;
 
 class JournalController extends Controller
@@ -15,6 +16,14 @@ class JournalController extends Controller
     public function admin_journal_data($date_start, $date_stop){
         $data = Log::wherebetween('date', [date('d.m.Y 00:00', strtotime($date_start)), date('d.m.Y 23:59', strtotime($date_stop))])
             ->orderbydesc('id')->select('username', 'event', 'comment', 'date')->get();
+        return $data;
+    }
+    public function xml_journal(){
+        return view('web.journal.xml_journal');
+    }
+    public function xml_journal_data($date_start, $date_stop){
+        $data = XMLJournal::wherebetween('timestamp', [date('d.m.Y 00:00', strtotime($date_start)), date('d.m.Y 23:59', strtotime($date_stop))])
+            ->orderbydesc('timestamp')->select('event', 'status','timestamp')->get();
         return $data;
     }
     public function journal_sodu(){
