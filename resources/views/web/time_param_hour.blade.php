@@ -619,14 +619,14 @@
                                     outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
                                     timemarker: [
                                         {
-                                            start: "2023-04-13 16:00:00",
+                                            start: "2023-05-15 16:00:00",
                                             label: "Проведение ТО",
                                             timeformat: "%Y-%m-%d %H:%M:%S",
                                             type: "full",
                                             style: {marker: {fill: "#D0D6F4"}}
                                         },
                                         {
-                                            start: "2023-04-12 10:00:00",
+                                            start: "2023-05-12 10:00:00",
                                             label: "Сработал датчик загазованности",
                                             timeformat: "%Y-%m-%d %H:%M:%S",
                                             type: "full",

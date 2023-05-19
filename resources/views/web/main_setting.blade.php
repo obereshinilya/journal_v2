@@ -15,13 +15,14 @@
     <div id="main_div">
         <div class="container_card">
             <div class="tab">
-                <button class="setlinks active" style="width: 50%" onclick="openSettingBlock(this, 'hour_card')">Часовые показатели</button>
-                <button class="setlinks" style="width: 50%" onclick="openSettingBlock(this, 'masdu_card')">М АСДУ</button>
+                <button class="setlinks active" style="width: 33%" onclick="openSettingBlock(this, 'hour_card')">Часовые показатели</button>
+                <button class="setlinks" style="width: 33%" onclick="openSettingBlock(this, 'masdu_card')">М АСДУ</button>
+                <button class="setlinks" style="width: 33%" onclick="openSettingBlock(this, 'other_card')">Прочее</button>
             </div>
 
             <div id="hour_card" class="settingcontent" style="display: block">
                 <div style="overflow-y: auto; height: 100%">
-                    <table id="statickTable" class="statickTable" style="width: 800px; direction: ltr; table-layout: auto; white-space: normal; text-align: center">
+                    <table class="statickTable" style="width: 800px; direction: ltr; table-layout: auto; white-space: normal; text-align: center">
                         <tbody>
                             <tr>
                                <td rowspan="3">Разрешить редактирование</td>
@@ -90,7 +91,49 @@
             </div>
             <div id="masdu_card" class="settingcontent" style="display: none">
                 <div style="overflow-y: auto; height: 100%">
-                    <p>Раздел в разработке</p>
+                    <table class="statickTable" style="width: 800px; direction: ltr; table-layout: auto; white-space: normal; text-align: center">
+                        <tbody>
+                        <tr>
+                            <td rowspan="3">Основной сервер</td>
+                            <td>Логин</td>
+                            <td>
+                                <input type="text" class="form-control" placeholder="Логин" value="sftp_main">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Пароль</td>
+                            <td><input type="password" class="form-control" placeholder="Пароль" value="sftp_main"></td>
+                        </tr>
+                        <tr>
+                            <td>Папка назначения</td>
+                            <td><input type="text" class="form-control" placeholder="Папка назначения" value="/input/"></td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">Резервный сервер</td>
+                            <td>Логин</td>
+                            <td>
+                                <input type="text" class="form-control" placeholder="Логин" value="sftp_reserv">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Пароль</td>
+                            <td><input type="password" class="form-control" placeholder="Пароль" value="sftp_main"></td>
+                        </tr>
+                        <tr>
+                            <td>Папка назначения</td>
+                            <td><input type="text" class="form-control" placeholder="Папка назначения" value="/input/"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Адрес почты для резервной отправки</td>
+                            <td><input type="text" class="form-control" placeholder="Адрес почты" value="mail_reserv@mail.ru"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="other_card" class="settingcontent" style="display: none">
+                <div style="overflow-y: auto; height: 100%">
+                    <p>Раздел будет наполнен в ходе разработки</p>
                 </div>
             </div>
         </div>
