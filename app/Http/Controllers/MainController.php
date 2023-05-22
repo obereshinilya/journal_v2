@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\chat\Users;
 use App\Models\ConfirmHour;
+use App\Models\CustomLists;
 use App\Models\HiddenHour;
 use App\Models\Hour_params;
 use App\Models\Log;
 use App\Models\Setting;
 use App\Models\Sut_params;
 use App\Models\TableObj;
+use App\Models\UserCustomList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -163,7 +166,12 @@ class MainController extends Controller
     public function store_new_object($parent_id, $name_new_object)
     {
         (new MainController)->create_log_record('Добавление объекта', 'Объект: "' . $name_new_object . '"');
-        $parent = TableObj::where('id', '=', $parent_id)->first();
+        if ($parent_id == 'false'){
+            $parent = TableObj::where('level', '=', 0)->first();
+            $parent_id = $parent->id;
+        }else{
+            $parent = TableObj::where('id', '=', $parent_id)->first();
+        }
         $new_obj = [
             'full_name' => $name_new_object,
             'inout' => '!',

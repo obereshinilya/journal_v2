@@ -227,8 +227,16 @@
                 localStorage.clear()
             }
             delete_min_rows()
+            var href = ''
+            var custom_list = false
+            if (document.getElementById('choiced_id').textContent === 'false'){
+                custom_list = true
+                href = 'get_custom_data/'+document.getElementsByClassName('choiced')[0].getAttribute('data-id')
+            }else{
+                href = 'get_hour_data'
+            }
             $.ajax({
-                url: '/get_hour_data/' + $("#date_start").val(),
+                url: '/'+href +'/' + $("#date_start").val(),
                 method: 'GET',
                 dataType: 'html',
                 async: true,
@@ -284,7 +292,9 @@
                         }
                     })
                     add_trigger_paint()
-                    check_choiced_obj()
+                    if(!custom_list){
+                        check_choiced_obj()
+                    }
                     search_object()
                     create_tooltip_and_comment()
                     go_to_setting()
@@ -445,8 +455,16 @@
                     old_tds[0].parentNode.removeChild(old_tds[0]);
                 }
             } else {
+                var href = ''
+                var custom_list = false
+                if (document.getElementById('choiced_id').textContent === 'false'){
+                    custom_list = true
+                    href = 'custom_param_minutes/'+document.getElementsByClassName('choiced')[0].getAttribute('data-id')
+                }else{
+                    href = 'hours_param_minutes'
+                }
                 $.ajax({
-                    url: '/hours_param_minutes/' + date + '/' + hour_th,
+                    url: '/'+href+'/' + date + '/' + hour_th,
                     method: 'GET',
                     success: function (res) {
                         var cellIndex = th.cellIndex
@@ -666,6 +684,83 @@
             if ($('.choiced')[0]) {
                 hide_rows($('.choiced')[0].getAttribute('data-id'))
             }
+        }
+
+        function get_user_custom_list(){
+            $.ajax({
+                url: '/get_user_lists',
+                method: 'GET',
+                dataType: 'html',
+                success: function(res){
+                    var lists = JSON.parse(res)
+                    if(lists.length > 0){
+                        var side_menu = document.getElementById('side_menu_content')
+                        var last_ul = side_menu.lastChild
+                        var ul = document.createElement('ul')
+                        ul.innerHTML = `<li class="side_obj">Свои списки<img id="custom_img" onclick="open_custom_list(this)" class="plus_icon hide" src="http://127.0.0.1/assets/img/plus.png"></li>`
+                        ul.style.paddingLeft = '15px'
+                        last_ul.after(ul)
+                        var new_ul = document.createElement('ul')
+                        new_ul.id = 'custom_list'
+                        for(var list of lists){
+                            new_ul.innerHTML += `<li onclick="get_custom_params(this)" class="side_obj custom_lists" data-id="${list['id_list']}">${list['name_list']}</li>`
+                        }
+                        ul.append(new_ul)
+                        $('.custom_lists').on('contextmenu', function (){
+                            var context_menu = document.getElementById('context_custom_list')
+                            context_menu.style.display = 'block'
+                            context_menu.style.top = Number(event.pageY)+'px'
+                            context_menu.style.left = Number(event.pageX)+'px'
+                            $('body').on('click', function (){
+                                document.getElementById('context_custom_list').style.display = 'none'
+                            })
+                            localStorage.setItem('custom_list', this.getAttribute('data-id'))
+                        })
+                    }
+                },
+                async: false
+            })
+        }
+        function hide_list(){
+            $.ajax({
+                url: '/hide_list/'+localStorage.getItem('custom_list'),
+                method: 'GET',
+                dataType: 'html',
+                success: function(res){
+                    update_side_object()
+                    try{
+                        document.getElementById('custom_img').click()
+                    }catch (e) {
+                        console.log(e)
+                    }
+                },
+                async: false
+            })
+        }
+        function open_custom_list(img){
+            if(img.classList.contains('hide')){
+                img.classList.remove('hide')
+                img.style.transform = 'rotate(45deg)'
+                var ul = document.getElementById('custom_list')
+                ul.style.display = 'block'
+            }else{
+                img.classList.add('hide')
+                img.style.transform = ''
+                document.getElementById('custom_list').style.display = ''
+            }
+        }
+        function get_custom_params(li){
+            if (li.classList.contains('choiced')){
+                li.classList.remove('choiced')
+                document.getElementById('choiced_id').textContent = ''
+                document.getElementById('header_doc').textContent = 'Часовые показатели.'
+            }else {
+                $('.choiced').removeClass('choiced');
+                li.classList.add('choiced')
+                document.getElementById('choiced_id').textContent = 'false'
+                document.getElementById('header_doc').textContent = 'Часовые показатели. '+li.textContent
+            }
+            get_table_data()
         }
     </script>
 @endsection

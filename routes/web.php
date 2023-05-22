@@ -83,6 +83,16 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/store_new_name/{id}/{new_name}', [MainController::class, 'store_new_name'])->name('store_new_name');    ///Переименовать объект
     Route::post('/store_new_signal/{parent_id}', [MainController::class, 'store_new_signal'])->name('store_new_signal');    ///Сохранить новые сигналы
     Route::get('/delete_object/{parent_id}', [MainController::class, 'delete_object'])->name('delete_object');    ///Сохранить новые сигналы
+    Route::get('/custom_list/{id_list}', [HourController::class, 'custom_list'])->name('custom_list');    ///Страница создания или редактирования своего списка
+    Route::post('/save_list', [HourController::class, 'save_list'])->name('save_list');    ///Сохраняем список
+    Route::post('/update_list/{id_list}', [HourController::class, 'update_list'])->name('update_list');    ///Обновляем список
+    Route::get('/get_user_lists', [HourController::class, 'get_user_lists'])->name('get_user_lists');    ///Получаем списки для пользователя
+    Route::get('/get_custom_data/{id_list}/{date}', [HourController::class, 'get_custom_data'])->name('get_custom_data');    ///Получаем данные в часовки для собственных листов
+    Route::get('/custom_param_minutes/{id_list}/{date}/{hour}', [HourController::class, 'custom_param_minutes']); //Значения минуток для собственных листов
+    Route::get('/delete_list/{id_list}', [HourController::class, 'delete_list']); //Удаление листа для всех
+    Route::get('/hide_list/{id_list}', [HourController::class, 'hide_list']); //Удаление листа для пользователя
+    Route::get('/get_custom_list', [HourController::class, 'get_custom_list']); //Все списки, которых нет и пользователя
+    Route::get('/post_copy_custom_list/{id_list}', [HourController::class, 'post_copy_custom_list']); //Сохранение добавления списка
 
 });
 

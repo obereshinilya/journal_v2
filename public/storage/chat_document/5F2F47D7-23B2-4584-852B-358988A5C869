@@ -1,0 +1,11 @@
+Version = '0.0.0.0'
+IpDevice = '192.168.1.130'
+PassDevice = 'ga'
+UserDevice = 'root'
+Upport_tcp = 0
+Local_port = 17000
+Count_tty_serial = 0
+Count_tcp_serial = 0
+Tcp_serial = []
+Mercury = []
+SuperFlow = []
