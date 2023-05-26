@@ -10,6 +10,10 @@
 @section('content')
     <style>
         #period{display: none}
+        .highter{fill: {{$setting['color_middle_risk']}}}
+        .lower{fill: {{$setting['color_middle_risk']}}}
+        .very_highter{fill: {{$setting['color_hight_risk']}}}
+        .very_lower{fill: {{$setting['color_hight_risk']}}}
     </style>
     <div id="context_time_params" class="context_menu">
         <a id="open_edit_comment" style="white-space: nowrap">
@@ -264,15 +268,23 @@
                             if (row[id]['id']) {
                                 if (Boolean(row[id]['xml_create'] === true)) {
                                     if (Boolean(row[id]['manual']) === true) {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['hand_edit']}}" class="manual ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['hand_edit']}}" class="manual ${sutki}">${row[id]['val']}
+                                                            @if($setting['visible_risk'] == 'true')<svg class="row_in_hour_param ${row[id]['class_img']}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="${row[id]['visible']}"><path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path></svg>@endif
+                                                        </td>`
                                     } else {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['masdu_edit']}}" class="xml ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['masdu_edit']}}" class="xml ${sutki}">${row[id]['val']}
+                                                            @if($setting['visible_risk'] == 'true')<svg class="row_in_hour_param ${row[id]['class_img']}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="${row[id]['visible']}"><path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path></svg>@endif
+                                                        </td>`
                                     }
                                 } else {
                                     if (Boolean(row[id]['manual']) === true) {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['hand_edit']}}" class="manual ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="<b>Изменил:</b> ${row[id]['change_by']} <br> ${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="{{$setting['hand_edit']}}" class="manual ${sutki}">${row[id]['val']}
+                                                            @if($setting['visible_risk'] == 'true')<svg class="row_in_hour_param ${row[id]['class_img']}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="${row[id]['visible']}"><path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path></svg>@endif
+                                                        </td>`
                                     } else {
-                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="usialy ${sutki}">${row[id]['val']}</td>`
+                                        tr.innerHTML += `<td data-toggle="tooltip" data-bs-html="true" title="${row[id]['comment']}" data-id="${row[id]['id']}" contenteditable="true" class="usialy ${sutki}">${row[id]['val']}
+                                                            @if($setting['visible_risk'] == 'true')<svg class="row_in_hour_param ${row[id]['class_img']}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="${row[id]['visible']}"><path d="M3 19h18a1.002 1.002 0 0 0 .823-1.569l-9-13c-.373-.539-1.271-.539-1.645 0l-9 13A.999.999 0 0 0 3 19z"></path></svg>@endif
+                                                         </td>`
                                     }
                                 }
                             } else {
@@ -633,25 +645,25 @@
                                         "enabled": "0"
                                     }
                                 },
-                                "xAxis": {
-                                    outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
-                                    timemarker: [
-                                        {
-                                            start: "2023-05-15 16:00:00",
-                                            label: "Проведение ТО",
-                                            timeformat: "%Y-%m-%d %H:%M:%S",
-                                            type: "full",
-                                            style: {marker: {fill: "#D0D6F4"}}
-                                        },
-                                        {
-                                            start: "2023-05-12 10:00:00",
-                                            label: "Сработал датчик загазованности",
-                                            timeformat: "%Y-%m-%d %H:%M:%S",
-                                            type: "full",
-                                            style: {marker: {fill: "#D0D6F4"}}
-                                        },
-                                    ]
-                                },
+                                // "xAxis": {
+                                //     outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
+                                //     timemarker: [
+                                //         {
+                                //             start: "2023-05-15 16:00:00",
+                                //             label: "Проведение ТО",
+                                //             timeformat: "%Y-%m-%d %H:%M:%S",
+                                //             type: "full",
+                                //             style: {marker: {fill: "#D0D6F4"}}
+                                //         },
+                                //         {
+                                //             start: "2023-05-12 10:00:00",
+                                //             label: "Сработал датчик загазованности",
+                                //             timeformat: "%Y-%m-%d %H:%M:%S",
+                                //             type: "full",
+                                //             style: {marker: {fill: "#D0D6F4"}}
+                                //         },
+                                //     ]
+                                // },
                                 tooltip: {
                                     outputTimeFormat: {hour: "%-d %b %Y, %H:%M", minutes: "%-d %b %Y, %H:%M"}
                                 },

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\HiddenHour;
 use App\Models\Setting;
 use App\Models\TableObj;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SettingController extends Controller
@@ -14,15 +15,21 @@ class SettingController extends Controller
         $setting = Setting::get()->pluck('value', 'name_setting');
         return view('web.main_setting', compact('setting'));
     }
-    public function save_main_setting($param, $value){
+    public function save_main_setting(Request $request, $param){
+        $data = $request->all();
+        $value = $data['value'];
         $from_db = Setting::where('name_setting', '=', $param)->first();
         if ($value !== 'false'){
-            $hour = substr($value, 0, -3);
-            if ($hour[0] == 0){
-                $hour = $hour[1];
+            if ($param == 'start_smena'){
+                $hour = substr($value, 0, -3);
+                if ($hour[0] == 0){
+                    $hour = $hour[1];
+                }
+                $from_db->update(['value'=>$hour]);
+            }else{
+                $from_db->update(['value'=>$value]);
             }
             (new MainController)->create_log_record('Изменение настроек','Изменил '.$from_db->comment);
-            $from_db->update(['value'=>$hour]);
         }else{
             if ($from_db->value == 'true'){
                 (new MainController)->create_log_record('Изменение настроек','Запретил '.$from_db->comment);
@@ -32,6 +39,9 @@ class SettingController extends Controller
                 $from_db->update(['value'=>'true']);
             }
         }
+    }
+    public function save_opc($param, $value){
+        $from_db = Setting::where('name_setting', '=', $param)->first()->update(['value'=>$value]);
     }
 
     public function signal_settings($id_param){

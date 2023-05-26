@@ -64,9 +64,8 @@ class HourController extends Controller
         return $result;
     }
     public function get_custom_data($id_list, $date){
+        $setting = Setting::get()->pluck('value', 'name_setting');
         try {
-            $param_from_list = explode(',', CustomLists::where('id', '=', $id_list)->first()->param_id);
-//            $all_param_hour = TableObj::whereIn('id', $param_from_list)->select('id', 'full_name', 'e_unit')->orderby('full_name')->get();
             $all_param_hour = DB::table('app_info.main_table')->
                 join(DB::raw('(SELECT unnest(string_to_array(param_id, \',\'))::int AS param, id FROM app_info.custom_lists where id = \''.$id_list.'\') as lists'),
                     'main_table.id','=','lists.param')
@@ -85,22 +84,43 @@ class HourController extends Controller
                 $result[$i] += $zero_array;
                 $i++;
             }
-            $start_hour = Setting::where('name_setting', '=', 'start_smena')->first()->value;
-            $disp_date_time = date('d.m.Y '.$start_hour.':00:00', strtotime($date));
+            $disp_date_time = date('d.m.Y '.$setting['start_smena'].':00:00', strtotime($date));
             $data = Hour_params::wherein('param_id', $array_id)->wherebetween('timestamp', [$disp_date_time,
                 date('Y-m-d H:i', strtotime($disp_date_time . '+1439 minutes'))])->
-            orderby('id')->get();
+            orderby('timestamp')->get();
             foreach ($data as $row) {
                 $k = array_search((int)$row->param_id, $array_id);
-                $j = (int)date('H', strtotime($row->timestamp . '- '.($start_hour-1).' hours'));
+                $j = (int)date('H', strtotime($row->timestamp . '- '.($setting['start_smena']-1).' hours'));
                 if ($j == 0)
                     $j = 24;
                 $result[$k][$j] = $row->toArray();
+                if ($setting['visible_risk'] == 'true'){
+                    if ($j!=1 && array_key_exists('val', $result[$k][$j - 1])) {
+                        $result[$k][$j]['difference'] = ($result[$k][$j - 1]['val'] - $result[$k][$j]['val']) / ($result[$k][$j - 1]['val']+0.0001);
+
+                        if($result[$k][$j]['difference'] <= 0){
+                            $result[$k][$j]['class_img'] = 'highter';
+                        }else{
+                            $result[$k][$j]['class_img'] = 'lower';
+                        }
+                        if (abs($result[$k][$j]['difference']) > $setting['percent_hight_risk']/100){
+                            $result[$k][$j]['visible'] = '';
+                            $result[$k][$j]['class_img'] = 'very_'.$result[$k][$j]['class_img'];
+                        }elseif(abs($result[$k][$j]['difference']) > $setting['percent_middle_risk']/100){
+                            $result[$k][$j]['visible'] = '';
+                        }else{
+                            $result[$k][$j]['visible'] = 'display: none';
+                        }
+                    }else{
+                        $result[$k][$j]['visible'] = 'display: none';
+                    }
+                }
             }
             $data_sut = Sut_params::wherein('param_id', $array_id)->where('timestamp', '=', date('d.m.Y', strtotime($date)))->orderby('id')->get();
             foreach ($data_sut as $row) {
                 $k = array_search((int)$row->param_id, $array_id);
                 $result[$k][0] = $row->toArray();
+                $result[$k][0]['visible'] = 'display: none';
             }
             return $result;
         }catch (\Throwable $e){
@@ -154,6 +174,8 @@ class HourController extends Controller
     }
 
     public function get_hour_param($date){
+//        $start = microtime(true);
+        $setting = Setting::get()->pluck('value', 'name_setting');
         try {
             $hidden_hour = HiddenHour::where('login_user', '=', Auth::user()->cn[0])->get()->pluck('param_id');
             $all_param_hour = TableObj::whereNotIn('id', $hidden_hour)->where('inout', '!=', '!')->select('id', 'full_name', 'e_unit')->orderby('full_name')->get();
@@ -170,23 +192,45 @@ class HourController extends Controller
                 $result[$i] += $zero_array;
                 $i++;
             }
-            $start_hour = Setting::where('name_setting', '=', 'start_smena')->first()->value;
-            $disp_date_time = date('d.m.Y '.$start_hour.':00:00', strtotime($date));
+            $disp_date_time = date('d.m.Y '.$setting['start_smena'].':00:00', strtotime($date));
             $data = Hour_params::wherein('param_id', $array_id)->wherebetween('timestamp', [$disp_date_time,
-                date('Y-m-d H:i', strtotime($disp_date_time . '+1439 minutes'))])->
-            orderby('id')->get();
+                date('Y-m-d H:i', strtotime($disp_date_time . '+1499 minutes'))])->
+            orderby('timestamp')->get();
             foreach ($data as $row) {
                 $k = array_search((int)$row->param_id, $array_id);
-                $j = (int)date('H', strtotime($row->timestamp . '- '.($start_hour-1).' hours'));
+                $j = (int)date('H', strtotime($row->timestamp . '- '.($setting['start_smena']-1).' hours'));
                 if ($j == 0)
                     $j = 24;
                 $result[$k][$j] = $row->toArray();
+                if ($setting['visible_risk'] == 'true'){
+                    if ($j!=1 && array_key_exists('val', $result[$k][$j - 1])) {
+                        $result[$k][$j]['difference'] = ($result[$k][$j - 1]['val'] - $result[$k][$j]['val']) / ($result[$k][$j - 1]['val']+0.0001);
+
+                        if($result[$k][$j]['difference'] <= 0){
+                            $result[$k][$j]['class_img'] = 'highter';
+                        }else{
+                            $result[$k][$j]['class_img'] = 'lower';
+                        }
+                        if (abs($result[$k][$j]['difference']) > $setting['percent_hight_risk']/100){
+                            $result[$k][$j]['visible'] = '';
+                            $result[$k][$j]['class_img'] = 'very_'.$result[$k][$j]['class_img'];
+                        }elseif(abs($result[$k][$j]['difference']) > $setting['percent_middle_risk']/100){
+                            $result[$k][$j]['visible'] = '';
+                        }else{
+                            $result[$k][$j]['visible'] = 'display: none';
+                        }
+                    }else{
+                        $result[$k][$j]['visible'] = 'display: none';
+                    }
+                }
             }
             $data_sut = Sut_params::wherein('param_id', $array_id)->where('timestamp', '=', date('d.m.Y', strtotime($date)))->orderby('id')->get();
             foreach ($data_sut as $row) {
                 $k = array_search((int)$row->param_id, $array_id);
                 $result[$k][0] = $row->toArray();
+                $result[$k][0]['visible'] = 'display: none';
             }
+//            echo 'Время выполнения скрипта: '.round(microtime(true) - $start, 4).' сек.';
             return $result;
         }catch (\Throwable $e){
             return $e;

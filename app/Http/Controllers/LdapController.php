@@ -17,6 +17,7 @@ class LdapController extends Controller
 {
     public function test()
     {
+        dd(Auth::user());
         //Для генерации параметров
 //        $date = date('Y-m-d', strtotime('2023-03-10'));
 //        $timepar = TableObj::where('inout', '=', 'ВХОД')->select('id')->get();
@@ -26,8 +27,8 @@ class LdapController extends Controller
 //            }
 //            $date = date('Y-m-d', strtotime($date.' +1 days'));
 //        }
-        Hour_params::where('timestamp', '>', date('Y-m-d H:i', strtotime('2023-05-16 15:00')))->delete();
-        Min_params::where('timestamp', '>', date('Y-m-d H:i', strtotime('2023-05-16 15:00')))->delete();
+//        Hour_params::where('timestamp', '>', date('Y-m-d H:i', strtotime('2023-05-16 15:00')))->delete();
+//        Min_params::where('timestamp', '>', date('Y-m-d H:i', strtotime('2023-05-16 15:00')))->delete();
 //        $date = date('Y-m-d H:i:s', strtotime('2023-03-10 11:00'));
 //        while($date < date('Y-m-d H:i')){
 //            XMLJournal::create(['event'=>'Отправка PT5M_'.date('Y_m_d_H_i', strtotime($date)), 'status'=>'Успешно отправлено', 'timestamp'=>$date]);

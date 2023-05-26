@@ -26,7 +26,8 @@ Route::group(['middleware' => ['auth']], function() {
 
     //БЛОК общих настроек
     Route::get('/main_setting', [SettingController::class, 'main_setting'])->name('main_setting');   ///Общая страница настроек
-    Route::get('/save_main_setting/{param}/{value}', [SettingController::class, 'save_main_setting'])->name('save_main_setting');   ///Сохранение настроек
+    Route::post('/save_main_setting/{param}', [SettingController::class, 'save_main_setting'])->name('save_main_setting');   ///Сохранение настроек
+    Route::get('/save_opc/{param}/{value}', [SettingController::class, 'save_opc'])->name('save_opc');   ///Сохранение настроек
 
 
     //БЛОК чата

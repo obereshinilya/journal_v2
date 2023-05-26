@@ -15,7 +15,7 @@
     <div id="main_div">
         <div class="container_card">
             <div class="tab">
-                <button class="setlinks active" style="width: 33%" onclick="openSettingBlock(this, 'hour_card')">Часовые показатели</button>
+                <button class="setlinks active" style="width: 33%" onclick="openSettingBlock(this, 'hour_card')">Сеансовые данные</button>
                 <button class="setlinks" style="width: 33%" onclick="openSettingBlock(this, 'masdu_card')">М АСДУ</button>
                 <button class="setlinks" style="width: 33%" onclick="openSettingBlock(this, 'other_card')">Прочее</button>
             </div>
@@ -24,6 +24,7 @@
                 <div style="overflow-y: auto; height: 100%">
                     <table class="statickTable" style="width: 800px; direction: ltr; table-layout: auto; white-space: normal; text-align: center">
                         <tbody>
+                        <tr><td colspan="3"><b>Отображение сеансовых данных</b></td></tr>
                             <tr>
                                <td rowspan="3">Разрешить редактирование</td>
                                 <td>Данных, отправленных в М АСДУ</td>
@@ -80,11 +81,34 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Время начала смены</td>
-                                <td colspan="2">
-                                    @include('include.time')
+                                <td colspan="3">Время начала смены в @include('include.time')</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Отображение резкого изменения параметров</td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" @if($setting['visible_risk'] == 'true') checked @endif onclick="save_setting('visible_risk')">
+                                        <span class="slider"></span>
+                                    </label>
                                 </td>
                             </tr>
+                            <tr>
+                                <td colspan="3">Отображение предупредительной отметки на уровне <input type="number" onchange="save_setting('percent_middle_risk', this.value)" style="text-align: center; margin: 0 10px" placeholder="" min="1" max="99" value="{{$setting['percent_middle_risk']}}"> %, отображая цветом <input type="color" style="margin-left: 10px" onchange="save_setting('color_middle_risk', this.value)" value="{{$setting['color_middle_risk']}}"</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">Отображение критической отметки на уровне <input type="number" onchange="save_setting('percent_hight_risk', this.value)" style="text-align: center; margin: 0 10px" placeholder="" min="1" max="99" value="{{$setting['percent_hight_risk']}}"> %, отображая цветом <input type="color" style="margin-left: 10px" onchange="save_setting('color_hight_risk', this.value)" value="{{$setting['color_hight_risk']}}"></td>
+                            </tr>
+
+                        <tr><td colspan="2" style=""><b>Запись данных с OPC UA</b></td>
+                            <td><button style="float: right; margin: 0 5px 0 0" class="btn btn_img" data-toggle="tooltip" title="Сохранить" ><img onclick="save_parser()" src="/assets/img/save.svg"></button></td>
+                        </tr>
+                            <tr>
+                                <td colspan="3">Формирование данных за <input id="before_hour_start_read" type="number" style="text-align: center; margin: 0 10px" placeholder="" min="1" max="59" value="{{$setting['before_hour_start_read']}}"> минут до окончания часа</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">Формирование суточных данных в <input type='text' id="day_write" placeholder="Выберите время..." class='datepicker-here' style="text-align: center; margin: 0 10px" value="{{$setting['day_write']}}" /></td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -141,6 +165,15 @@
     <script>
         $(document).ready(function () {
             document.getElementById('only_time').value = '@if($setting['start_smena'] < 10) 0{{$setting['start_smena']}} @else {{$setting['start_smena']}} @endif:00'
+            var today = new Date();
+            today.setMinutes(0)
+            new AirDatepicker('#day_write',
+                {
+                    timepicker: true,
+                    onlyTimepicker: true,
+                    maxHours: 23,
+                    maxMinutes:59
+                })
         })
         function openSettingBlock(evt, typeInfo) {
             var i, settingcontent, setlinks;
@@ -159,14 +192,68 @@
             if (!value){
                 value = 'false'
             }
+            var arr = new Map()
+            arr.set('value', value)
             $.ajax({
-                url: '/save_main_setting/'+param+'/'+value,
-                method: 'GET',
+                url: '/save_main_setting/'+param,
+                method: 'POST',
                 async: true,
+                data: Object.fromEntries(arr),
                 success: function(res) {
 
                 }
             })
+        }
+        function save_parser(){
+            var data = {
+                "db_name": 'journal',
+                "db_user": 'postgres',
+                "db_password": 'Potok-DU',
+                "db_host": '127.0.0.1',
+                "db_port": '5432',
+                "tb_name": 'app_info.main_table',
+                "tb_column_tag": 'tag_name',
+                "tb_column_id_tag": 'id',
+                "tb_insert_id_tag": 'param_id',
+                "tb_insert_value": 'val',
+                "tb_insert_timestamp": 'timestamp',
+                "name_space" : 'ns=1;s=',
+                "opc_master_host": 'opc.tcp://10.93.63.10:62544',
+                "opc_slave_host": 'opc.tcp://10.93.63.10:62544',
+                "rate_5_min_cl_table": 'app_info.min_params',
+                "rate_5_min_cl_rate": '5',
+                "rate_1_hour_cl_table": 'app_info.hour_params',
+                "rate_1_hour_cl_rate": ':'+String(60 - Number(document.getElementById('before_hour_start_read').value)),
+                "rate_1_day_cl_table": 'app_info.sut_params',
+                "rate_1_day_cl_rate": document.getElementById('day_write').value+':00',
+                "path_log_file": '/Logs/'
+            };
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', "http://127.0.0.1:5002/conf_converter", true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    change_header_modal('Настройка записи данных выполнена!')
+                    open_modal_side_menu()
+                    document.getElementById('submit_button_side_menu').setAttribute('onclick', `close_modal_side_menu()`)
+                    var params = ['before_hour_start_read', 'day_write']
+                    for(var param of params){
+                        $.ajax({
+                            url: '/save_opc/'+param+'/'+document.getElementById(param).value,
+                            method: 'GET',
+                            async: true,
+                            success: function(res) {
+
+                            }
+                        })
+                    }
+                }else {
+                    change_header_modal('Настройка записи данных не выполнена!<br>Ошибка!')
+                    open_modal_side_menu()
+                    document.getElementById('submit_button_side_menu').setAttribute('onclick', `close_modal_side_menu()`)
+                }
+            };
+            xhr.send(JSON.stringify(data));
         }
     </script>
 <style>
