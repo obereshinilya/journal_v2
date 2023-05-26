@@ -44,7 +44,7 @@
 </body>
 <style>
     /* Demo Background */
-    body{background:url(/assets/img/fon_auth.png)}
+    body{background:url(/assets/img/for_auth.jpg)}
     /* Form Style */
     .form-horizontal{
         background: #fff;
