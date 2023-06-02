@@ -8,6 +8,7 @@ use App\Models\ConfirmHour;
 use App\Models\CustomLists;
 use App\Models\HiddenHour;
 use App\Models\Hour_params;
+use App\Models\journal_events\JournalEvents;
 use App\Models\Log;
 use App\Models\Setting;
 use App\Models\Sut_params;
@@ -244,6 +245,14 @@ class MainController extends Controller
         foreach ($result as $row) {
             $new_result[] = array_values((array)$row);
         }
+        $events = JournalEvents::wherebetween('timestamp', [$date_start, $date_end])
+            ->join('journal_events.type_events', 'journal.type_id', '=', 'type_events.id')
+            ->where('type_events.on_graph', '=', true)
+            ->selectRaw('timestamp as start , description as label, \'%Y-%m-%d %H:%M:%S\' as timeformat, concat(\'{"marker": {"fill": "\', color, \'"}}\') as style')
+            ->get();
+        $events = json_encode($events);
+        $events = str_replace(['"style":"{\"marker\"', '\"fill\"', '\"#', '\"}}"'], ['"style":{"marker"', '"fill"', '"#', '"}}'], $events);
+        $new_result['events'] = json_decode($events);
         return json_encode($new_result);
     }
 
@@ -274,10 +283,14 @@ class MainController extends Controller
         }
         $record['event'] = $message;
         $record['comment'] = $comment;
-        $last_record = Log::orderbydesc('id')->first()->toArray();
-        if ($last_record['username'] == $record['username'] && $last_record['event'] == $record['event'] && $last_record['comment'] == $record['comment']){
+        try {
+            $last_record = Log::orderbydesc('id')->first()->toArray();
+            if ($last_record['username'] == $record['username'] && $last_record['event'] == $record['event'] && $last_record['comment'] == $record['comment']){
 
-        }else{
+            }else{
+                Log::create($record);
+            }
+        }catch (\Throwable $e){
             Log::create($record);
         }
     }

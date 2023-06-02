@@ -11,7 +11,7 @@
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Журнал СОДУ</p>
         <button id="download_csw" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Загрузить CSV" ><img src="/assets/img/excel.svg"></button>
-        <button onclick="confirm_create_sodu()" class="btn header_blocks btn_img" data-toggle="tooltip" title="Создать запись"><img src="/assets/img/add_plus_icon.svg"></button>
+        <button onclick="create_sodu()" class="btn header_blocks btn_img" data-toggle="tooltip" title="Создать запись"><img src="/assets/img/add_plus_icon.svg"></button>
         <input class="input header_blocks" style="width: 200px" oninput="seach_jsExcel()" type="text" id="search_row" placeholder="Поиск...">
         @include('include.period_date_time')
     </div>
@@ -41,7 +41,7 @@
         function get_table_data(){
             document.getElementById('search_row').value = ''
             document.getElementById('main_div').innerText = ''
-            var width = ($('#main_div').width()-270)/4 + 'px'
+            var width = ($('#main_div').width()-920)/1 + 'px'
             var date_str = $("#period").val().replace(/ /g,'')
             date_str = date_str.split('-')
             $.ajax({
@@ -61,11 +61,11 @@
                         onchange: changed,
                         allowInsertRow:false,
                         columns: [
-                            {width:width,type:'dropdown',name:'fio',title:'Пользователь',source: ['Бадиков Н.А.','Кирдянов Д.А.','Коваленко А.А.','Козлов А.А.','Парфенов Н.В.','Черкасов В.Н.','Прочее...']},
+                            {width:'150px',type:'dropdown',name:'fio',title:'Пользователь',source: ['Бадиков Н.А.','Кирдянов Д.А.','Коваленко А.А.','Козлов А.А.','Парфенов Н.В.','Черкасов В.Н.','Прочее...']},
                             {width:width,type:'text',name:'event',title:'Событие'},
-                            {width:width,type:'dropdown',name:'type_event',title:'Тип события',source: ['Аварийная ситуация','Ввод в эксплуатацию','Вынужденный останов','Для информации','Изменение режима','Лесные пожары','Метеопредупреждение','Остановка и запуск скважин','Отгрузка ЖУВ','Плановый (внеплановый) остановочный комплекс','Происшествия','Профилактические работы','Распоряжения ПДС','Ремонтные работы','Телефонограммы','Учебные тренировки','Технологические переключения','Прием смены','Перекачка СК на ТОК','Прием СК на ТОК','Перекачка СК (циркуляция)','Отклонение от технологического режима','ДТП','Прочее...']},
-                            {width:width,type:'dropdown',name:'otdel',title:'Структурное подразделение (филиал,цех)',source: ['КГПУ, 1','КГПУ, 2','КГПУ, 3','КГПУ, 45','УМТСиК, ТОК','ПДС Администрации Общества','"п/б Нючакан, ГПУ"','Администрация общества','ПДС КГПУ','Автодорога','Прочее...']},
-                            {width:'200px',type:'calendar',name:'date',title:'Дата', options: { format:'DD.MM.YYYY HH:mm'},readOnly:true,},
+                            {width:'300px',type:'dropdown',name:'type_event',title:'Тип события',source: ['Аварийная ситуация','Ввод в эксплуатацию','Вынужденный останов','Для информации','Изменение режима','Лесные пожары','Метеопредупреждение','Остановка и запуск скважин','Отгрузка ЖУВ','Плановый (внеплановый) остановочный комплекс','Происшествия','Профилактические работы','Распоряжения ПДС','Ремонтные работы','Телефонограммы','Учебные тренировки','Технологические переключения','Прием смены','Перекачка СК на ТОК','Прием СК на ТОК','Перекачка СК (циркуляция)','Отклонение от технологического режима','ДТП','Прочее...']},
+                            {width:'250px',type:'dropdown',name:'otdel',title:'Структурное подразделение (филиал,цех)',source: ['КГПУ, 1','КГПУ, 2','КГПУ, 3','КГПУ, 45','УМТСиК, ТОК','ПДС Администрации Общества','"п/б Нючакан, ГПУ"','Администрация общества','ПДС КГПУ','Автодорога','Прочее...']},
+                            {width:'150px',type:'calendar',name:'date',title:'Дата', options: { format:'DD.MM.YYYY HH:mm'},readOnly:true,},
                             {type:'hidden',name:'id'},
                         ],
                         csvFileName: 'Журнал_СОДУ'
@@ -105,19 +105,124 @@
                 }
             })
         }
-        function confirm_create_sodu(){
-            change_header_modal('Создать новую запись?')
-            open_modal_side_menu()
-            document.getElementById('submit_button_side_menu').setAttribute('onclick', `create_sodu()`)
-        }
         function create_sodu(){
+            change_header_modal('Добавление записи в журнал СОДУ')
+            create_table_in_window()
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `store_new_record()`)
+        }
+        function create_table_in_window(){
+            var table = `
+            <table id="table_modal_side_menu" class="table_modal">
+                <tbody>
+                    <tr>
+                        <td style="width: 250px">Дата события</td>
+                        <td><input type="text" id="date" placeholder="Дата события..." class="datepicker-here" style="width: calc(100% - 50px)"/></td>
+                    </tr>
+                    <tr>
+                        <td>Пользователь</td>
+                        <td>
+                            <select class="text-input" style="width: calc(100% - 25px)" id="fio">
+                                <option>Бадиков Н.А.</option>
+                                <option>Кирдянов Д.А.</option>
+                                <option>Коваленко А.А.</option>
+                                <option>Козлов А.А.</option>
+                                <option>Парфенов Н.В.</option>
+                                <option>Черкасов В.Н.</option>
+                                <option>Прочее...</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Событие</td>
+                        <td>
+                            <textarea class="text-input" id="event" style="width: calc(100% - 50px)" placeholder="Описание..."></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Тип события</td>
+                        <td>
+                            <select class="text-input" style="width: calc(100% - 25px)" id="type_event">
+                                <option>Аварийная ситуация</option>
+                                <option>Ввод в эксплуатацию</option>
+                                <option>Вынужденный останов</option>
+                                <option>Для информации</option>
+                                <option>ДТП</option>
+                                <option>Изменение режима</option>
+                                <option>Лесные пожары</option>
+                                <option>Метеопредупреждение</option>
+                                <option>Остановка и запуск скважин</option>
+                                <option>Отгрузка ЖУВ</option>
+                                <option>Отклонение от технологического режима</option>
+                                <option>Плановый (внеплановый) остановочный комплекс</option>
+                                <option>Происшествия</option>
+                                <option>Профилактические работы</option>
+                                <option>Прием смены</option>
+                                <option>Перекачка СК на ТОК</option>
+                                <option>Прием СК на ТОК</option>
+                                <option>Перекачка СК (циркуляция)</option>
+                                <option>Распоряжения ПДС</option>
+                                <option>Ремонтные работы</option>
+                                <option>Телефонограммы</option>
+                                <option>Технологические переключения</option>
+                                <option>Учебные тренировки</option>
+                                <option>Прочее...</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Структурное подразделение</td>
+                        <td>
+                            <select class="text-input" style="width: calc(100% - 25px)" id="otdel">
+                                <option>Администрация общества</option>
+                                <option>Автодорога</option>
+                                <option>КГПУ, 1</option>
+                                <option>КГПУ, 2</option>
+                                <option>КГПУ, 3</option>
+                                <option>КГПУ, 45</option>
+                                <option>УМТСиК, ТОК</option>
+                                <option>ПДС Администрации Общества</option>
+                                <option>ПДС КГПУ</option>
+                                <option>"п/б Нючакан, ГПУ"</option>
+                                <option>Прочее...</option>
+                            </select>
+                        </td>
+                    </tr>`
+            $('#text_modal_side_menu').after(table)
+            ////Для выбора времени
+            var today = new Date();
+            new AirDatepicker('#date',
+                {
+                    timepicker: true,
+                    autoClose: false,
+                    maxDate: today,
+                    maxHours: 23,
+                    maxMinutes:59,
+                    keyboardNav: true
+                })
+            //обозначаем селект
+            // select_initial()
+            open_modal_side_menu()
+            document.getElementById('content_modal_side_menu').style.width = '80%'
+            document.getElementById('content_modal_side_menu').style.marginLeft = '-40%'
+        }
+        function store_new_record(){
+            var arr = new Map()
+            arr.set('date', document.getElementById('date').value)
+            arr.set('fio', document.getElementById('fio').value)
+            arr.set('event', document.getElementById('event').value)
+            arr.set('type_event', document.getElementById('type_event').value)
+            arr.set('otdel', document.getElementById('otdel').value)
             $.ajax({
                 url: '/create_sodu',
-                method: 'get',
+                method: 'POST',
+                data: Object.fromEntries(arr),
                 success: function (res) {
-                    window.location.reload()
-                }
+                    close_modal_side_menu()
+                    get_table_data()
+                },
+                async: false
             })
+
         }
     </script>
 @endsection

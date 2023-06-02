@@ -126,7 +126,7 @@
         }
         function copy_hour(hour){
             change_header_modal('Копирование сводки за '+hour.toLowerCase()+' '+$("#date_start").val()+'<br>Существующие данные будут потеряны!')
-            $('#text_modal_side_menu').after('<input type="text" id="time_div" placeholder="Укажите время назначения сводки..." class="datepicker-here" style="text-align: center" />')
+            $('#text_modal_side_menu').after('<input type="text" id="time_div" placeholder="Укажите время назначения сводки..." class="datepicker-here" style="text-align: center; z-index: 9000" />')
             var today = new Date();
             if (hour === 'Сутки'){
                 new AirDatepicker('#time_div',
@@ -628,6 +628,11 @@
                     success: function (res) {
                         res = JSON.parse(res)
                         let fusionDataStore = new FusionCharts.DataStore();
+                        var event = res['events']
+                        delete res['events']
+                        console.log(event)
+                        console.log(Object.values(event))
+                        res = Object.values(res)
                         let fusionTable = fusionDataStore.createDataTable(res, schema);
                         var height = $('#tableDiv').height()
                         new FusionCharts({
@@ -645,25 +650,26 @@
                                         "enabled": "0"
                                     }
                                 },
-                                // "xAxis": {
-                                //     outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
-                                //     timemarker: [
-                                //         {
-                                //             start: "2023-05-15 16:00:00",
-                                //             label: "Проведение ТО",
-                                //             timeformat: "%Y-%m-%d %H:%M:%S",
-                                //             type: "full",
-                                //             style: {marker: {fill: "#D0D6F4"}}
-                                //         },
-                                //         {
-                                //             start: "2023-05-12 10:00:00",
-                                //             label: "Сработал датчик загазованности",
-                                //             timeformat: "%Y-%m-%d %H:%M:%S",
-                                //             type: "full",
-                                //             style: {marker: {fill: "#D0D6F4"}}
-                                //         },
-                                //     ]
-                                // },
+                                "xAxis": {
+                                    outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
+                                    timemarker:event
+                                        // [{
+                                        //     start: "2023-05-30 16:00:00",
+                                        //     label: "Проведение ТО",
+                                        //     timeformat: "%Y-%m-%d %H:%M:%S",
+                                        //     type: "full",
+                                        //     style: {marker: {fill: "#FFF176"}}
+                                        // },
+                                        // {
+                                        //     start: "2023-05-30 10:00:00",
+                                        //     label: "Сработал датчик загазованности",
+                                        //     timeformat: "%Y-%m-%d %H:%M:%S",
+                                        //     type: "full",
+                                        //     style: {marker: {fill: "#FFF176"}}
+                                        // }]
+                                    ,
+
+                                },
                                 tooltip: {
                                     outputTimeFormat: {hour: "%-d %b %Y, %H:%M", minutes: "%-d %b %Y, %H:%M"}
                                 },

@@ -243,8 +243,10 @@
     function add_new_object(id, full_name){
         if(full_name){
             change_header_modal('Добавление дочернего объекта для "'+full_name+'"')
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `store_new_object(${id})`)
         }else {
             change_header_modal('Добавление филиала ДО')
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', 'store_new_object("false")')
         }
         $('#text_modal_side_menu').after('<input class="text-input" id="name_new_object" type="text" placeholder="Наименование нового объекта...">')
         $('#name_new_object').keydown(function (event) {
@@ -253,7 +255,6 @@
             }
         })
         open_modal_side_menu()
-        document.getElementById('submit_button_side_menu').setAttribute('onclick', 'store_new_object("false")')
     }
     function store_new_object(parent_id){
         var new_name = document.getElementById('name_new_object').value

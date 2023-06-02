@@ -3,6 +3,9 @@
         <ul>
             <li class="side_obj" report-id="1" onclick="save_index(this); window.location='/journal_sodu'">Журнал СОДУ</li>
         </ul>
+        <ul>
+            <li class="side_obj" report-id="2" onclick="save_index(this); window.location='/journal_events'">Журнал событий</li>
+        </ul>
     </div>
     <div class="show_hide_side_menu" id="show_hide_side_menu">
         <img id="show_hide_side_menu_btn" class="hide" src="/assets/img/arrow_right.svg">

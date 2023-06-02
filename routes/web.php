@@ -22,13 +22,31 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/journal_sodu_data/{date_start}/{date_stop}', [JournalController::class, 'journal_sodu_data'])->name('journal_sodu_data');   ///Данные журнала СОДУ
     Route::post('/edit_sodu', [JournalController::class, 'edit_sodu'])->name('edit_sodu');   ///Сохранить изменения в журнале
     Route::get('/delete_sodu/{id}', [JournalController::class, 'delete_sodu'])->name('delete_sodu');   ///Удалить запись
-    Route::get('/create_sodu', [JournalController::class, 'create_sodu'])->name('create_sodu');   ///Создать запись
+    Route::post('/create_sodu', [JournalController::class, 'create_sodu'])->name('create_sodu');   ///Создать запись
+    //Журнал событий
+    Route::get('/journal_events', [JournalController::class, 'journal_events'])->name('journal_events');   ///Страница журнала событий
+    Route::get('/journal_events_data/{date_start}/{date_stop}', [JournalController::class, 'journal_events_data'])->name('journal_events_data');   ///Данные журнала событий
+    Route::get('/get_subdivisions', [JournalController::class, 'get_subdivisions'])->name('get_subdivisions');   ///запрос подразделений
+    Route::post('/edit_subdivisions', [JournalController::class, 'edit_subdivisions'])->name('edit_subdivisions');   ///изменение подразделений
+    Route::post('/create_subdivision', [JournalController::class, 'create_subdivision'])->name('create_subdivision');   ///добавление подразделений
+    Route::get('/get_types', [JournalController::class, 'get_types'])->name('get_types');   ///запрос типов
+    Route::post('/edit_types', [JournalController::class, 'edit_types'])->name('edit_types');   ///изменение типов
+    Route::post('/create_types', [JournalController::class, 'create_types'])->name('create_types');   ///добавление типов
+    Route::get('/get_service', [JournalController::class, 'get_service'])->name('get_service');   ///запрос служб
+    Route::post('/edit_service', [JournalController::class, 'edit_service'])->name('edit_service');   ///изменение служб
+    Route::post('/create_service', [JournalController::class, 'create_service'])->name('create_service');   ///добавление служб
+    Route::get('/get_templates/{type_event}', [JournalController::class, 'get_templates'])->name('get_templates');   ///запрос шаблонов
+    Route::post('/edit_templates', [JournalController::class, 'edit_templates'])->name('edit_templates');   ///изменение шаблонов
+    Route::post('/create_templates', [JournalController::class, 'create_templates'])->name('create_templates');   ///создание шаблонов
+    Route::post('/save_event/{id}', [JournalController::class, 'save_event'])->name('save_event');   ///Сохраняем событие
+    Route::get('/get_record_event/{id}', [JournalController::class, 'get_record_event'])->name('get_record_event');   ///Читаем событие
+    Route::get('/setting_journal_events', [JournalController::class, 'setting_journal_events'])->name('setting_journal_events');   ///Страница настроек журнала событий
+
 
     //БЛОК общих настроек
     Route::get('/main_setting', [SettingController::class, 'main_setting'])->name('main_setting');   ///Общая страница настроек
     Route::post('/save_main_setting/{param}', [SettingController::class, 'save_main_setting'])->name('save_main_setting');   ///Сохранение настроек
     Route::get('/save_opc/{param}/{value}', [SettingController::class, 'save_opc'])->name('save_opc');   ///Сохранение настроек
-
 
     //БЛОК чата
     Route::get('/update_users', [ChatController::class, 'update_users'])->name('update_users');   ///Синхронизация LDAP и postgres пользователей

@@ -6040,7 +6040,7 @@ if (! jSuites && typeof(require) === 'function') {
             // Allow comments
             allowComments:false,
             // Global wrap
-            wordWrap:false,
+            wordWrap:true,
             // Image options
             imageOptions: null,
             // CSV source
