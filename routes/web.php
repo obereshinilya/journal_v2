@@ -20,8 +20,9 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/reports', [ReportController::class, 'reports'])->name('reports');   ///Главная страница отчетов
     Route::get('/journal_sodu', [JournalController::class, 'journal_sodu'])->name('journal_sodu');   ///Страница журнала СОДУ
     Route::get('/journal_sodu_data/{date_start}/{date_stop}', [JournalController::class, 'journal_sodu_data'])->name('journal_sodu_data');   ///Данные журнала СОДУ
+    Route::get('/get_dropbox_sodu_data', [JournalController::class, 'get_dropbox_sodu_data'])->name('get_dropbox_sodu_data');   ///Получить данные в дропбокс
     Route::post('/edit_sodu', [JournalController::class, 'edit_sodu'])->name('edit_sodu');   ///Сохранить изменения в журнале
-    Route::get('/delete_sodu/{id}', [JournalController::class, 'delete_sodu'])->name('delete_sodu');   ///Удалить запись
+    Route::post('/delete_sodu', [JournalController::class, 'delete_sodu'])->name('delete_sodu');   ///Удалить запись
     Route::post('/create_sodu', [JournalController::class, 'create_sodu'])->name('create_sodu');   ///Создать запись
     //Журнал событий
     Route::get('/journal_events', [JournalController::class, 'journal_events'])->name('journal_events');   ///Страница журнала событий

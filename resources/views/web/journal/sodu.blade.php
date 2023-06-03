@@ -50,8 +50,16 @@
                 dataType: 'html',
                 async: true,
                 success: function(res) {
+                    res = JSON.parse(res)
+                    var type_event = res['type_event']
+                    type_event[type_event.length] = 'Прочее..'
+                    delete res['type_event']
+                    var otdel = res['otdel']
+                    otdel[otdel.length] = 'Прочее..'
+                    delete res['otdel']
+                    res = Object.values(res)
                     jsTable = jspreadsheet(document.getElementById('main_div'), {
-                        data:JSON.parse(res),
+                        data:res,
                         search:true,
                         tableOverflow: true,
                         filters: true,
@@ -63,8 +71,8 @@
                         columns: [
                             {width:'150px',type:'dropdown',name:'fio',title:'Пользователь',source: ['Бадиков Н.А.','Кирдянов Д.А.','Коваленко А.А.','Козлов А.А.','Парфенов Н.В.','Черкасов В.Н.','Прочее...']},
                             {width:width,type:'text',name:'event',title:'Событие'},
-                            {width:'300px',type:'dropdown',name:'type_event',title:'Тип события',source: ['Аварийная ситуация','Ввод в эксплуатацию','Вынужденный останов','Для информации','Изменение режима','Лесные пожары','Метеопредупреждение','Остановка и запуск скважин','Отгрузка ЖУВ','Плановый (внеплановый) остановочный комплекс','Происшествия','Профилактические работы','Распоряжения ПДС','Ремонтные работы','Телефонограммы','Учебные тренировки','Технологические переключения','Прием смены','Перекачка СК на ТОК','Прием СК на ТОК','Перекачка СК (циркуляция)','Отклонение от технологического режима','ДТП','Прочее...']},
-                            {width:'250px',type:'dropdown',name:'otdel',title:'Структурное подразделение (филиал,цех)',source: ['КГПУ, 1','КГПУ, 2','КГПУ, 3','КГПУ, 45','УМТСиК, ТОК','ПДС Администрации Общества','"п/б Нючакан, ГПУ"','Администрация общества','ПДС КГПУ','Автодорога','Прочее...']},
+                            {width:'300px',type:'dropdown',name:'type_event',title:'Тип события',source: type_event},
+                            {width:'250px',type:'dropdown',name:'otdel',title:'Структурное подразделение (филиал,цех)',source: otdel},
                             {width:'150px',type:'calendar',name:'date',title:'Дата', options: { format:'DD.MM.YYYY HH:mm'},readOnly:true,},
                             {type:'hidden',name:'id'},
                         ],
@@ -80,7 +88,7 @@
                         var number = jsTable.getSelectedRows();
                         var ids = ''
                         for (var i = 0; i<number.length; i++){
-                            ids+=number[i].lastElementChild.textContent+','
+                            ids+=number[i].getElementsByTagName('td')[6].textContent+','
                         }
                         confirm_delete_sodu(ids)
                     }
@@ -94,13 +102,18 @@
         function confirm_delete_sodu(id){
             change_header_modal('Удалить запись?<br>Будет произведена запись в журнал!')
             open_modal_side_menu()
-            document.getElementById('submit_button_side_menu').setAttribute('onclick', `delete_sodu(${id})`)
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `delete_sodu('${id}')`)
         }
         function delete_sodu(ids){
+            var arr = new Map()
+            arr.set('id', ids)
             $.ajax({
-                url: '/delete_sodu/'+ids,
-                method: 'get',
+                url: '/delete_sodu',
+                method: 'post',
+                data: Object.fromEntries(arr),
                 success: function (res) {
+                    console.log(res)
+                    get_table_data()
                     close_modal_side_menu()
                 }
             })
@@ -111,8 +124,7 @@
             document.getElementById('submit_button_side_menu').setAttribute('onclick', `store_new_record()`)
         }
         function create_table_in_window(){
-            var table = `
-            <table id="table_modal_side_menu" class="table_modal">
+            var table = `<table id="table_modal_side_menu" class="table_modal">
                 <tbody>
                     <tr>
                         <td style="width: 250px">Дата события</td>
@@ -141,52 +153,34 @@
                     <tr>
                         <td>Тип события</td>
                         <td>
-                            <select class="text-input" style="width: calc(100% - 25px)" id="type_event">
-                                <option>Аварийная ситуация</option>
-                                <option>Ввод в эксплуатацию</option>
-                                <option>Вынужденный останов</option>
-                                <option>Для информации</option>
-                                <option>ДТП</option>
-                                <option>Изменение режима</option>
-                                <option>Лесные пожары</option>
-                                <option>Метеопредупреждение</option>
-                                <option>Остановка и запуск скважин</option>
-                                <option>Отгрузка ЖУВ</option>
-                                <option>Отклонение от технологического режима</option>
-                                <option>Плановый (внеплановый) остановочный комплекс</option>
-                                <option>Происшествия</option>
-                                <option>Профилактические работы</option>
-                                <option>Прием смены</option>
-                                <option>Перекачка СК на ТОК</option>
-                                <option>Прием СК на ТОК</option>
-                                <option>Перекачка СК (циркуляция)</option>
-                                <option>Распоряжения ПДС</option>
-                                <option>Ремонтные работы</option>
-                                <option>Телефонограммы</option>
-                                <option>Технологические переключения</option>
-                                <option>Учебные тренировки</option>
-                                <option>Прочее...</option>
-                            </select>
+                            <select class="text-input" style="width: calc(100% - 25px)" id="type_event" onchange="change_select(this)">`
+            $.ajax({
+                url: '/get_dropbox_sodu_data',
+                method: 'get',
+                success: function (res) {
+                    table += `<option disabled selected>Выберите тип события</option>`
+                    for(var event of res['type_event']){
+                        table += `<option>${event}</option>`
+                    }
+                    table += `<option>Прочее...</option>`
+                    table += `</select>
                         </td>
                     </tr>
                     <tr>
                         <td>Структурное подразделение</td>
                         <td>
-                            <select class="text-input" style="width: calc(100% - 25px)" id="otdel">
-                                <option>Администрация общества</option>
-                                <option>Автодорога</option>
-                                <option>КГПУ, 1</option>
-                                <option>КГПУ, 2</option>
-                                <option>КГПУ, 3</option>
-                                <option>КГПУ, 45</option>
-                                <option>УМТСиК, ТОК</option>
-                                <option>ПДС Администрации Общества</option>
-                                <option>ПДС КГПУ</option>
-                                <option>"п/б Нючакан, ГПУ"</option>
-                                <option>Прочее...</option>
-                            </select>
+                            <select class="text-input" style="width: calc(100% - 25px)" id="otdel" onchange="change_select(this)">`
+                    table += `<option disabled selected>Выберите подразделение</option>`
+                    for(var otdel of res['otdel']){
+                        table += `<option>${otdel}</option>`
+                    }
+                    table += `<option>Прочее...</option>`
+                         table += `</select>
                         </td>
                     </tr>`
+                }, async: false
+            })
+
             $('#text_modal_side_menu').after(table)
             ////Для выбора времени
             var today = new Date();
@@ -194,16 +188,27 @@
                 {
                     timepicker: true,
                     autoClose: false,
-                    maxDate: today,
+                    // startDate: new Date(),
+                    // maxDate: today,
                     maxHours: 23,
                     maxMinutes:59,
                     keyboardNav: true
                 })
+            var D = new Date()
+            document.getElementById('date').value = ('0' + D.getDate()).slice(-2) + '.' + ('0' + (D.getMonth() + 1)).slice(-2) + '.' + D.getFullYear() + ' '+ D.getHours()+':'+D.getMinutes()
             //обозначаем селект
             // select_initial()
             open_modal_side_menu()
             document.getElementById('content_modal_side_menu').style.width = '80%'
             document.getElementById('content_modal_side_menu').style.marginLeft = '-40%'
+        }
+        function change_select(select){
+            if (select.value === 'Прочее...'){
+                var id = select.id
+                var parent = select.parentNode
+                parent.removeChild(select)
+                parent.innerHTML = `<input type="text" id="${id}" placeholder="Введите значение..." style="width: calc(100% - 50px)"/>`
+            }
         }
         function store_new_record(){
             var arr = new Map()
