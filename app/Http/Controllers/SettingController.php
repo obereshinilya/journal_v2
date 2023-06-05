@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\HiddenHour;
+use App\Models\rezhim\RezhimParams;
 use App\Models\Setting;
 use App\Models\TableObj;
 use Illuminate\Http\Request;
@@ -68,6 +69,20 @@ class SettingController extends Controller
     public function delete_param($id){
         (new MainController)->create_log_record('Удаление параметра','Параметр "'.TableObj::where('id', '=', $id)->first()->full_name.'"');
         TableObj::where('id', '=', $id)->delete();
+        try {
+            RezhimParams::where('id_hour_param', '=', $id)->first()->update(['from_hour_params'=>false, 'hand'=>true, 'id_hour_param'=>null]);
+        }catch (\Throwable $e){
+            return $e;
+        }
+    }
+    public function check_param_in_rezhim($id){
+        try {
+            if (count(RezhimParams::where('id_hour_param', '=', $id)->get())>0){
+                return 'false';
+            }
+        }catch (\Throwable $e){
+
+        }
     }
 }
 

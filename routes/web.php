@@ -7,6 +7,7 @@ use App\Http\Controllers\LdapController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\JournalController;
+use App\Http\Controllers\RezhimController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ReportController;
 
@@ -42,6 +43,19 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/save_event/{id}', [JournalController::class, 'save_event'])->name('save_event');   ///Сохраняем событие
     Route::get('/get_record_event/{id}', [JournalController::class, 'get_record_event'])->name('get_record_event');   ///Читаем событие
     Route::get('/setting_journal_events', [JournalController::class, 'setting_journal_events'])->name('setting_journal_events');   ///Страница настроек журнала событий
+    //Режимные листы
+    Route::get('/admin_rezhim_lists/{id}', [RezhimController::class, 'admin_rezhim_lists'])->name('admin_rezhim_lists');   ///Страница создания и редактирования режимных листов
+    Route::post('/create_new_rezhim', [RezhimController::class, 'create_new_rezhim'])->name('create_new_rezhim');   ///Сохранение нового режимного листа
+    Route::get('/create_new_param/{id}', [RezhimController::class, 'create_new_param'])->name('create_new_param');   ///Добавляем параметр в лист
+    Route::get('/get_rezhim_params/{id}', [RezhimController::class, 'get_rezhim_params'])->name('get_rezhim_params');   ///Получаем параметры листа
+    Route::post('/update_name/{id}', [RezhimController::class, 'update_name'])->name('update_name');   ///Обновляем имя листа
+    Route::post('/edit_rezhim/{id_rezhim}', [RezhimController::class, 'edit_rezhim'])->name('edit_rezhim');   ///Изменение режимного листа
+    Route::get('/select_param/{id_rezhim}/{id_param}', [RezhimController::class, 'select_param'])->name('select_param');   ///Страница для выбора источника
+    Route::get('/save_select_param/{id_param}/{select_id}', [RezhimController::class, 'save_select_param'])->name('save_select_param');   ///Сохранение источника
+    Route::get('/delete_rezhim/{id}', [RezhimController::class, 'delete_rezhim'])->name('delete_rezhim');   ///Удалить режимный лист
+    Route::post('/delete_rezhim_params/{id_rezhim}', [RezhimController::class, 'delete_rezhim_params'])->name('delete_rezhim_params');   ///Удалить параметры из листа
+    ///
+    Route::get('/rezhim_lists', [RezhimController::class, 'rezhim_lists'])->name('rezhim_lists');   ///Страница
 
 
     //БЛОК общих настроек
@@ -80,6 +94,7 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/save_signal_settings/{id}/{name_param}/{new_value}', [SettingController::class, 'save_signal_settings']);
     Route::get('/visible_param/{id}', [SettingController::class, 'visible_param']);
     Route::get('/delete_param/{id}', [SettingController::class, 'delete_param']);
+    Route::get('/check_param_in_rezhim/{id}', [SettingController::class, 'check_param_in_rezhim']);
 
     //БЛОК часовиков
     Route::get('/', [HourController::class, 'main']);

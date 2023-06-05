@@ -28,11 +28,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="M13 9h-2v3H8v2h3v3h2v-3h3v-2h-3z"></path><path d="M20 5h-8.586L9.707 3.293A.996.996 0 0 0 9 3H4c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V7c0-1.103-.897-2-2-2zM4 19V7h16l.002 12H4z"></path></svg>
         Добавить филиал ДО
     </a>
-    <a onclick="window.location = '/custom_list/false'">
+    <a class="custom_list_visible" onclick="window.location = '/custom_list/false'">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"></path></svg>
         Создать свой список
     </a>
-    <a onclick="copy_custom_list()">
+    <a class="custom_list_visible" onclick="copy_custom_list()">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);"><path d="M20 2H10c-1.103 0-2 .897-2 2v4H4c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2h10c1.103 0 2-.897 2-2v-4h4c1.103 0 2-.897 2-2V4c0-1.103-.897-2-2-2zM4 20V10h10l.002 10H4zm16-6h-4v-4c0-1.103-.897-2-2-2h-4V4h10v10z"></path><path d="M6 12h6v2H6zm0 4h6v2H6z"></path></svg>
         Скопировать список другого пользователя
     </a>
@@ -153,6 +153,9 @@
                         context_menu.style.display = 'block'
                         context_menu.style.top = Number(event.pageY)+'px'
                         context_menu.style.left = Number(event.pageX)+'px'
+                        if(window.location.pathname !== '/'){
+                            $('.custom_list_visible').hide()
+                        }
                     }
                     $('body').on('click', function (){
                         document.getElementById('context_main_side_menu').style.display = 'none'

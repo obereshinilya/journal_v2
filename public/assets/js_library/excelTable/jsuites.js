@@ -902,9 +902,9 @@
                 months: jSuites.calendar.monthsShort,
                 monthsFull: jSuites.calendar.months,
                 weekdays: jSuites.calendar.weekdays,
-                textDone: jSuites.translate('Done'),
-                textReset: jSuites.translate('Reset'),
-                textUpdate: jSuites.translate('Update'),
+                textDone: jSuites.translate('Выбрать'),
+                textReset: jSuites.translate('Сброс'),
+                textUpdate: jSuites.translate('Обновить'),
                 // Value
                 value: null,
                 // Fullscreen (this is automatic set for screensize < 800)
@@ -2333,8 +2333,8 @@
                 closeOnChange: true,
                 palette: null,
                 position: null,
-                doneLabel: 'Done',
-                resetLabel: 'Reset',
+                doneLabel: 'Выбрать',
+                resetLabel: 'Сброс',
                 fullscreen: false,
                 opened: false,
             }
@@ -2769,9 +2769,9 @@
 
             // Creates red, green and blue inputs
             rgbInputs = [
-                createSliderInput('Red'),
-                createSliderInput('Green'),
-                createSliderInput('Blue'),
+                createSliderInput('Красный'),
+                createSliderInput('Зеленый'),
+                createSliderInput('Голубой'),
             ];
 
             slidersElement.appendChild(slidersBody);
@@ -2840,6 +2840,7 @@
             // Reset button
             resetButton  = document.createElement('div');
             resetButton.className = 'jcolor-reset';
+            resetButton.style.display = 'none'
             resetButton.innerHTML = obj.options.resetLabel;
             controls.appendChild(resetButton);
 
@@ -2858,15 +2859,15 @@
                 animation: true,
                 data: [
                     {
-                        title: 'Grid',
+                        title: 'Сетка',
                         contentElement: table(),
                     },
                     {
-                        title: 'Spectrum',
+                        title: 'Спектр',
                         contentElement: hsl(),
                     },
                     {
-                        title: 'Sliders',
+                        title: 'Слайдер',
                         contentElement: sliders(),
                     }
                 ],

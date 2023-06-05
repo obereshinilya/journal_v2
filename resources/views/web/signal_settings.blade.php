@@ -127,8 +127,22 @@
                 $(`tr[data-id=${document.getElementById('selected_td').textContent}]`)[0].getElementsByTagName('td')[0].focus()
             }
         })
+        function get_table_data(){
+            window.location.reload()
+        }
         function delete_param(svg_id){
-            change_header_modal('Удалить параметр?')
+            $.ajax({
+                url: '/check_param_in_rezhim/'+document.getElementById(svg_id).getAttribute('data-id'),
+                method: 'GET',
+                async: true,
+                success: function (res) {
+                    if (res === 'false'){
+                        change_header_modal('Параметр используется в режимном листе<br>Подтверждаете удаление?')
+                    }else {
+                        change_header_modal('Удалить параметр?')
+                    }
+                }
+            })
             open_modal_side_menu()
             document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_delete_param('${svg_id}')`)
         }
@@ -139,6 +153,7 @@
                 method: 'GET',
                 async: true,
                 success: function (res) {
+                    console.log(res)
                     svg.parentNode.parentNode.parentNode.removeChild(svg.parentNode.parentNode)
                     close_modal_side_menu()
                 }
