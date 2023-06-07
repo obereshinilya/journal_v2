@@ -8,6 +8,17 @@
 @endsection
 
 @section('content')
+    <style>
+        .math{position: absolute; bottom: 0; right: 0; border-radius: 10px; width: 550px; height: 200px; z-index: 999; background: #00BFFF; padding: 15px; box-shadow: -5px -5px 15px black;text-align: center; display: none}
+    </style>
+    <div id="math" class="math">
+        <p id="param_id" style="display: none"></p>
+        <h3 id="header_math" style="width: 100%; text-align: center"></h3>
+        <p><b>Пример:</b> ( ( {1} + {2} ) / 2 ) * 0.5, где в {} указывается номер строки<br><b>Перечень операций:</b> +, -, *, /, sqrt(), ^, exp(), SUM(), MAX(), MIN()</p>
+        <input id="formula" type="text" style="width: 520px; margin-bottom: 20px">
+        <button class="btn" onclick="save_formula()">Подтвердить</button>
+        <button class="btn" onclick="close_formula()">Отменить</button>
+    </div>
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">
             @if($id != 'false')Редактирование режимного листа @else Создание режимного листа @endif</p>
@@ -40,11 +51,32 @@
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
-                    if(res){
+                    if(res === 'calc'){
+                        document.getElementById('math').style.display = 'block'
+                        document.getElementById('header_math').textContent = 'Введите формулу для параметра (Строка '+(Number(y)+1)+')'
+                        document.getElementById('param_id').textContent = $(`[data-x="8"][data-y="${y}"]`)[0].textContent
+                    }else if(res){
                         window.location.href = '/select_param/{{$id}}/'+res
-                    }else{
+                    }else {
                         get_table_data()
                     }
+                }
+            })
+        }
+        function close_formula(){
+            document.getElementById('math').style.display = 'none'
+            get_table_data()
+        }
+        function save_formula(){
+            var arr = new Map()
+            arr.set('formula', document.getElementById('formula').value)
+            arr.set('param_id', document.getElementById('param_id').textContent)
+            $.ajax({
+                url: '/save_formula',
+                method: 'POST',
+                data: Object.fromEntries(arr),
+                success: function (res) {
+                    close_formula()
                 }
             })
         }

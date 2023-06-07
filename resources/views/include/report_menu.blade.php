@@ -28,7 +28,7 @@
             <li class="side_obj">Режимные листы<img id="img_1" onclick="open_custom_list(this, 'ul_rezhim')" class="plus_icon hide" src="http://127.0.0.1/assets/img/plus.png"></li>
             <ul id="ul_rezhim">
                 @foreach(\App\Models\rezhim\RezhimLists::orderby('name_rezhim')->get() as $rezhim)
-                    <li class="side_obj rezhim_lists" report-id="rezhim_{{$rezhim->id}}" data-id="{{$rezhim->id}}" onclick="save_index(this); window.location='/admin_rezhim_lists/{{$rezhim->id}}'">{{$rezhim->name_rezhim}}</li>
+                    <li class="side_obj rezhim_lists" report-id="rezhim_{{$rezhim->id}}" data-id="{{$rezhim->id}}" onclick="save_index(this); window.location='/rezhim_list/{{$rezhim->id}}'">{{$rezhim->name_rezhim}}</li>
                 @endforeach
             </ul>
         </ul>

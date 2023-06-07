@@ -10314,7 +10314,6 @@ if (! jSuites && typeof(require) === 'function') {
                 if (columnNumber == undefined || columnNumber >= parseInt(lastColumn) || columnNumber < 0) {
                     columnNumber = lastColumn;
                 }
-
                 // Onbeforeinsertcolumn
                 if (obj.dispatch('onbeforeinsertcolumn', el, columnNumber, numOfColumns, insertBefore) === false) {
                     return false;
@@ -10412,7 +10411,6 @@ if (! jSuites && typeof(require) === 'function') {
 
                 Array.prototype.push.apply(obj.headers, currentHeaders);
                 Array.prototype.push.apply(obj.colgroup, currentColgroup);
-
                 // Adjust nested headers
                 if (obj.options.nestedHeaders && obj.options.nestedHeaders.length > 0) {
                     // Flexible way to handle nestedheaders

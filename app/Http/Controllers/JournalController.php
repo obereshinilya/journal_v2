@@ -84,7 +84,7 @@ class JournalController extends Controller
             ->join('journal_events.service', 'journal.service_id', '=', 'service.id')
             ->orderByDesc('journal.timestamp')
             ->selectRaw('to_char(timestamp, \'HH24:MI dd.mm.yyyy\') as timestamp, display_name, subdivision, description, event, service, accept, ingener, journal.id as id,
-             \'data:image/svg+xml;utf8,<svg onclick="edit_event(this)" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1)"><path d="m16 2.012 3 3L16.713 7.3l-3-3zM4 14v3h3l8.299-8.287-3-3zm0 6h16v2H4z"></path></svg>\'
+             \'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1)"><path d="m16 2.012 3 3L16.713 7.3l-3-3zM4 14v3h3l8.299-8.287-3-3zm0 6h16v2H4z"></path></svg>\'
              as img')
             ->get();
     }

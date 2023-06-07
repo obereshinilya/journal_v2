@@ -2,7 +2,7 @@
 <script>
     // Про него можно почитать тут http://t1m0n.name/air-datepicker/docs/index-ru.html
     var today = new Date();
-    if (today.getHours() < {{\App\Models\Setting::where('name_setting', '=', 'start_smena')->first()->value}}) {
+    if (today.getHours() < {{\App\Models\Setting::where('name_setting', '=', 'start_smena')->first()->value-1}}) {
         today.setDate(today.getDate() - 1)
     }
     new AirDatepicker('#date_start',
