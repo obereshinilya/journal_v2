@@ -35,7 +35,7 @@
             get_table_data()
         })
         var changed = function (instance, cell, x, y, value){
-            var column = ['name', 'e_unit', 'num_row', 'level_row', 'folder','hand','calc', 'from_hour_params']
+            var column = ['name', 'e_unit', 'num_row', 'level_row', 'folder','hand','calc', 'from_hour_params', 'empty']
             var id_param = cell.parentNode.lastElementChild.textContent
             var arr = new Map()
             if (column[x] === 'level_row'){
@@ -43,6 +43,7 @@
                     value = 1
                 }
             }
+
             arr.set('column', column[x])
             arr.set('value', value)
             arr.set('id', id_param)
@@ -54,7 +55,7 @@
                     if(res === 'calc'){
                         document.getElementById('math').style.display = 'block'
                         document.getElementById('header_math').textContent = 'Введите формулу для параметра (Строка '+(Number(y)+1)+')'
-                        document.getElementById('param_id').textContent = $(`[data-x="8"][data-y="${y}"]`)[0].textContent
+                        document.getElementById('param_id').textContent = $(`[data-x="9"][data-y="${y}"]`)[0].textContent
                     }else if(res){
                         window.location.href = '/select_param/{{$id}}/'+res
                     }else {
@@ -65,6 +66,7 @@
         }
         function close_formula(){
             document.getElementById('math').style.display = 'none'
+            document.getElementById('formula').value = ''
             get_table_data()
         }
         function save_formula(){
@@ -76,18 +78,19 @@
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
+                    console.log(res)
                     close_formula()
                 }
             })
         }
         function get_table_data(){
             document.getElementById('main_div').innerText = ''
-            var width = ($('#main_div').width()-680) + 'px'
+            var width = ($('#main_div').width()-755) + 'px'
             $.ajax({
                 url: '/get_rezhim_params/{{$id}}',
                 method: 'GET',
                 dataType: 'html',
-                async: true,
+                async: false,
                 success: function(res) {
                     jsTable = jspreadsheet(document.getElementById('main_div'), {
                         data:JSON.parse(res),
@@ -108,6 +111,7 @@
                             {width:'75px',type:'checkbox',name:'hand',title:'Ручной',},
                             {width:'75px',type:'checkbox',name:'calc',title:'Расчетный',},
                             {width:'75px',type:'checkbox',name:'from_hour_params',title:'Ссылка',},
+                            {width:'75px',type:'checkbox',name:'empty',title:'Пустой',},
                             {type:'hidden',name:'id'},
                         ],
                         updateTable: function(el, cell, x, y, source, value, id) {
@@ -122,10 +126,15 @@
                         var number = jsTable.getSelectedRows();
                         var ids = ''
                         for (var i = 0; i<number.length; i++){
-                            ids+=number[i].getElementsByTagName('td')[9].textContent+','
+                            ids+=number[i].getElementsByTagName('td')[10].textContent+','
                         }
                         confirm_delete_rezhim_params(ids)
                     }
+                }
+            })
+            $(`td[data-x="0"]`).on('click', function (){
+                if (document.getElementById('math').style.display === 'block'){
+                    document.getElementById('formula').value = document.getElementById('formula').value + '{'+(Number(this.getAttribute('data-y'))+1)+'}'
                 }
             })
         }

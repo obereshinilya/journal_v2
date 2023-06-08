@@ -400,7 +400,8 @@ textarea::placeholder{
     color: #212529;
     opacity: 0.4;
 }
-
+.unvisible{background: #F5F5F5}
+.confirmed{background: #00FA9A}
 .text-input:focus,
 input[type="text"]:focus,
 input[type="password"]:focus,

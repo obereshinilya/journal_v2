@@ -9,7 +9,7 @@ class RezhimParams extends Model{
     public $timestamps = false;
     public $primaryKey = 'id';
     protected $fillable = [
-        'rezhim_id', 'num_row', 'level_row', 'folder', 'hand', 'calc', 'calc_operations', 'from_hour_params', 'id_hour_param', 'e_unit', 'name'
+        'rezhim_id', 'num_row','empty', 'level_row', 'folder', 'hand', 'calc', 'calc_operations', 'from_hour_params', 'id_hour_param', 'e_unit', 'name',
     ];
 
 

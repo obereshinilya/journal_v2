@@ -56,9 +56,11 @@ Route::group(['middleware' => ['auth']], function() {
     Route::post('/delete_rezhim_params/{id_rezhim}', [RezhimController::class, 'delete_rezhim_params'])->name('delete_rezhim_params');   ///Удалить параметры из листа
     Route::get('/rezhim_list/{id}', [RezhimController::class, 'rezhim_list'])->name('rezhim_list');   ///Страница режимного листа
     /////Пробую вывод данных режима
-    Route::get('/rezhim_data/{id}', [RezhimController::class, 'rezhim_data'])->name('rezhim_data');   ///Данные режимного листа
-    Route::get('/rezhim_table_data/{id}/{date}', [RezhimController::class, 'rezhim_table_data'])->name('rezhim_table_data');   ///Данные режимного листа
+    Route::get('/rezhim_data/{id}/{date}', [RezhimController::class, 'rezhim_data'])->name('rezhim_data');   ///Данные режимного листа
     Route::post('/save_formula', [RezhimController::class, 'save_formula'])->name('save_formula');   ///Сохраняем формулу
+    Route::post('/save_hand_param', [RezhimController::class, 'save_hand_param'])->name('save_hand_param');   ///Сохраняем значение ручного ввода
+    Route::post('/delete_confirm_rezhim', [RezhimController::class, 'delete_confirm_rezhim'])->name('delete_confirm_rezhim');   ///Снятие достоверности
+    Route::post('/confirm_rezhim', [RezhimController::class, 'confirm_rezhim'])->name('confirm_rezhim');   ///Установка достоверности
 
 
     //БЛОК общих настроек
