@@ -55,14 +55,24 @@ Route::group(['middleware' => ['auth']], function() {
     Route::get('/delete_rezhim/{id}', [RezhimController::class, 'delete_rezhim'])->name('delete_rezhim');   ///Удалить режимный лист
     Route::post('/delete_rezhim_params/{id_rezhim}', [RezhimController::class, 'delete_rezhim_params'])->name('delete_rezhim_params');   ///Удалить параметры из листа
     Route::get('/rezhim_list/{id}', [RezhimController::class, 'rezhim_list'])->name('rezhim_list');   ///Страница режимного листа
-    /////Пробую вывод данных режима
     Route::get('/rezhim_data/{id}/{date}', [RezhimController::class, 'rezhim_data'])->name('rezhim_data');   ///Данные режимного листа
     Route::post('/save_formula', [RezhimController::class, 'save_formula'])->name('save_formula');   ///Сохраняем формулу
     Route::post('/save_hand_param', [RezhimController::class, 'save_hand_param'])->name('save_hand_param');   ///Сохраняем значение ручного ввода
     Route::post('/delete_confirm_rezhim', [RezhimController::class, 'delete_confirm_rezhim'])->name('delete_confirm_rezhim');   ///Снятие достоверности
     Route::post('/confirm_rezhim', [RezhimController::class, 'confirm_rezhim'])->name('confirm_rezhim');   ///Установка достоверности
-
-
+        ///Вывод в часовые параметры
+    Route::get('/get_rezhim_list', [RezhimController::class, 'get_rezhim_list'])->name('get_rezhim_list');    ///Получаем режимы
+    Route::get('/get_rezhim_data/{id_rezhim}/{date}', [RezhimController::class, 'get_rezhim_data'])->name('get_rezhim_data');    ///Получаем данные по режимам
+    Route::get('/rezhim_data_for_graph/{param_id}/{date_start}/{date_stop}', [RezhimController::class, 'rezhim_data_for_graph'])->name('rezhim_data_for_graph');    ///Данные на график в часовках
+    Route::get('/rezhim_math_and_name/{id_rezhim}', [RezhimController::class, 'rezhim_math_and_name'])->name('rezhim_math_and_name');    ///Для всплывашек в настройке режимных листов
+        ///Суточный лист
+    Route::get('/sut_rezhim_list/{id}', [RezhimController::class, 'sut_rezhim_list'])->name('sut_rezhim_list');   ///Страница суточного режимного листа
+    Route::get('/sut_rezhim_data/{id}/{date}/{history_column}', [RezhimController::class, 'sut_rezhim_data'])->name('sut_rezhim_data');   ///Данные cуточного режимного листа
+    Route::post('/delete_sut_confirm_rezhim', [RezhimController::class, 'delete_sut_confirm_rezhim'])->name('delete_sut_confirm_rezhim');   ///Снятие суточной достоверности
+    Route::post('/sut_confirm_rezhim', [RezhimController::class, 'sut_confirm_rezhim'])->name('sut_confirm_rezhim');   ///Установка суточной достоверности
+    Route::post('/save_hand_param_sut', [RezhimController::class, 'save_hand_param_sut'])->name('save_hand_param_sut');   ///Сохраняем суточное значение ручного ввода
+    ///
+    ///
     //БЛОК общих настроек
     Route::get('/main_setting', [SettingController::class, 'main_setting'])->name('main_setting');   ///Общая страница настроек
     Route::post('/save_main_setting/{param}', [SettingController::class, 'save_main_setting'])->name('save_main_setting');   ///Сохранение настроек

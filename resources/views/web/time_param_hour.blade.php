@@ -111,17 +111,19 @@
         })
         function initial_trigger_on_header(){
             $('#thead_dynamic th').on('contextmenu', function (event) {
-                var context_menu = document.getElementById('context_h1')
-                context_menu.style.display = 'block'
-                context_menu.style.top = Number(event.pageY - $('#header_block_param').height()) + 'px'
-                context_menu.style.left = Number(event.pageX - $('#side_menu').width()) + 'px'
-                document.getElementById('confirm_hour').setAttribute('onclick', `confirm_hour("${this.textContent}")`)
-                @if($setting['param_copy'] == 'true')
-                document.getElementById('copy_hour').setAttribute('onclick', `copy_hour("${this.textContent}")`)
-                @endif
-                $('body').on('click', function () {
-                    document.getElementById('context_h1').style.display = 'none'
-                })
+                if (document.getElementById('choiced_id').textContent !== 'rezhim_list'){
+                    var context_menu = document.getElementById('context_h1')
+                    context_menu.style.display = 'block'
+                    context_menu.style.top = Number(event.pageY - $('#header_block_param').height()) + 'px'
+                    context_menu.style.left = Number(event.pageX - $('#side_menu').width()) + 'px'
+                    document.getElementById('confirm_hour').setAttribute('onclick', `confirm_hour("${this.textContent}")`)
+                    @if($setting['param_copy'] == 'true')
+                    document.getElementById('copy_hour').setAttribute('onclick', `copy_hour("${this.textContent}")`)
+                    @endif
+                    $('body').on('click', function () {
+                        document.getElementById('context_h1').style.display = 'none'
+                    })
+                }
             })
         }
         function copy_hour(hour){
@@ -233,11 +235,21 @@
             delete_min_rows()
             var href = ''
             var custom_list = false
-            if (document.getElementById('choiced_id').textContent === 'false'){
-                custom_list = true
-                href = 'get_custom_data/'+document.getElementsByClassName('choiced')[0].getAttribute('data-id')
-            }else{
-                href = 'get_hour_data'
+            var rezhim_list = false
+            switch (document.getElementById('choiced_id').textContent) {
+                case '':
+                    href = 'get_hour_data'
+                    break;
+                case 'custom_list':
+                    custom_list = true
+                    href = 'get_custom_data/'+document.getElementsByClassName('choiced')[0].getAttribute('data-id')
+                    break;
+                case 'rezhim_list':
+                    href = 'get_rezhim_data/'+document.getElementsByClassName('choiced')[0].getAttribute('data-id')
+                    rezhim_list = true
+                    break;
+                default:
+                    href = 'get_hour_data'
             }
             $.ajax({
                 url: '/'+href +'/' + $("#date_start").val(),
@@ -304,15 +316,20 @@
                         }
                     })
                     add_trigger_paint()
-                    if(!custom_list){
+                    if(!custom_list && !rezhim_list){
                         check_choiced_obj()
                     }
                     search_object()
-                    create_tooltip_and_comment()
-                    go_to_setting()
-                    paint_confirm_hour()
+                    if(!rezhim_list){
+                        create_tooltip_and_comment()
+                        go_to_setting()
+                        paint_confirm_hour()
+                    }else {
+                        $('#tbody_dynamic td').attr('contenteditable', 'false')
+                    }
                 }
             })
+            clear_graph()
         }
 
         function create_tooltip_and_comment() {   //Создание всплывашек и действий на пкм
@@ -389,7 +406,7 @@
         function set_new_value(td) {
             change_header_modal('Подтвердить изменения? <br>Будет произведена запись в журнал')
             open_modal_side_menu()
-            document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_update("${td.textContent}", ${td.parentNode.rowIndex}, ${td.cellIndex})`)
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_update("${td.textContent.replace(/ /g,'')}", ${td.parentNode.rowIndex}, ${td.cellIndex})`)
             td.textContent = td.getAttribute('data-old')
         }
 
@@ -459,58 +476,60 @@
         }
 
         function goToHour(th) {
-            var hour_th = th.textContent.split(':')[0]
-            var date = $("#date_start").val()
-            if (document.getElementsByClassName('minute-param-' + hour_th).length > 0) {
-                var old_tds = document.getElementsByClassName('minute-param-' + hour_th);
-                while (old_tds[0]) {
-                    old_tds[0].parentNode.removeChild(old_tds[0]);
-                }
-            } else {
-                var href = ''
-                var custom_list = false
-                if (document.getElementById('choiced_id').textContent === 'false'){
-                    custom_list = true
-                    href = 'custom_param_minutes/'+document.getElementsByClassName('choiced')[0].getAttribute('data-id')
-                }else{
-                    href = 'hours_param_minutes'
-                }
-                $.ajax({
-                    url: '/'+href+'/' + date + '/' + hour_th,
-                    method: 'GET',
-                    success: function (res) {
-                        var cellIndex = th.cellIndex
-                        var minutes = ''
-                        //разбираемся с хедером
-                        for (var i = 1; i < 12; i++) {
-                            if (Number(55 - (i - 1) * 5) < 10) {
-                                minutes = '0' + Number(55 - (i - 1) * 5)
-                            } else {
-                                minutes = Number(55 - (i - 1) * 5)
+            if(document.getElementById('choiced_id').textContent !== 'rezhim_list') {
+                var hour_th = th.textContent.split(':')[0]
+                var date = $("#date_start").val()
+                if (document.getElementsByClassName('minute-param-' + hour_th).length > 0) {
+                    var old_tds = document.getElementsByClassName('minute-param-' + hour_th);
+                    while (old_tds[0]) {
+                        old_tds[0].parentNode.removeChild(old_tds[0]);
+                    }
+                } else {
+                    var href = ''
+                    var custom_list = false
+                    if (document.getElementById('choiced_id').textContent === 'custom_list') {
+                        custom_list = true
+                        href = 'custom_param_minutes/' + document.getElementsByClassName('choiced')[0].getAttribute('data-id')
+                    } else {
+                        href = 'hours_param_minutes'
+                    }
+                    $.ajax({
+                        url: '/' + href + '/' + date + '/' + hour_th,
+                        method: 'GET',
+                        success: function (res) {
+                            var cellIndex = th.cellIndex
+                            var minutes = ''
+                            //разбираемся с хедером
+                            for (var i = 1; i < 12; i++) {
+                                if (Number(55 - (i - 1) * 5) < 10) {
+                                    minutes = '0' + Number(55 - (i - 1) * 5)
+                                } else {
+                                    minutes = Number(55 - (i - 1) * 5)
+                                }
+                                th.insertAdjacentHTML('afterend', `<th class="minute-param-${hour_th}" style="font-weight: normal">${hour_th + ':' + minutes}</th>`)
                             }
-                            th.insertAdjacentHTML('afterend', `<th class="minute-param-${hour_th}" style="font-weight: normal">${hour_th + ':' + minutes}</th>`)
-                        }
-                        //разбираемся с содержимым
-                        var trs = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr')
-                        var j = 0; //номер строки
-                        for (var tr of trs) {
-                            for (var td of tr.getElementsByTagName('td')) {
-                                if (td.cellIndex === cellIndex) {
-                                    for (var i = 11; i >= 1; i--) {
-                                        if (res[j][i]) {
-                                            td.insertAdjacentHTML('afterend', `<td class="minute-param-${hour_th}">${res[j][i]}</td>`)
-                                        } else {
-                                            td.insertAdjacentHTML('afterend', `<td class="minute-param-${hour_th}">...</td>`)
+                            //разбираемся с содержимым
+                            var trs = document.getElementById('dynamicTable').getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+                            var j = 0; //номер строки
+                            for (var tr of trs) {
+                                for (var td of tr.getElementsByTagName('td')) {
+                                    if (td.cellIndex === cellIndex) {
+                                        for (var i = 11; i >= 1; i--) {
+                                            if (res[j][i]) {
+                                                td.insertAdjacentHTML('afterend', `<td class="minute-param-${hour_th}">${res[j][i]}</td>`)
+                                            } else {
+                                                td.insertAdjacentHTML('afterend', `<td class="minute-param-${hour_th}">...</td>`)
+                                            }
                                         }
                                     }
                                 }
+                                j++
                             }
-                            j++
-                        }
-                    }, async: false,
-                })
+                        }, async: false,
+                    })
+                }
+                add_trigger_paint()
             }
-            add_trigger_paint()
         }
 
         function initial_resize() {
@@ -621,8 +640,14 @@
                 }
                 var date_str = $("#period").val().replace(/ /g,'')
                 date_str = date_str.split('-')
+                var href = ''
+                if (document.getElementById('choiced_id').textContent !== 'rezhim_list'){
+                    href = '/get_data_for_graph/' + param_id + '/'+date_str[0]+'/'+date_str[1]
+                }else {
+                    href = '/rezhim_data_for_graph/' + param_id + '/'+date_str[0]+'/'+date_str[1]
+                }
                 $.ajax({
-                    url: '/get_data_for_graph/' + param_id + '/'+date_str[0]+'/'+date_str[1],
+                    url: href,
                     method: 'GET',
                     async: false,
                     success: function (res) {
@@ -652,23 +677,7 @@
                                 },
                                 "xAxis": {
                                     outputTimeFormat: {day: "%-d %b %Y",hour: "%-d %b %Y, %H:%M",minutes: "%-d %b %Y, %H:%M"},
-                                    timemarker:event
-                                        // [{
-                                        //     start: "2023-05-30 16:00:00",
-                                        //     label: "Проведение ТО",
-                                        //     timeformat: "%Y-%m-%d %H:%M:%S",
-                                        //     type: "full",
-                                        //     style: {marker: {fill: "#FFF176"}}
-                                        // },
-                                        // {
-                                        //     start: "2023-05-30 10:00:00",
-                                        //     label: "Сработал датчик загазованности",
-                                        //     timeformat: "%Y-%m-%d %H:%M:%S",
-                                        //     type: "full",
-                                        //     style: {marker: {fill: "#FFF176"}}
-                                        // }]
-                                    ,
-
+                                    timemarker:event,
                                 },
                                 tooltip: {
                                     outputTimeFormat: {hour: "%-d %b %Y, %H:%M", minutes: "%-d %b %Y, %H:%M"}
@@ -715,7 +724,7 @@
                         var side_menu = document.getElementById('side_menu_content')
                         var last_ul = side_menu.lastChild
                         var ul = document.createElement('ul')
-                        ul.innerHTML = `<li class="side_obj">Свои списки<img id="custom_img" onclick="open_custom_list(this)" class="plus_icon hide" src="http://127.0.0.1/assets/img/plus.png"></li>`
+                        ul.innerHTML = `<li class="side_obj">Свои списки<img id="custom_img" onclick="open_custom_list(this)" class="plus_icon hide" src="/assets/img/plus.png"></li>`
                         ul.style.paddingLeft = '15px'
                         last_ul.after(ul)
                         var new_ul = document.createElement('ul')
@@ -734,22 +743,6 @@
                             })
                             localStorage.setItem('custom_list', this.getAttribute('data-id'))
                         })
-                    }
-                },
-                async: false
-            })
-        }
-        function hide_list(){
-            $.ajax({
-                url: '/hide_list/'+localStorage.getItem('custom_list'),
-                method: 'GET',
-                dataType: 'html',
-                success: function(res){
-                    update_side_object()
-                    try{
-                        document.getElementById('custom_img').click()
-                    }catch (e) {
-                        console.log(e)
                     }
                 },
                 async: false
@@ -775,10 +768,76 @@
             }else {
                 $('.choiced').removeClass('choiced');
                 li.classList.add('choiced')
-                document.getElementById('choiced_id').textContent = 'false'
+                document.getElementById('choiced_id').textContent = 'custom_list'
                 document.getElementById('header_doc').textContent = 'Часовые показатели. '+li.textContent
             }
             get_table_data()
+        }
+        function get_rezhim_list(){
+            $.ajax({
+                url: '/get_rezhim_list',
+                method: 'GET',
+                dataType: 'html',
+                success: function(res){
+                    var rezhims = JSON.parse(res)
+                    if(rezhims.length > 0){
+                        var side_menu = document.getElementById('side_menu_content')
+                        var last_ul = side_menu.lastChild
+                        var ul = document.createElement('ul')
+                        ul.innerHTML = `<li class="side_obj">Режимные листы<img id="rezhim_img" onclick="open_rezhim(this)" class="plus_icon hide" src="/assets/img/plus.png"></li>`
+                        ul.style.paddingLeft = '15px'
+                        last_ul.after(ul)
+                        var new_ul = document.createElement('ul')
+                        new_ul.id = 'rezhim_list'
+                        for(var rezhim of rezhims){
+                            new_ul.innerHTML += `<li onclick="get_rezhim_params(this)" class="side_obj rezhim_lists" data-id="${rezhim['id']}">${rezhim['name_rezhim']}</li>`
+                        }
+                        ul.append(new_ul)
+                    }
+                },
+                async: false
+            })
+        }
+        function open_rezhim(img){
+            if(img.classList.contains('hide')){
+                img.classList.remove('hide')
+                img.style.transform = 'rotate(45deg)'
+                var ul = document.getElementById('rezhim_list')
+                ul.style.display = 'block'
+            }else{
+                img.classList.add('hide')
+                img.style.transform = ''
+                document.getElementById('rezhim_list').style.display = ''
+            }
+        }
+        function get_rezhim_params(li){
+            if (li.classList.contains('choiced')){
+                li.classList.remove('choiced')
+                document.getElementById('choiced_id').textContent = ''
+                document.getElementById('header_doc').textContent = 'Часовые показатели.'
+            }else {
+                $('.choiced').removeClass('choiced');
+                li.classList.add('choiced')
+                document.getElementById('choiced_id').textContent = 'rezhim_list'
+                document.getElementById('header_doc').textContent = 'Часовые показатели. '+li.textContent
+            }
+            get_table_data()
+        }
+        function hide_list(){
+            $.ajax({
+                url: '/hide_list/'+localStorage.getItem('custom_list'),
+                method: 'GET',
+                dataType: 'html',
+                success: function(res){
+                    update_side_object()
+                    try{
+                        document.getElementById('custom_img').click()
+                    }catch (e) {
+                        console.log(e)
+                    }
+                },
+                async: false
+            })
         }
     </script>
 @endsection

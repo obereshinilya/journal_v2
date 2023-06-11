@@ -163,24 +163,26 @@
                 })
                 $('li').on('click', function (event){
                     if (!$(event.target.closest("img")).hasClass("plus_icon")) {
-                        if (document.getElementById('choiced_id').textContent === 'false'){
+                        var choiced_id = document.getElementById('choiced_id')
+                        var choiced_object = document.getElementById('choiced_object')
+                        if (choiced_id.textContent === 'custom_list' || choiced_id.textContent === 'rezhim_list'){
                             $('.choiced').removeClass('choiced');
                             this.classList.add('choiced')
-                            document.getElementById('choiced_id').textContent = this.getAttribute('data-id')
-                            document.getElementById('choiced_object').textContent = this.textContent
+                            choiced_id.textContent = this.getAttribute('data-id')
+                            choiced_object.textContent = this.textContent
                             get_table_data()
-                            document.getElementById('choiced_object').click()
+                            choiced_object.click()
                         }else if (this.classList.contains('choiced')){
                             this.classList.remove('choiced')
-                            document.getElementById('choiced_id').textContent = ''
-                            document.getElementById('choiced_object').textContent = ''
-                            document.getElementById('choiced_object').click()
+                            choiced_id.textContent = ''
+                            choiced_object.textContent = ''
+                            choiced_object.click()
                         }else {
                             $('.choiced').removeClass('choiced');
                             this.classList.add('choiced')
-                            document.getElementById('choiced_id').textContent = this.getAttribute('data-id')
-                            document.getElementById('choiced_object').textContent = this.textContent
-                            document.getElementById('choiced_object').click()
+                            choiced_id.textContent = this.getAttribute('data-id')
+                            choiced_object.textContent = this.textContent
+                            choiced_object.click()
                         }
                     }
                 })
@@ -189,6 +191,11 @@
         })
         try{
             get_user_custom_list()
+        }catch (e) {
+
+        }
+        try{
+            get_rezhim_list()
         }catch (e) {
 
         }

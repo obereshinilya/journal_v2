@@ -9,12 +9,25 @@
 
 @section('content')
     <style>
-        .math{position: absolute; bottom: 0; right: 0; border-radius: 10px; width: 550px; height: 200px; z-index: 999; background: #00BFFF; padding: 15px; box-shadow: -5px -5px 15px black;text-align: center; display: none}
+        .math{position: absolute; bottom: 0; right: 0; border-radius: 10px; width: 550px; height: 250px; z-index: 999; background: #F5F5F5; padding: 15px; box-shadow: -5px -5px 15px black;text-align: center; display: none}
     </style>
     <div id="math" class="math">
         <p id="param_id" style="display: none"></p>
         <h3 id="header_math" style="width: 100%; text-align: center"></h3>
-        <p><b>Пример:</b> ( ( {1} + {2} ) / 2 ) * 0.5, где в {} указывается номер строки<br><b>Перечень операций:</b> +, -, *, /, sqrt(), ^, exp(), SUM(), MAX(), MIN()</p>
+        <p><b>Пример:</b> ( ( {1} + {2} ) / 2 ) * 0.5, где в {} указывается номер строки<br><b>Перечень операций:</b> +, -, *, /, sqrt(), ^, exp(), SUM(), MAX(), MIN()<br><br>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">(</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">)</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">+</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">-</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">*</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">/</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">^</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">SUM</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">MAX</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">MIN</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">sqrt</button>
+            <button class="btn" style="margin: 0 3px" onclick="add_formula(this.textContent)">exp</button>
+        </p>
         <input id="formula" type="text" style="width: 520px; margin-bottom: 20px">
         <button class="btn" onclick="save_formula()">Подтвердить</button>
         <button class="btn" onclick="close_formula()">Отменить</button>
@@ -43,7 +56,6 @@
                     value = 1
                 }
             }
-
             arr.set('column', column[x])
             arr.set('value', value)
             arr.set('id', id_param)
@@ -54,15 +66,20 @@
                 success: function (res) {
                     if(res === 'calc'){
                         document.getElementById('math').style.display = 'block'
+                        document.getElementById('formula').focus()
                         document.getElementById('header_math').textContent = 'Введите формулу для параметра (Строка '+(Number(y)+1)+')'
                         document.getElementById('param_id').textContent = $(`[data-x="9"][data-y="${y}"]`)[0].textContent
                     }else if(res){
                         window.location.href = '/select_param/{{$id}}/'+res
-                    }else {
+                    }else{
                         get_table_data()
                     }
                 }
             })
+        }
+        function add_formula(text){
+            document.getElementById('formula').value = document.getElementById('formula').value+text
+            document.getElementById('formula').focus()
         }
         function close_formula(){
             document.getElementById('math').style.display = 'none'
@@ -78,7 +95,6 @@
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
-                    console.log(res)
                     close_formula()
                 }
             })
@@ -135,8 +151,31 @@
             $(`td[data-x="0"]`).on('click', function (){
                 if (document.getElementById('math').style.display === 'block'){
                     document.getElementById('formula').value = document.getElementById('formula').value + '{'+(Number(this.getAttribute('data-y'))+1)+'}'
+                    document.getElementById('formula').focus()
+                    jsTable.resetSelection(true)
                 }
             })
+
+            $.ajax({
+                url: '/rezhim_math_and_name/{{$id}}',
+                method: 'GET',
+                dataType: 'html',
+                async: true,
+                success: function(res) {
+                    res = JSON.parse(res)
+                    var keys = Object.keys(res)
+                    for (var i=0; i<keys.length; i++){
+                        $('table tbody tr')[res[keys[i]]['num_row']-1].getElementsByTagName('td')[res[keys[i]]['num_column']].setAttribute('data-toggle', 'tooltip')
+                        $('table tbody tr')[res[keys[i]]['num_row']-1].getElementsByTagName('td')[res[keys[i]]['num_column']].setAttribute('title', res[keys[i]]['result'])
+                    }
+                    $('[data-toggle="tooltip"]').tooltip({
+                        content: function () {
+                            return $(this).prop('title');
+                        }
+                    })
+                }
+            })
+            // data-toggle="tooltip" title="Добавить объект"
         }
         function update_name(value){
             var arr = new Map()

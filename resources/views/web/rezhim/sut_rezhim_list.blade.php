@@ -13,7 +13,8 @@
         <button id="download_csw" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Загрузить CSV" ><img src="/assets/img/excel.svg"></button>
         <input class="input header_blocks" style="width: 200px" oninput="seach_jsExcel()" type="text" id="search_row" placeholder="Поиск...">
         @include('include.date')
-        <button class="btn header_blocks btn_img" onclick="window.location.href = '/sut_rezhim_list/{{$id_rezhim}}'" data-toggle="tooltip" title="К суточным" ><img src="/assets/img/back.svg"></button>
+        <input class="input header_blocks" style="width: 200px" type="number" id="num_days" onchange="get_table_data()" value="" min="1" max="24" step="1" placeholder="Количество записей в истории: 3">
+        <button class="btn header_blocks btn_img" onclick="window.location.href = '/rezhim_list/{{$id_rezhim}}'" data-toggle="tooltip" title="К часовым" ><img style="transform: rotate(180deg)" src="/assets/img/back.svg"></button>
     </div>
     <div style="width: calc(100% - 10px); height: calc(100% - 110px); margin-top: 10px" id="main_div">
 
@@ -23,27 +24,36 @@
             get_table_data()
         })
         var changed = function (instance, cell, x, y, value){
-            if(Number(cell.getAttribute('data-y'))>0){
-                var arr = new Map()
-                arr.set('date', $(`table thead tr td[data-x="${x}"]`)[0].textContent)
-                arr.set('numRow', Number(cell.getAttribute('data-y'))+1)
-                arr.set('rezhim', {{$id_rezhim}})
-                arr.set('value', cell.textContent)
-                $.ajax({
-                    url: '/save_hand_param',
-                    method: 'POST',
-                    data: Object.fromEntries(arr),
-                    success: function (res) {
-                        console.log(res)
-                    }
-                })
+            var arr = new Map()
+            var sum = false
+            arr.set('date', $(`table thead tr td[data-x="${x}"]`)[0].textContent)
+            if ($(`table thead tr td[data-x="${x}"]`)[0].textContent === 'Сумма часовых'){
+                arr.set('date', 'sum')
+                sum = true
             }
+            arr.set('numRow', Number(cell.getAttribute('data-y'))+1)
+            arr.set('rezhim', {{$id_rezhim}})
+            arr.set('value', cell.textContent)
+            $.ajax({
+                url: '/save_hand_param_sut',
+                method: 'POST',
+                data: Object.fromEntries(arr),
+                success: function (res) {
+                    if (sum){
+                        get_table_data()
+                    }
+                }
+            })
         }
         function get_table_data(){
             document.getElementById('search_row').value = ''
             document.getElementById('main_div').innerText = ''
+            var num = 3
+            if (document.getElementById('num_days').value){
+                num = document.getElementById('num_days').value
+            }
             $.ajax({
-                url: '/rezhim_data/{{$id_rezhim}}/'+$("#date_start").val(),
+                url: '/sut_rezhim_data/{{$id_rezhim}}/'+$("#date_start").val()+'/'+num,
                 method: 'GET',
                 dataType: 'html',
                 async: false,
@@ -57,29 +67,30 @@
                         {type:'hidden',name:'id'},
                         {width:'30px',type:'image',name:'img',title:' ', readOnly: true},
                         {width:'400px',type:'html',name:'full_name',title:'Наименование', readOnly: true},
-                        {width:'100px',type:'text',name:'e_unit',title:'Ед. изм.', readOnly: true}
+                        {width:'100px',type:'text',name:'e_unit',title:'Ед. изм.', readOnly: true},
+                        {width:'120px',type:'checkbox',name:'sum',title:'Сумма часовых'}
                     ]
                     var keys = Object.keys(res[0])
-                    for (var i=4; i<keys.length; i++){
-                        column_array.push({type:'text', width: '150px', title: keys[i], name: keys[i]})
+                    for (var i=5; i<keys.length; i++){
+                        column_array.push({type:'text', width: '120px', title: keys[i], name: keys[i]})
                     }
                     jsTable = jspreadsheet(document.getElementById('main_div'), {
                         data:Object.values(res),
                         search:true,
+                        freezeColumns: 5,
                         tableOverflow: true,
                         filters: false,
                         tableWidth: $('#main_div').width()+'px',
                         tableHeight: $('#main_div').height()+'px',
                         rowResize: false,
                         onchange: changed,
-                        freezeColumns: 4,
                         allowInsertRow:false,
                         columns: column_array,
                         updateTable: function(el, cell, x, y, source, value, id) {
                             if (hiddenColumn.indexOf(x) !== -1){
                                 cell.classList.add('readonly')
                                 cell.classList.add('confirmed')
-                            }else if((hiddenRows.indexOf(y) !== -1 && x!==1 && x!==2 && x!==3)){
+                            }else if((hiddenRows.indexOf(y) !== -1 && x>4)){
                                 cell.classList.add('readonly')
                                 cell.classList.add('unvisible')
                             }
@@ -119,7 +130,7 @@
             arr.set('rezhim', {{$id_rezhim}})
             arr.set('data', data)
             $.ajax({
-                url: '/confirm_rezhim',
+                url: '/sut_confirm_rezhim',
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
@@ -134,7 +145,7 @@
             arr.set('date', time)
             arr.set('rezhim', {{$id_rezhim}})
             $.ajax({
-                url: '/delete_confirm_rezhim',
+                url: '/delete_sut_confirm_rezhim',
                 method: 'POST',
                 data: Object.fromEntries(arr),
                 success: function (res) {
