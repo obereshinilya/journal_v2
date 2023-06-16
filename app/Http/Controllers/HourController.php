@@ -231,6 +231,7 @@ class HourController extends Controller
                 $result[$k][0]['visible'] = 'display: none';
             }
 //            echo 'Время выполнения скрипта: '.round(microtime(true) - $start, 4).' сек.';
+//            dd($result);
             return $result;
         }catch (\Throwable $e){
             return $e;

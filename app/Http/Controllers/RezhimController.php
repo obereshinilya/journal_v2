@@ -79,19 +79,22 @@ end as full_name
             $sut_array[$row->timestamp]['val'] = explode(',', str_replace( ['{', '}', '"'], '',$row->val));
             $sut_array[$row->timestamp]['param_id'] = explode(',', str_replace( ['{', '}', '"'], '',$row->param_id));
         }
-        ///Получение суток суммой в формате $hour[время] и внутри два массива - param_id и val
-        $sum_hour_param = DB::select("select to_char(a.date, 'dd.mm.yyyy') as timestamp, array_agg(a.sum) as val, array_agg(a.param_id) as param_id from (
-            select param_id, sum(val), date(timestamp-interval '10:00')
+        if (count($from_time_param)>0){
+            ///Получение суток суммой в формате $hour[время] и внутри два массива - param_id и val
+            $sum_hour_param = DB::select("select to_char(a.date, 'dd.mm.yyyy') as timestamp, array_agg(a.sum) as val, array_agg(a.param_id) as param_id from (
+            select param_id, sum(val), date(timestamp-interval '".$setting['start_smena'].":00')
             from app_info.hour_params
             where timestamp >= '".date('Y-m-d',strtotime(end($time_arr)))." ".$setting['start_smena'].":00' and timestamp < '".date('Y-m-d',strtotime($time_arr[0].' +1 day'))." ".$setting['start_smena'].":00' and param_id in (".implode(",",$from_time_param).")
             group by param_id, date(timestamp-interval '".$setting['start_smena'].":00')) as a
             group by timestamp");
-        $sum_hour_array = [];
-        foreach ($sum_hour_param as $row){
-            $sum_hour_array[$row->timestamp]['val'] = explode(',', str_replace( ['{', '}', '"'], '',$row->val));
-            $sum_hour_array[$row->timestamp]['param_id'] = explode(',', str_replace( ['{', '}', '"'], '',$row->param_id));
+            $sum_hour_array = [];
+            foreach ($sum_hour_param as $row){
+                $sum_hour_array[$row->timestamp]['val'] = explode(',', str_replace( ['{', '}', '"'], '',$row->val));
+                $sum_hour_array[$row->timestamp]['param_id'] = explode(',', str_replace( ['{', '}', '"'], '',$row->param_id));
+            }
+        }else{
+            $sum_hour_array = [];
         }
-
         ///Массив param_id из main_table
         $from_rezhim_param = RezhimParams::where('rezhim_id', '=', $id_rezhim)->get()->pluck('id')->toArray();
         ///Получение ручного ввода в формате $hour[время] и внутри два массива - param_id и val
@@ -106,7 +109,7 @@ end as full_name
             $hand_array[$row->timestamp]['param_id'] = explode(',', str_replace( ['{', '}', '"'], '',$row->param_id));
         }
         $sum_hand_param = DB::select("select to_char(a.date, 'dd.mm.yyyy') as timestamp, array_agg(a.sum) as val, array_agg(a.param_id) as param_id from (
-            select param_id, sum(val), date(timestamp-interval '10:00')
+            select param_id, sum(val), date(timestamp-interval '".$setting['start_smena']."')
             from rezhim_lists.rezhim_hour
             where timestamp >= '".date('Y-m-d',strtotime(end($time_arr)))." ".$setting['start_smena'].":00' and timestamp < '".date('Y-m-d',strtotime($time_arr[0].' +1 day'))." ".$setting['start_smena'].":00' and param_id in (".implode(",",$from_rezhim_param).")
             group by param_id, date(timestamp-interval '".$setting['start_smena'].":00')) as a

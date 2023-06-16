@@ -39,13 +39,13 @@ class JournalController extends Controller
     public function journal_sodu_data($date_start, $date_stop){
         $data = JournalSodu::wherebetween('date', [date('d.m.Y 00:00', strtotime($date_start)), date('d.m.Y 23:59', strtotime($date_stop))])
             ->orderbydesc('date')->selectRaw("fio,event,type_event,date,otdel,id")->get()->toArray();
-        $data['type_event'] = JournalSodu::select('type_event')->groupby('type_event')->orderby('type_event')->get()->pluck('type_event');
-        $data['otdel'] = JournalSodu::select('otdel')->groupby('otdel')->orderby('otdel')->get()->pluck('otdel');
+        $data['type_event'] = JournalSodu::whereNotNull('type_event')->select('type_event')->groupby('type_event')->orderby('type_event')->get()->pluck('type_event');
+        $data['otdel'] = JournalSodu::whereNotNull('otdel')->select('otdel')->groupby('otdel')->orderby('otdel')->get()->pluck('otdel');
         return $data;
     }
     public function get_dropbox_sodu_data(){
-        $data['type_event'] = JournalSodu::select('type_event')->groupby('type_event')->orderby('type_event')->get()->pluck('type_event');
-        $data['otdel'] = JournalSodu::select('otdel')->groupby('otdel')->orderby('otdel')->get()->pluck('otdel');
+        $data['type_event'] = JournalSodu::whereNotNull('type_event')->select('type_event')->groupby('type_event')->orderby('type_event')->get()->pluck('type_event');
+        $data['otdel'] = JournalSodu::whereNotNull('otdel')->select('otdel')->groupby('otdel')->orderby('otdel')->get()->pluck('otdel');
         return $data;
     }
     public function edit_sodu(Request $request){

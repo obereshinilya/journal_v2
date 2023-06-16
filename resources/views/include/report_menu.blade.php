@@ -25,7 +25,10 @@
             <li class="side_obj" report-id="2" onclick="save_index(this); window.location='/journal_events'">Журнал событий</li>
         </ul>
         <ul>
-            <li class="side_obj">Режимные листы<img id="img_1" onclick="open_custom_list(this, 'ul_rezhim')" class="plus_icon hide" src="http://127.0.0.1/assets/img/plus.png"></li>
+            <li class="side_obj" report-id="3" onclick="save_index(this); window.location='/open_lists_ufa_tm'">Рег. работы</li>
+        </ul>
+        <ul>
+            <li class="side_obj">Режимные листы<img id="img_1" onclick="open_custom_list(this, 'ul_rezhim')" class="plus_icon hide" src="/assets/img/plus.png"></li>
             <ul id="ul_rezhim">
                 @foreach(\App\Models\rezhim\RezhimLists::orderby('name_rezhim')->get() as $rezhim)
                     <li class="side_obj rezhim_lists" report-id="rezhim_{{$rezhim->id}}" data-id="{{$rezhim->id}}" onclick="save_index(this); window.location='/rezhim_list/{{$rezhim->id}}'">{{$rezhim->name_rezhim}}</li>

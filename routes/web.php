@@ -10,12 +10,19 @@ use App\Http\Controllers\JournalController;
 use App\Http\Controllers\RezhimController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UfaController;
 
 
 Route::group(['middleware' => ['auth']], function() {
 
 
     Route::get('/test', [LdapController::class, 'test']);
+    //БЛОК для Уфы
+    Route::get('/create_record_ufa', [UfaController::class, 'create_record_ufa'])->name('create_record_ufa');   ///Создание страницы с результатами испытаний
+    Route::get('/open_lists_ufa_tm', [UfaController::class, 'open_lists_ufa_tm'])->name('open_lists_ufa_tm');   ///Страница списка с данными
+    Route::get('/get_data_ufa_tm', [UfaController::class, 'get_data_ufa_tm'])->name('get_data_ufa_tm');   ///Получение данных
+    Route::get('/open_record_ufa_tm/{id}', [UfaController::class, 'open_record_ufa_tm'])->name('open_record_ufa_tm');   ///Переход на страницу записи
+
 
     //БЛОК отчетов
     Route::get('/reports', [ReportController::class, 'reports'])->name('reports');   ///Главная страница отчетов
