@@ -93,7 +93,7 @@
                         onchange: changed,
                         allowInsertRow:false,
                         columns: [
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                             {width:width,type:'text',name:'service',title:'Наименование службы',readOnly:false,},
                         ],
                     });
@@ -178,7 +178,7 @@
                         onchange: changed_subdivision,
                         allowInsertRow:false,
                         columns: [
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                             {width:width,type:'text',name:'subdivision',title:'Наименование подразделения',readOnly:false,},
                         ],
                     });
@@ -266,7 +266,7 @@
                         onchange: changed_type,
                         allowInsertRow:false,
                         columns: [
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                             {width:width,type:'text',name:'event',title:'Тип события',readOnly:false,},
                             {width:80,type:'checkbox',name:'on_graph',title:'На график',readOnly:false,},
                             {width:80,type:'color',name:'color',title:'Цвет',readOnly:false,render:'square',},
@@ -360,7 +360,7 @@
                         onchange: changed_template,
                         allowInsertRow:false,
                         columns: [
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                             {width:width,type:'text',name:'template',title:'Текст шаблона',readOnly:false,},
                             {width:width,type:'dropdown',name:'event',source:dropbox,title:'Тип события',readOnly:false,},
                         ],

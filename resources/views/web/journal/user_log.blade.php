@@ -53,7 +53,7 @@
                         csvFileName: 'Журнал_действий_оператора'
                     });
                     $('#download_csw').on('click', function (){
-                        jsTable.download()
+                        jsTable.download(true)
                     })
                     $('.jexcel_column_filter').on('click', function (){
                         document.getElementById('search_row').value = ''

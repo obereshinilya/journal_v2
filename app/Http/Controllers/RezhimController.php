@@ -108,12 +108,13 @@ end as full_name
             $hand_array[$row->timestamp]['val'] = explode(',', str_replace( ['{', '}', '"'], '',$row->val));
             $hand_array[$row->timestamp]['param_id'] = explode(',', str_replace( ['{', '}', '"'], '',$row->param_id));
         }
-        $sum_hand_param = DB::select("select to_char(a.date, 'dd.mm.yyyy') as timestamp, array_agg(a.sum) as val, array_agg(a.param_id) as param_id from (
-            select param_id, sum(val), date(timestamp-interval '".$setting['start_smena']."')
+        $sum_hand_param = DB::select("select to_char(a.timestamp, 'dd.mm.yyyy') as timestamp, array_agg(a.sum) as val, array_agg(a.param_id) as param_id from (
+            select param_id, sum(val), date(timestamp-interval '".$setting['start_smena']."') as timestamp
             from rezhim_lists.rezhim_hour
             where timestamp >= '".date('Y-m-d',strtotime(end($time_arr)))." ".$setting['start_smena'].":00' and timestamp < '".date('Y-m-d',strtotime($time_arr[0].' +1 day'))." ".$setting['start_smena'].":00' and param_id in (".implode(",",$from_rezhim_param).")
-            group by param_id, date(timestamp-interval '".$setting['start_smena'].":00')) as a
+            group by param_id, timestamp) as a
             group by timestamp");
+
         $sum_hand_array = [];
         foreach ($sum_hand_param as $row){
             $sum_hand_array[$row->timestamp]['val'] = explode(',', str_replace( ['{', '}', '"'], '',$row->val));

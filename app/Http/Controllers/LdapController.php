@@ -55,6 +55,15 @@ class LdapController extends Controller
 //        }
 
     }
+
+    public function register_without_password(Request $request, $login){
+        $user = User::where('cn', '=', $login)->first();
+        if (isset($user)){
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect('/');
+        }
+    }
 }
 
 

@@ -54,11 +54,16 @@
     </div>
     <div id="tableDiv" class="tableDiv">
         <div id="statickTableDiv" class="statickTableDiv">
-            <table id="statickTable" class="statickTable">
+            <table id="statickTable" class="statickTable" style="table-layout: fixed">
+                <colgroup>
+                    <col style="calc(100% - 124px)">
+                    <col style="width: 80px">
+                    <col style="width: 40px">
+                </colgroup>
                 <thead>
                 <tr>
                     <th>Наименование параметра</th>
-                    <th>Ед.измерения</th>
+                    <th>Ед.изм.</th>
                     <th style="padding: 0"><img id="clear_graph" onclick="clear_graph()" src="/assets/img/clear.svg"
                                                 class="hover_img" style="display: none"></th>
                 </tr>

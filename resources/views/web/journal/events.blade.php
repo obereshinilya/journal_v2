@@ -10,6 +10,7 @@
 @section('content')
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Журнал событий</p>
+        <button id="pdf_btn" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить PDF" ><img onclick="printTable()" src="/assets/img/pdf.svg"></button>
         <button id="download_csw" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Загрузить CSV" ><img src="/assets/img/excel.svg"></button>
         <button onclick="window.location.href = '/setting_journal_events'" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Настройки" ><img src="/assets/img/setting.svg"></button>
         <button onclick="create_record()" class="btn header_blocks btn_img" data-toggle="tooltip" title="Создать запись"><img src="/assets/img/add_plus_icon.svg"></button>
@@ -64,6 +65,20 @@
             change_header_modal('Добавление записи в журнал событий')
             create_table_in_window()
             document.getElementById('submit_button_side_menu').setAttribute('onclick', `store_new_record()`)
+        }
+        function printTable(){
+            var date_str = $("#period").val().replace(/ /g,'')
+            date_str = date_str.split('-')
+            var start = date_str[0]
+            var stop = date_str[1]
+            var new_html = document.getElementById('main_div').innerHTML
+            document.body.innerText = ''
+            document.body.innerHTML = `<h4 style="width:100%; text-align:center">Журнал cобытий с ${start} по ${stop}</h4>`
+            document.body.innerHTML += new_html
+            window.print()
+            $('body').on('click', function (){
+                window.location.reload()
+            })
         }
         function create_table_in_window(){
             var table = `
@@ -240,7 +255,7 @@
                         onchange: false,
                         allowInsertRow:false,
                         columns: [
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                             {width:width,type:'text',name:'timestamp',title:'Дата создания',readOnly:true,},
                             {width:width,type:'text',name:'display_name',title:'Диспетчер',readOnly:true,},
                             {width:width,type:'text',name:'ingener',title:'Инженер',readOnly:true,},
@@ -254,7 +269,9 @@
                         csvFileName: 'Журнал_событий'
                     });
                     $('#download_csw').on('click', function (){
-                        jsTable.download()
+                        jsTable.deleteColumn(9)
+                        jsTable.download(true)
+                        get_table_data()
                     })
                     $('.jexcel_column_filter').on('dblclick', function (){
                         document.getElementById('search_row').value = ''

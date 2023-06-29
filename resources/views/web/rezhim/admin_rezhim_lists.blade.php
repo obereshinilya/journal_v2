@@ -72,7 +72,9 @@
                     }else if(res){
                         window.location.href = '/select_param/{{$id}}/'+res
                     }else{
-                        get_table_data()
+                        if (x>1 && x != 3){
+                            get_table_data()
+                        }
                     }
                 }
             })
@@ -128,7 +130,7 @@
                             {width:'75px',type:'checkbox',name:'calc',title:'Расчетный',},
                             {width:'75px',type:'checkbox',name:'from_hour_params',title:'Ссылка',},
                             {width:'75px',type:'checkbox',name:'empty',title:'Пустой',},
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                         ],
                         updateTable: function(el, cell, x, y, source, value, id) {
                             if (source === true && x !== 4) {

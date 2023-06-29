@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title')
-    Опробование алгоритмов/проведение регламентных работ
+    Журнал перестановок
 @endsection
 
 @section('side_menu')
@@ -9,10 +9,12 @@
 
 @section('content')
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
-        <p id="header_doc" style="display: inline-block; max-width: 50%">Опробование алгоритмов/проведение регламентных работ</p>
+        <p id="header_doc" style="display: inline-block; max-width: 50%">Журнал перестановок</p>
         <button id="pdf_btn" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить PDF" ><img onclick="printTable()" src="/assets/img/pdf.svg"></button>
         <button id="download_csw" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Загрузить CSV" ><img src="/assets/img/excel.svg"></button>
+        <button id="update" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Обновить" onclick="get_table_data()"><img src="/assets/img/refresh.svg"></button>
         <input class="input header_blocks" style="width: 200px" oninput="seach_jsExcel()" type="text" id="search_row" placeholder="Поиск...">
+        @include('include.period_date_time')
     </div>
     <div style="width: calc(100% - 10px); height: calc(100% - 80px)" id="main_div">
 
@@ -22,28 +24,14 @@
            get_table_data()
         })
 
-
-
-        var update_comment = function (instance, cell, x, y, value){
-            if (x==='1'){
-                var arr = new Map()
-                arr.set('comment', value)
-                arr.set('id', cell.parentNode.getElementsByTagName('td')[1].textContent)
-                $.ajax({
-                    url: '/change_comment_ufa',
-                    method: 'POST',
-                    data: Object.fromEntries(arr),
-                    success: function (res) {
-                    }
-                })
-            }
-        }
         function get_table_data(){
             document.getElementById('search_row').value = ''
             document.getElementById('main_div').innerText = ''
-            var width = ($('#main_div').width()-430) + 'px'
+            var date_str = $("#period").val().replace(/ /g,'')
+            date_str = date_str.split('-')
+            var width = ($('#main_div').width()-80)/7 + 'px'
             $.ajax({
-                url: '/get_data_ufa_tm',
+                url: '/get_data_journal_perestanovok/'+date_str[0]+'/'+date_str[1],
                 method: 'GET',
                 dataType: 'html',
                 async: true,
@@ -56,15 +44,18 @@
                         tableWidth: $('#main_div').width()+'px',
                         tableHeight: $('#main_div').height()+'px',
                         rowResize: false,
-                        onchange: update_comment,
+                        onchange: false,
                         allowInsertRow:false,
                         columns: [
-                            {type:'hidden',name:'id',title:'Номер записи'},
-                            {width:width,type:'text',name:'comment',title:'Описание события',},
-                            {width:'180px',type:'text',name:'date',title:'Дата запроса',readOnly:true,},
-                            {width:'180px',type:'checkbox',name:'checked',title:'Данные сохранены',readOnly:true,},
+                            {width:width,type:'text',name:'name_kran',title:'Наименование крана',readOnly:true},
+                            {width:width,type:'text',name:'open',title:'Кол-во открытий',readOnly:true},
+                            {width:width,type:'text',name:'date_open',title:'Время открытия',readOnly:true},
+                            {width:width,type:'text',name:'close',title:'Кол-во закрытий',readOnly:true},
+                            {width:width,type:'text',name:'date_close',title:'Время закрытия',readOnly:true},
+                            {width:width,type:'text',name:'accident',title:'Кол-во аварий',readOnly:true},
+                            {width:width,type:'text',name:'date_accident',title:'Время аварии',readOnly:true},
                         ],
-                        csvFileName: 'Опробование алгоритмов/проведение регламентных работ'
+                        csvFileName: 'Журнал перестановок'
                     });
                     $('#download_csw').on('click', function (){
                         jsTable.download(true)
@@ -72,17 +63,26 @@
                     $('.jexcel_column_filter').on('dblclick', function (){
                         document.getElementById('search_row').value = ''
                     })
-                    $('#main_content table tr td').on('dblclick', function (){
-                        if (this.getAttribute('data-x') !== '1'){
-                            window.location.href = '/open_record_ufa_tm/'+this.parentNode.getElementsByTagName('td')[1].textContent
-                        }
-                    })
                 }
             })
         }
         function seach_jsExcel(){
             var input = document.getElementById('search_row')
             jsTable.search(input.value);
+        }
+        function printTable(){
+            var date_str = $("#period").val().replace(/ /g,'')
+            date_str = date_str.split('-')
+            var start = date_str[0]
+            var stop = date_str[1]
+            var new_html = document.getElementById('main_div').innerHTML
+            document.body.innerText = ''
+            document.body.innerHTML = `<h4 style="width:100%; text-align:center">Журнал перестановок с ${start} по ${stop}</h4>`
+            document.body.innerHTML += new_html
+            window.print()
+            $('body').on('click', function (){
+                window.location.reload()
+            })
         }
 
     </script>

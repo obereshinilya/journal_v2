@@ -10,6 +10,7 @@
 @section('content')
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">{{$name_rezhim}}</p>
+        <button id="pdf_btn" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить PDF" ><img onclick="printTable()" src="/assets/img/pdf.svg"></button>
         <button id="download_csw" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Загрузить CSV" ><img src="/assets/img/excel.svg"></button>
         <input class="input header_blocks" style="width: 200px" oninput="seach_jsExcel()" type="text" id="search_row" placeholder="Поиск...">
         @include('include.date')
@@ -64,7 +65,7 @@
                     var hiddenColumn = res['hidden_column']
                     delete res['hidden_column']
                     var column_array = [
-                        {type:'hidden',name:'id'},
+                        {type:'hidden',name:'id',title:'Номер записи'},
                         {width:'30px',type:'image',name:'img',title:' ', readOnly: true},
                         {width:'400px',type:'html',name:'full_name',title:'Наименование', readOnly: true},
                         {width:'100px',type:'text',name:'e_unit',title:'Ед. изм.', readOnly: true},
@@ -98,7 +99,7 @@
                         csvFileName: '{{$name_rezhim}}'
                     });
                     $('#download_csw').on('click', function (){
-                        jsTable.download()
+                        jsTable.download(true)
                     })
                     $('.jexcel_column_filter').on('click', function (){
                         document.getElementById('search_row').value = ''
@@ -138,6 +139,32 @@
                     get_table_data()
                     close_modal_side_menu()
                 }
+            })
+        }
+        function printTable(){
+
+            $('#main_div table').css('table-layout:auto')
+            var j = 0
+            for (var row of $('#main_div table tr')){
+                var tds = row.getElementsByTagName('td')
+                for (var i=5; i<tds.length; i++){
+                    if (j===0){
+                        tds[i].textContent = tds[i].textContent.substr(0, 5)
+                    }
+                }
+                j++
+            }
+            document.getElementById('main_div').getElementsByTagName('table')[0].style.tableLayout = 'auto'
+            document.getElementById('main_div').getElementsByTagName('table')[0].style.whiteSpace = 'normal'
+            var date_str = $("#date_start").val()
+            $('#main_div table th').children("th:eq(2)").remove();
+            var new_html = document.getElementById('main_div').innerHTML
+            document.body.innerText = ''
+            document.body.innerHTML = `<h4 style="width:100%; text-align:center">{{$name_rezhim}} с ${date_str}</h4>`
+            document.body.innerHTML += new_html
+            window.print()
+            $('body').on('click', function (){
+                window.location.reload()
             })
         }
         function delete_confirm(time){

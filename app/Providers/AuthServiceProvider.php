@@ -46,7 +46,7 @@ class AuthServiceProvider extends ServiceProvider
             }
             if ($validated){
                 $ldap_users = User::all()->toArray();
-                $key = array_search('test', array_column(array_column($ldap_users, 'cn'), 0));
+                $key = array_search($request->email, array_column(array_column($ldap_users, 'cn'), 0));
                 if ($key){
                     try {
                         Users::create(['display_name'=>$ldap_users[$key]['displayname'][0],

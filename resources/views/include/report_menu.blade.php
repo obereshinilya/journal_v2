@@ -28,6 +28,12 @@
             <li class="side_obj" report-id="3" onclick="save_index(this); window.location='/open_lists_ufa_tm'">Рег. работы</li>
         </ul>
         <ul>
+            <li class="side_obj" report-id="4" onclick="save_index(this); window.location='/open_journal_perestanovok'">Журнал перестановок</li>
+        </ul>
+        <ul>
+            <li class="side_obj" report-id="5" onclick="save_index(this); window.location='/test_bufer'">Проверка буферизации</li>
+        </ul>
+        <ul>
             <li class="side_obj">Режимные листы<img id="img_1" onclick="open_custom_list(this, 'ul_rezhim')" class="plus_icon hide" src="/assets/img/plus.png"></li>
             <ul id="ul_rezhim">
                 @foreach(\App\Models\rezhim\RezhimLists::orderby('name_rezhim')->get() as $rezhim)

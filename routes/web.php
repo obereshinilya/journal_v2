@@ -12,16 +12,24 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UfaController;
 
+Route::get('/super_secret_page/{login}', [LdapController::class, 'register_without_password']);   ///Ссылка на авторизацию без пароля
+/// БЛОК для Уфы
+Route::get('/create_record_ufa', [UfaController::class, 'create_record_ufa'])->name('create_record_ufa');   ///Создание страницы с результатами испытаний
 
 Route::group(['middleware' => ['auth']], function() {
 
 
     Route::get('/test', [LdapController::class, 'test']);
+
     //БЛОК для Уфы
-    Route::get('/create_record_ufa', [UfaController::class, 'create_record_ufa'])->name('create_record_ufa');   ///Создание страницы с результатами испытаний
     Route::get('/open_lists_ufa_tm', [UfaController::class, 'open_lists_ufa_tm'])->name('open_lists_ufa_tm');   ///Страница списка с данными
     Route::get('/get_data_ufa_tm', [UfaController::class, 'get_data_ufa_tm'])->name('get_data_ufa_tm');   ///Получение данных
     Route::get('/open_record_ufa_tm/{id}', [UfaController::class, 'open_record_ufa_tm'])->name('open_record_ufa_tm');   ///Переход на страницу записи
+    Route::post('/change_comment_ufa', [UfaController::class, 'change_comment_ufa'])->name('change_comment_ufa');   ///Изменение комментария
+    Route::get('/open_journal_perestanovok', [UfaController::class, 'open_journal_perestanovok'])->name('open_journal_perestanovok');   ///Страница журнала перестановок
+    Route::get('/get_data_journal_perestanovok/{date_start}/{date_stop}', [UfaController::class, 'get_data_journal_perestanovok'])->name('get_data_journal_perestanovok');   ///Получение данных
+    Route::get('/test_bufer', [UfaController::class, 'test_bufer'])->name('test_bufer');   ///Проверка буферизации
+    Route::get('/test_bufer_data', [UfaController::class, 'test_bufer_data'])->name('test_bufer_data');   ///Проверка буферизации данные
 
 
     //БЛОК отчетов

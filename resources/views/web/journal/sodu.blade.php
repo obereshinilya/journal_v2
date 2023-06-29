@@ -10,6 +10,7 @@
 @section('content')
     <div id="header_block_param" style="overflow-x: auto; overflow-y: hidden; max-height: 3.5em">
         <p id="header_doc" style="display: inline-block; max-width: 50%">Журнал СОДУ</p>
+        <button id="pdf_btn" class="btn header_blocks btn_img" data-toggle="tooltip" title="Загрузить PDF" ><img onclick="printTable()" src="/assets/img/pdf.svg"></button>
         <button id="download_csw" class="btn header_blocks btn_img"  data-toggle="tooltip" title="Загрузить CSV" ><img src="/assets/img/excel.svg"></button>
         <button onclick="create_sodu()" class="btn header_blocks btn_img" data-toggle="tooltip" title="Создать запись"><img src="/assets/img/add_plus_icon.svg"></button>
         <input class="input header_blocks" style="width: 200px" oninput="seach_jsExcel()" type="text" id="search_row" placeholder="Поиск...">
@@ -36,6 +37,21 @@
                 success: function (res) {
 
                 }
+            })
+        }
+        function printTable(){
+            var date_str = $("#period").val().replace(/ /g,'')
+            date_str = date_str.split('-')
+            var start = date_str[0]
+            var stop = date_str[1]
+            var new_html = document.getElementById('main_div').innerHTML
+            document.body.innerText = ''
+            document.body.innerHTML = `<h4 style="width:100%; text-align:center">Журнал СОДУ с ${start} по ${stop}</h4>`
+            // document.body.innerHTML += '<style>.statickTable th{border: 1px solid #ddd;}</style>'
+            document.body.innerHTML += new_html
+            window.print()
+            $('body').on('click', function (){
+                window.location.reload()
             })
         }
         function get_table_data(){
@@ -69,17 +85,17 @@
                         onchange: changed,
                         allowInsertRow:false,
                         columns: [
-                            {width:'150px',type:'dropdown',name:'fio',title:'Пользователь',source: ['Бадиков Н.А.','Кирдянов Д.А.','Коваленко А.А.','Козлов А.А.','Парфенов Н.В.','Черкасов В.Н.','Прочее...']},
+                            {width:'150px',type:'dropdown',name:'fio',title:'Пользователь',source: ['Иванов И.И.','Сидоров С.С.','Петров П.П.','Прочее...']},
                             {width:width,type:'text',name:'event',title:'Событие'},
                             {width:'300px',type:'dropdown',name:'type_event',title:'Тип события',source: type_event},
-                            {width:'250px',type:'dropdown',name:'otdel',title:'Структурное подразделение (филиал,цех)',source: otdel},
+                            {width:'250px',type:'dropdown',name:'otdel',title:'Структурное подразделение',source: otdel},
                             {width:'150px',type:'calendar',name:'date',title:'Дата', options: { format:'DD.MM.YYYY HH:mm'},readOnly:true,},
-                            {type:'hidden',name:'id'},
+                            {type:'hidden',name:'id',title:'Номер записи'},
                         ],
                         csvFileName: 'Журнал_СОДУ'
                     });
                     $('#download_csw').on('click', function (){
-                        jsTable.download()
+                        jsTable.download(true)
                     })
                     $('.jexcel_column_filter').on('click', function (){
                         document.getElementById('search_row').value = ''
