@@ -37,50 +37,50 @@
                 <th rowspan="4">Автоматический переход на байпасную линию</th>
                 <th style="text-align: left">По низкому давлению</th>
                 <td style="text-align: center">{{$result['p_low_date']}}</td>
-                <td style="text-align: center">{{$result['p_low_interval']}}</td>
+                <td style="text-align: center">{{$result['p_low_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['p_low_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left">По высокому давлению</th>
                 <td style="text-align: center">{{$result['p_hi_date']}}</td>
-                <td style="text-align: center">{{$result['p_hi_interval']}}</td>
+                <td style="text-align: center">{{$result['p_hi_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['p_hi_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left">По пожару <br>(БР, топочная, расходомерная)</th>
                 <td style="text-align: center">{{$result['fire_date']}}</td>
-                <td style="text-align: center">{{$result['fire_interval']}}</td>
+                <td style="text-align: center">{{$result['fire_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['fire_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left">По кнопке</th>
                 <td style="text-align: center">{{$result['button_date']}}</td>
-                <td style="text-align: center">{{$result['button_interval']}}</td>
+                <td style="text-align: center">{{$result['button_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['button_result']}}</td>
             </tr>
             <tr>
                 <th rowspan="2">Аварийный останов ГРС</th>
                 <th style="text-align: left">По пожару <br>(блок перекл. или операторная)</th>
                 <td style="text-align: center">{{$result['fire_two_date']}}</td>
-                <td style="text-align: center">{{$result['fire_two_interval']}}</td>
+                <td style="text-align: center">{{$result['fire_two_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['fire_two_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left">По кнопке</th>
                 <td style="text-align: center">{{$result['button_two_date']}}</td>
-                <td style="text-align: center">{{$result['button_two_interval']}}</td>
+                <td style="text-align: center">{{$result['button_two_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['button_two_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left" colspan="2">Проверка пожарной сигнализации</th>
                 <td style="text-align: center">{{$result['fire_alarm_date']}}</td>
-                <td style="text-align: center">{{$result['fire_alarm_interval']}}</td>
+                <td style="text-align: center">{{$result['fire_alarm_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['fire_alarm_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left" colspan="2">Проверка систем контроля загазованности</th>
                 <td style="text-align: center">{{$result['gas_alarm_date']}}</td>
-                <td style="text-align: center">{{$result['gas_alarm_interval']}}</td>
+                <td style="text-align: center">{{$result['gas_alarm_interval']}} сек.</td>
                 <td style="text-align: center" style="text-align: center">{{$result['gas_alarm_result']}}</td>
             </tr>
             </tbody>
@@ -99,31 +99,31 @@
             <tr>
                 <th style="text-align: left" colspan="2">Ревизия фильтров очистки газа</th>
                 <td style="text-align: center">{{$result['filter_date']}}</td>
-                <td style="text-align: center">{{$result['filter_interval']}}</td>
+                <td style="text-align: center">{{$result['filter_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['filter_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left" colspan="2">Ревизия подогревателя газа</th>
                 <td style="text-align: center">{{$result['heat_date']}}</td>
-                <td style="text-align: center">{{$result['heat_interval']}}</td>
+                <td style="text-align: center">{{$result['heat_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['heat_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left" colspan="2">Ревизия регуляторов давления</th>
                 <td style="text-align: center">{{$result['regulator_date']}}</td>
-                <td style="text-align: center">{{$result['regulator_interval']}}</td>
+                <td style="text-align: center">{{$result['regulator_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['regulator_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left" colspan="2">Опробование системы резервного электроснабжения</th>
                 <td style="text-align: center">{{$result['electro_date']}}</td>
-                <td style="text-align: center">{{$result['electro_interval']}}</td>
+                <td style="text-align: center">{{$result['electro_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['electro_result']}}</td>
             </tr>
             <tr>
                 <th style="text-align: left" colspan="2">Проверка автоматики подогревателя</th>
                 <td style="text-align: center">{{$result['auto_heat_date']}}</td>
-                <td style="text-align: center">{{$result['auto_heat_interval']}}</td>
+                <td style="text-align: center">{{$result['auto_heat_interval']}} сек.</td>
                 <td style="text-align: center">{{$result['auto_heat_result']}}</td>
             </tr>
             </tbody>
@@ -132,6 +132,9 @@
     <style>
         .statickTable th{border: 1px solid #ddd;}
         th, td{font-size: 16px; padding: 5px 10px}
+        tr:hover td{
+            background: lightgrey;
+        }
     </style>
     <script>
         $(document).ready(function () {

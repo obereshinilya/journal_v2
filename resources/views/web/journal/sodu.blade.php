@@ -150,12 +150,9 @@
                         <td>Пользователь</td>
                         <td>
                             <select class="text-input" style="width: calc(100% - 25px)" id="fio">
-                                <option>Бадиков Н.А.</option>
-                                <option>Кирдянов Д.А.</option>
-                                <option>Коваленко А.А.</option>
-                                <option>Козлов А.А.</option>
-                                <option>Парфенов Н.В.</option>
-                                <option>Черкасов В.Н.</option>
+                                <option>Иванов И.И.</option>
+                                <option>Сидоров С.С.</option>
+                                <option>Петров П.П.</option>
                                 <option>Прочее...</option>
                             </select>
                         </td>

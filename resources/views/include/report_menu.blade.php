@@ -25,13 +25,34 @@
             <li class="side_obj" report-id="2" onclick="save_index(this); window.location='/journal_events'">Журнал событий</li>
         </ul>
         <ul>
-            <li class="side_obj" report-id="3" onclick="save_index(this); window.location='/open_lists_ufa_tm'">Рег. работы</li>
+            <li class="side_obj" report-id="3" onclick="save_index(this); window.location='/open_lists_ufa_tm'">Опробование алгоритмов</li>
+        </ul>
+        <ul>
+            <li class="side_obj" report-id="6" onclick="save_index(this); window.location='/open_lists_ufa_tm_kran'">Опробование кранов</li>
         </ul>
         <ul>
             <li class="side_obj" report-id="4" onclick="save_index(this); window.location='/open_journal_perestanovok'">Журнал перестановок</li>
         </ul>
         <ul>
-            <li class="side_obj" report-id="5" onclick="save_index(this); window.location='/test_bufer'">Проверка буферизации</li>
+            <li class="side_obj">Буфеизация КП105<img id="img_2" onclick="open_custom_list(this, 'ul_rezhim1')" class="plus_icon hide" src="/assets/img/plus.png"></li>
+            <ul id="ul_rezhim1">
+                    <li class="side_obj rezhim_lists" report-id="rezhim_77" data-id="7" onclick="save_index(this); window.location='/test_bufer/kp'">Аналоги</li>
+                    <li class="side_obj rezhim_lists" report-id="rezhim_87" data-id="7" onclick="save_index(this); window.location='/test_bufer_discret/kp'">Дискреты</li>
+            </ul>
+        </ul>
+        <ul>
+            <li class="side_obj">Буфеизация ГИС<img id="img_3" onclick="open_custom_list(this, 'ul_rezhim2')" class="plus_icon hide" src="/assets/img/plus.png"></li>
+            <ul id="ul_rezhim2">
+                    <li class="side_obj rezhim_lists" report-id="rezhim_97" data-id="7" onclick="save_index(this); window.location='/test_bufer/gis'">Аналоги</li>
+                    <li class="side_obj rezhim_lists" report-id="rezhim_107" data-id="7" onclick="save_index(this); window.location='/test_bufer_discret/gis'">Дискреты</li>
+            </ul>
+        </ul>
+        <ul>
+            <li class="side_obj">Буфеизация ГРС<img id="img_4" onclick="open_custom_list(this, 'ul_rezhim3')" class="plus_icon hide" src="/assets/img/plus.png"></li>
+            <ul id="ul_rezhim3">
+                    <li class="side_obj rezhim_lists" report-id="rezhim_117" data-id="7" onclick="save_index(this); window.location='/test_bufer/grs'">Аналоги</li>
+                    <li class="side_obj rezhim_lists" report-id="rezhim_127" data-id="7" onclick="save_index(this); window.location='/test_bufer_discret/grs'">Дискреты</li>
+            </ul>
         </ul>
         <ul>
             <li class="side_obj">Режимные листы<img id="img_1" onclick="open_custom_list(this, 'ul_rezhim')" class="plus_icon hide" src="/assets/img/plus.png"></li>

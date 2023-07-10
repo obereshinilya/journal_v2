@@ -210,6 +210,7 @@
                     url = '/save_event/'+id
                     arr.set('accept', document.getElementById('accept').checked)
                 }else {
+                    console.log(arr)
                     url = '/save_event/false'
                 }
             }catch (e) {

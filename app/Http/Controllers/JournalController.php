@@ -180,6 +180,7 @@ class JournalController extends Controller
             if ($id == 'false'){
                 $data = $request->all();
                 $data['dispatcher_id'] = Users::where('login', '=', Auth::user()->cn[0])->first()->id;
+                $data['timestamp'] = date('Y-m-d H:i', strtotime($data['timestamp']));
                 JournalEvents::create($data);
                 (new MainController)->create_log_record('Редактирование журнала событий', 'Создал запись от '.$data['timestamp']);
             }else{

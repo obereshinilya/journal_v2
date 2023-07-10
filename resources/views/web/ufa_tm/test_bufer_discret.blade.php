@@ -32,6 +32,12 @@
         <div style="width: calc(100% - 10px); height: auto" id="main_div6">
 
         </div>
+        <div style="width: calc(100% - 10px); height: auto" id="main_div7">
+
+        </div>
+        <div style="width: calc(100% - 10px); height: auto" id="main_div8">
+
+        </div>
     </div>
 
     <script>
@@ -40,7 +46,7 @@
         })
         function create_graph_bufer(){
             $.ajax({
-                url: '/test_bufer_data/{{$type}}',
+                url: '/test_bufer_data_discret',
                 method: 'get',
                 success: function (res) {
                     if (res === 'false'){
@@ -54,6 +60,8 @@
                         document.getElementById('main_div4').innerText = ''
                         document.getElementById('main_div5').innerText = ''
                         document.getElementById('main_div6').innerText = ''
+                        document.getElementById('main_div7').innerText = ''
+                        document.getElementById('main_div8').innerText = ''
                         for (var i = 0; i<res.length; i++){
                             var options = {
                                 series: [{
@@ -61,6 +69,7 @@
                                     data: res[i][0]
                                 }],
                                 chart: {
+                                    animations:{enabled: 0},
                                     height: 350,
                                     type: 'line',
                                     // zoom: {

@@ -72,7 +72,7 @@
                     $('.jexcel_column_filter').on('dblclick', function (){
                         document.getElementById('search_row').value = ''
                     })
-                    $('#main_content table tr td').on('dblclick', function (){
+                    $('#main_content table tbody tr td').on('dblclick', function (){
                         if (this.getAttribute('data-x') !== '1'){
                             window.location.href = '/open_record_ufa_tm/'+this.parentNode.getElementsByTagName('td')[1].textContent
                         }

@@ -411,7 +411,8 @@
         function set_new_value(td) {
             change_header_modal('Подтвердить изменения? <br>Будет произведена запись в журнал')
             open_modal_side_menu()
-            document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_update("${td.textContent.replace(/ /g,'')}", ${td.parentNode.rowIndex}, ${td.cellIndex})`)
+            console.log(td.textContent)
+            document.getElementById('submit_button_side_menu').setAttribute('onclick', `confirm_update("${td.textContent.replace(/ /g,'').replace(/\n/g,'')}", ${td.parentNode.rowIndex}, ${td.cellIndex})`)
             td.textContent = td.getAttribute('data-old')
         }
 
